@@ -41,10 +41,8 @@ class _AppView extends StatelessWidget {
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: ((BuildContext context, snapshot) {
           if (snapshot.hasData) {
-            //debugPrint('_AppView session restored');
             return MainPage();
           } else {
-            //debugPrint('_AppView need to sign in');
             return SignInPage();
           }
         }),

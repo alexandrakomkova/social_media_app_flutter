@@ -9,12 +9,75 @@ class MainPage extends StatelessWidget {
   }
 }
 
-class _MainView extends StatelessWidget {
+class _MainView extends StatefulWidget {
   const _MainView({super.key});
+
+  @override
+  State<_MainView> createState() => _MainViewState();
+}
+
+class _MainViewState extends State<_MainView> {
+  int _currentPage = 0;
+
+  List pages = [
+    {
+      'title': 'Home',
+      'icon': Icons.home,
+      'page': '', //Feeds(),
+      'index': 0,
+    },
+    {
+      'title': 'Search',
+      'icon': Icons.search,
+      'page': '', //Search(),
+      'index': 1,
+    },
+    {
+      'title': 'unsee',
+      'icon': Icons.add_circle,
+      'page': '', //Text('nes'),
+      'index': 2,
+    },
+    {
+      'title': 'Notification',
+      'icon': Icons.notifications,
+      'page': '', //Activities(),
+      'index': 3,
+    },
+    {
+      'title': 'Profile',
+      'icon': Icons.person,
+      'page': '', //Profile(profileId: firebaseAuth.currentUser!.uid),
+      'index': 4,
+    },
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      bottomNavigationBar: BottomAppBar(
+        shape: const CircularNotchedRectangle(),
+        notchMargin: 5.0,
+        clipBehavior: Clip.antiAlias,
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            for (Map item in pages)
+              Padding(
+                  padding: EdgeInsets.only(top: 5.0),
+                child: IconButton(
+                  icon: Icon(
+                      item['icon'],
+                    size: _currentPage == item['index'] ? 38 : 24,
+                  ),
+                  onPressed: () => _navigationTapped(item['index']),
+                ),
+              ),
+          ],
+        ),
+      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -25,5 +88,12 @@ class _MainView extends StatelessWidget {
       ),
     );
   }
+
+  void _navigationTapped(int page) {
+    setState(() {
+      _currentPage = page;
+    });
+  }
 }
+
 
