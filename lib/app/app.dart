@@ -1,0 +1,55 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:social_media_app/data/repository/auth/auth_firebase_service_impl.dart';
+import 'package:social_media_app/data/repository/auth/auth_repository_impl.dart';
+import 'package:social_media_app/presentation/pages/auth/sign_in_page.dart';
+import 'package:social_media_app/presentation/pages/auth/sign_up_page.dart';
+import 'package:social_media_app/presentation/pages/main_screen/main_page.dart';
+
+class App extends StatelessWidget {
+  const App({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiRepositoryProvider(
+      providers: [
+        RepositoryProvider(create: (_) => AuthFirebaseServiceImpl()),
+        RepositoryProvider(create:
+            (authRepositoryContext) => AuthRepositoryImpl(
+                authFirebaseService:  authRepositoryContext.read<AuthFirebaseServiceImpl>()
+            )
+        ),
+      ],
+      child: _AppView(),
+    );
+  }
+}
+
+class _AppView extends StatelessWidget {
+  const _AppView({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      // theme: AppTheme.light,
+      // darkTheme: AppTheme.dark,
+      themeMode: ThemeMode.system,
+      //home: MainPage(),
+      home: StreamBuilder(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: ((BuildContext context, snapshot) {
+          if (snapshot.hasData) {
+            //debugPrint('_AppView session restored');
+            return MainPage();
+          } else {
+            //debugPrint('_AppView need to sign in');
+            return SignInPage();
+          }
+        }),
+      ),
+    );
+  }
+}
+
