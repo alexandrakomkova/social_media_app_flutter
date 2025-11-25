@@ -1,10 +1,12 @@
 import 'package:dartz/dartz.dart';
 import 'package:social_media_app/data/model/user_model.dart';
+import 'package:social_media_app/domain/model/user_entity.dart';
 
 abstract class AuthRepository {
+  Future<UserEntity?> getUserInfo(String? id);
   Future<Either> signIn(UserModel user);
   Future<void> signUp(UserModel user);
-  Future<Either> signOut();
+  Future<String> signOut();
 
   Future<Either> signInWithGoogle();
 }

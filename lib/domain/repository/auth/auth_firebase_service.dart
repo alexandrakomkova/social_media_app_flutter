@@ -6,5 +6,5 @@ import 'package:social_media_app/utils/result.dart';
 abstract class AuthFirebaseService {
   Future<Either> signIn(UserModel user);
   Future<Result<User>> signUp(UserModel user);
-  Future<Either> signOut();
+  Future<Result<String>> signOut();
 }
