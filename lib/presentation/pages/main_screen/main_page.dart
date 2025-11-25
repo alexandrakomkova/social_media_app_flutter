@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:social_media_app/presentation/pages/auth/bloc/sign_in/sign_in_bloc.dart';
+import 'package:social_media_app/presentation/pages/profile/profile_page.dart';
 
 class MainPage extends StatelessWidget {
   const MainPage({super.key});
@@ -17,7 +20,7 @@ class _MainView extends StatefulWidget {
 }
 
 class _MainViewState extends State<_MainView> {
-  int _currentPage = 0;
+  int _currentPage = 4;
 
   List pages = [
     {
@@ -47,7 +50,7 @@ class _MainViewState extends State<_MainView> {
     {
       'title': 'Profile',
       'icon': Icons.person,
-      'page': '', //Profile(profileId: firebaseAuth.currentUser!.uid),
+      'page': ProfilePage(), //Profile(profileId: firebaseAuth.currentUser!.uid),
       'index': 4,
     },
   ];
@@ -78,14 +81,7 @@ class _MainViewState extends State<_MainView> {
           ],
         ),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('Main'),
-          ],
-        ),
-      ),
+      body: pages[_currentPage]['page']
     );
   }
 
