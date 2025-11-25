@@ -38,11 +38,17 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
 
   _signUp(Emitter<SignUpState> emit) async {
     debugPrint('SignUpBloc _signUp ${state.email} ${state.password}');
-    //emit(SignUpState.processing());
+    emit(SignUpState.processing(
+        email: state.email,
+        password: state.password,
+        repeatPassword: state.repeatPassword,
+    ));
+
     try {
       final user = UserModel(
           email: state.email,
           password: state.password,
+          creationTimestamp: DateTime.now().millisecondsSinceEpoch
       );
       await _authRepository.signUp(user);
 

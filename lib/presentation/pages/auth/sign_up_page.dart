@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:social_media_app/data/repository/auth/auth_repository_impl.dart';
-import 'package:social_media_app/presentation/pages/auth/auth_validator.dart';
+import 'package:social_media_app/utils/auth_validator.dart';
 import 'package:social_media_app/presentation/pages/auth/bloc/sign_up/sign_up_bloc.dart';
 import 'package:social_media_app/presentation/pages/auth/sign_in_page.dart';
 import 'package:social_media_app/presentation/widget/auth_text_field.dart';
