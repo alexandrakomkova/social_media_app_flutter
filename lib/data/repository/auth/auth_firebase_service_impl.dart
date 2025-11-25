@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:social_media_app/data/model/user_model.dart';
 import 'package:social_media_app/domain/repository/auth/auth_firebase_service.dart';
+import 'package:social_media_app/utils/result.dart';
 
 
 class AuthFirebaseServiceImpl implements AuthFirebaseService {
@@ -32,28 +33,46 @@ class AuthFirebaseServiceImpl implements AuthFirebaseService {
     }
   }
 
+  // @override
+  // Future<Either<User, String>> signUp(UserModel user) async {
+  //   try {
+  //     debugPrint('---------${user.email} ${user.password}');
+  //
+  //     final res = await _firebaseAuth.createUserWithEmailAndPassword(
+  //         email: user.email,
+  //         password: user.password,
+  //     );
+  //     debugPrint('AuthFirebaseServiceImpl signUp success');
+  //     return Right(res.user); //Right('You signed up successfully');
+  //   } on FirebaseAuthException catch(e) {
+  //     String message = '';
+  //
+  //     if (e.code == 'weak-password') {
+  //       message = 'The password provided is too weak.';
+  //     } else if (e.code == 'email-already-in-use') {
+  //       message = 'An account already exists with that email.';
+  //     } else { message = e.code; }
+  //
+  //     debugPrint('AuthFirebaseServiceImpl signUp fail: $e');
+  //     return Either.r
+  //   }
+  // }
+
   @override
-  Future<Either> signUp(UserModel user) async {
+  Future<Result<User>> signUp(UserModel user) async {
     try {
-      debugPrint('---------${user.email} ${user.password}');
-
-      await _firebaseAuth.createUserWithEmailAndPassword(
-          email: user.email,
-          password: user.password,
+      final res = await _firebaseAuth.createUserWithEmailAndPassword(
+        email: user.email,
+        password: user.password,
       );
-      debugPrint('AuthFirebaseServiceImpl signUp success');
-      return Right('You signed up successfully');
-    } on FirebaseAuthException catch(e) {
-      String message = '';
+      if(res.user != null) {
+        return Result.ok(res.user!);
+      } else {
+        return Result.error(Exception('Cannot create user'));
+      }
 
-      if (e.code == 'weak-password') {
-        message = 'The password provided is too weak.';
-      } else if (e.code == 'email-already-in-use') {
-        message = 'An account already exists with that email.';
-      } else { message = e.code; }
-
-      debugPrint('AuthFirebaseServiceImpl signUp fail: $e');
-      return Left(message);
+    } on Exception catch(e) {
+      return Result.error(e);
     }
   }
 

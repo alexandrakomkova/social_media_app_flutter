@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:social_media_app/data/repository/auth/auth_firebase_service_impl.dart';
 import 'package:social_media_app/data/repository/auth/auth_repository_impl.dart';
+import 'package:social_media_app/data/repository/firebase_db_service_impl.dart';
 import 'package:social_media_app/presentation/pages/auth/sign_in_page.dart';
-import 'package:social_media_app/presentation/pages/auth/sign_up_page.dart';
 import 'package:social_media_app/presentation/pages/main_screen/main_page.dart';
 
 class App extends StatelessWidget {
@@ -15,9 +15,11 @@ class App extends StatelessWidget {
     return MultiRepositoryProvider(
       providers: [
         RepositoryProvider(create: (_) => AuthFirebaseServiceImpl()),
+        RepositoryProvider(create: (_) => FirebaseDbServiceImpl()),
         RepositoryProvider(create:
             (authRepositoryContext) => AuthRepositoryImpl(
-                authFirebaseService:  authRepositoryContext.read<AuthFirebaseServiceImpl>()
+                authFirebaseService:  authRepositoryContext.read<AuthFirebaseServiceImpl>(),
+                firebaseDbService: authRepositoryContext.read<FirebaseDbServiceImpl>(),
             )
         ),
       ],
