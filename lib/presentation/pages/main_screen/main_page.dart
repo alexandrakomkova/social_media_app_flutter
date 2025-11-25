@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:social_media_app/presentation/pages/auth/bloc/sign_in/sign_in_bloc.dart';
 import 'package:social_media_app/presentation/pages/profile/profile_page.dart';
 
 class MainPage extends StatelessWidget {
