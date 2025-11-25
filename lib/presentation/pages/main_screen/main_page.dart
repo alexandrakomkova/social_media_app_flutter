@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:social_media_app/presentation/pages/home/home_page.dart';
+import 'package:social_media_app/presentation/pages/notifications/notifications_page.dart';
 import 'package:social_media_app/presentation/pages/profile/profile_page.dart';
+import 'package:social_media_app/presentation/pages/search/search_page.dart';
 
 class MainPage extends StatelessWidget {
   const MainPage({super.key});
@@ -24,13 +27,13 @@ class _MainViewState extends State<_MainView> {
     {
       'title': 'Home',
       'icon': Icons.home,
-      'page': '', //Feeds(),
+      'page': HomePage(),
       'index': 0,
     },
     {
       'title': 'Search',
       'icon': Icons.search,
-      'page': '', //Search(),
+      'page': SearchPage(),
       'index': 1,
     },
     {
@@ -42,13 +45,13 @@ class _MainViewState extends State<_MainView> {
     {
       'title': 'Notification',
       'icon': Icons.notifications,
-      'page': '', //Activities(),
+      'page': NotificationsPage(),
       'index': 3,
     },
     {
       'title': 'Profile',
       'icon': Icons.person,
-      'page': ProfilePage(), //Profile(profileId: firebaseAuth.currentUser!.uid),
+      'page': ProfilePage(),
       'index': 4,
     },
   ];
