@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -8,6 +9,7 @@ import 'package:social_media_app/utils/result.dart';
 
 class AuthFirebaseServiceImpl implements AuthFirebaseService {
   final _firebaseAuth = FirebaseAuth.instance;
+  final _firestore = FirebaseFirestore.instance;
 
   @override
   Future<Either> signIn(UserModel user) async {
@@ -77,13 +79,13 @@ class AuthFirebaseServiceImpl implements AuthFirebaseService {
   }
 
   @override
-  Future<Either> signOut() async {
+  Future<Result<String>> signOut() async {
     try {
       await _firebaseAuth.signOut();
 
-      return const Right('You signed out successfully');
+      return Result.ok('You successfully logout');
     } on FirebaseAuthException catch(e) {
-      return Left(e.code.toString());
+      return Result.error(e);
     }
   }
 }

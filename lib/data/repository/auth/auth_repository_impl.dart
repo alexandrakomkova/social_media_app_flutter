@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:social_media_app/data/model/user_model.dart';
+import 'package:social_media_app/domain/model/user_entity.dart';
 import 'package:social_media_app/domain/repository/auth/auth_firebase_service.dart';
 import 'package:social_media_app/domain/repository/auth/auth_repository.dart';
 import 'package:social_media_app/domain/repository/firebase_db_service.dart';
@@ -16,13 +17,6 @@ class AuthRepositoryImpl implements AuthRepository {
     required FirebaseDbService firebaseDbService,
 }): _authFirebaseService = authFirebaseService,
         _firebaseDbService = firebaseDbService;
-
-  // @override
-  // Future<Either> signUp(UserModel user) async {
-  //   debugPrint('AuthRepositoryImpl signUp ${user.email} ${user.password}');
-  //   return await _authFirebaseService.signUp(user);
-  //
-  // }
 
   @override
   Future<void> signUp(UserModel userModel) async {
@@ -47,7 +41,28 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either> signOut() async {
-    return await _authFirebaseService.signOut();
+  Future<String> signOut() async {
+    final res = await _authFirebaseService.signOut();
+    switch (res) {
+      case Ok<String>():
+        return res.value;
+      case Error<String>():
+        return res.error.toString();
+    }
+  }
+
+  @override
+  Future<UserEntity?> getUserInfo(String? id) async {
+    debugPrint('id: $id userId: ${FirebaseAuth.instance.currentUser?.uid}');
+    final res = await _firebaseDbService.getUserById(id ?? FirebaseAuth.instance.currentUser?.uid);
+
+    switch (res) {
+      case Ok<UserEntity>():
+        debugPrint('--- ${res.value.email}');
+        return res.value;
+      case Error<UserEntity>():
+        debugPrint('--- exception');
+        return null;
+    }
   }
 }
