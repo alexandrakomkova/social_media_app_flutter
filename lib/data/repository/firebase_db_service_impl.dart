@@ -1,14 +1,12 @@
-import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:social_media_app/data/model/user_model.dart';
 import 'package:social_media_app/domain/model/user_entity.dart';
-import 'package:social_media_app/domain/repository/firebase_db_service.dart';
+import 'package:social_media_app/domain/repository/db_service.dart';
 import 'package:social_media_app/utils/result.dart';
 
-class FirebaseDbServiceImpl implements FirebaseDbService {
+class FirebaseDbServiceImpl implements DbService {
   final firestore = FirebaseFirestore.instance;
   late final _usersRef = firestore.collection('users');
 
@@ -34,8 +32,6 @@ class FirebaseDbServiceImpl implements FirebaseDbService {
       final docSnap = await userRef.get();
       final userEntity = docSnap.data();
 
-      debugPrint('--- FirebaseDbService getUserById email${userEntity?.email}');
-
       return Result.ok(UserEntity(
         id: userEntity?.id,
         username: userEntity?.username,
@@ -45,27 +41,38 @@ class FirebaseDbServiceImpl implements FirebaseDbService {
         photoUrl: userEntity?.photoUrl,
       ));
     } on Exception catch(e) {
-      debugPrint('--- FirebaseDbService getUserById exception ${e.toString()}');
       return Result.error(e);
     }
-    
-    // try {
-    //   var user = await _usersRef.doc(id).get();
-    //   debugPrint('--- FirebaseDbService getUserById exists ${user.data().toString()}');
-    //   final bodyJson = jsonDecode(user.data().toString()) as Map<String, dynamic>;
-    //
-    //   //final bodyJson = jsonDecode('{ id: gXVdDyH8h2M8feurV6jf0hOvUTr1, email: a@mail.com }') as Map<String, dynamic>;
-    //   var userModel = UserModel.fromJson(bodyJson);
-    //
-    //   debugPrint('--- FirebaseDbService getUserById email${userModel.email}');
-    //
-    //   return Result.ok(UserEntity(
-    //       email: userModel.email,
-    //   ));
-    // } on Exception catch(e) {
-    //   debugPrint('--- FirebaseDbService getUserById exception ${e.toString()}');
-    //   return Result.error(e);
-    // }
+  }
+
+  @override
+  Future<Result<List<UserEntity>>> searchUserByUsername(String username) async {
+    List<UserEntity> foundUsers = [];
+
+    try {
+      await _usersRef.where('username', isGreaterThanOrEqualTo: username)
+          .where("username", isLessThanOrEqualTo: "$username\uf7ff")
+          .get().then(
+            (querySnapshot) {
+          for (var docSnapshot in querySnapshot.docs) {
+            print('${docSnapshot.id} => ${docSnapshot.data()}');
+            var data = docSnapshot.data();
+
+            foundUsers.add(UserEntity(
+              id: data['id'],
+              username: data['username'],
+              email: data['email'],
+              bio: data['bio'],
+              creationTimestamp: data['creationTimestamp'],
+              photoUrl: data['photoUrl'],
+            ));
+          }
+        }
+      );
+      return Result.ok(foundUsers);
+    } on Exception catch(e) {
+      return Result.error(e);
+    }
   }
 
 }
