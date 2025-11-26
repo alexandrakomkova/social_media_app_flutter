@@ -1,9 +1,11 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:social_media_app/data/repository/auth/auth_repository_impl.dart';
 import 'package:social_media_app/presentation/pages/auth/sign_in_page.dart';
 import 'package:social_media_app/presentation/pages/profile/bloc/profile_bloc.dart';
 import 'package:social_media_app/presentation/widget/profile_info.dart';
+import 'package:social_media_app/presentation/widget/profile_info_card.dart';
 
 class ProfilePage extends StatelessWidget {
   String? userId;
@@ -17,6 +19,9 @@ class ProfilePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider<ProfileBloc>(
       create: (profileContext) =>
+      // ProfileBloc(
+      //     authRepository: profileContext.read<AuthRepositoryImpl>()
+      // )..add(ProfileEvent.getUserInfo(userId)),
           ProfileBloc.getUserInfo(
               authRepository: profileContext.read<AuthRepositoryImpl>(),
               id: userId
@@ -38,7 +43,12 @@ class _ProfileView extends StatelessWidget {
         appBar: AppBar(
           title: BlocBuilder<ProfileBloc, ProfileState>(
               builder: (context, state) {
-                return Text(state.user?.email ?? '');
+                return Text(
+                    state.user?.username ?? '',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                );
               }),
           actions: [
             IconButton(
@@ -62,28 +72,85 @@ class _ProfileView extends StatelessWidget {
         ),
         body: BlocBuilder<ProfileBloc, ProfileState>(
           builder: (profileContext, state) {
-            return Column(
-              children: [
-                Row(
-                  children: [
-                    // CircleAvatar(
-                    //   backgroundImage: Image.network(
-                    //       state.user?.photoUrl ?? ''
-                    //   ),
-                    // ),
-                    Text(
-                      state.user?.username ?? ''
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Text(
-                        state.user?.bio ?? '',
-                    )
-                  ],
-                )
-              ],
+            return Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                children: [
+                  // profile head
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Container(
+                        child: state.user?.photoUrl == null
+                            ? CircleAvatar(
+                              radius: 45.0,
+                              backgroundColor: Theme.of(context)
+                                  .colorScheme
+                                  .secondary,
+                              child: Center(
+                                child: Text(
+                                  '${state.user?.username![0].toUpperCase()}',
+                                  style: TextStyle(
+                                    color: Theme.of(context).colorScheme.primary,
+                                    fontSize: 15.0,
+                                    fontWeight: FontWeight.w900,
+                                  ),
+                                ),
+                              ),
+                            )
+                            : CircleAvatar(
+                              radius: 45.0,
+                              backgroundImage:
+                                CachedNetworkImageProvider(
+                                  '${state.user?.photoUrl}',
+                                ),
+                            ),
+                      ),
+                      ProfileInfoCard(value: '123', valueLabel: 'posts',),
+                      //SizedBox(width: 10.0,),
+                      ProfileInfoCard(value: '17', valueLabel: 'followers',),
+                      //SizedBox(width: 10.0,),
+                      ProfileInfoCard(value: '54', valueLabel: 'following',)
+                    ],
+                  ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: Text(
+                            state.user?.bio ?? '',
+                          style: TextStyle(
+                            fontSize: 16
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+
+                  SizedBox(height: 10.0,),
+                  // 'all posts' title
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                     Padding(
+                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                       child: Text(
+                           'All posts',
+                         style: TextStyle(
+                           fontSize: 18,
+                           fontWeight: FontWeight.w600
+                         ),
+                       ),
+                     )
+                    ],
+                  ),
+
+                  SizedBox(height: 10.0,),
+                  // pics grid
+                ],
+              ),
             );
           },
         )

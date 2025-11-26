@@ -28,7 +28,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   factory ProfileBloc.getUserInfo({
     required AuthRepository authRepository,
     required String? id,
-  }) => ProfileBloc(authRepository: authRepository)..add(ProfileEvent.getUserInfo(id!));
+  }) => ProfileBloc(authRepository: authRepository)..add(ProfileEvent.getUserInfo(id));
 
   Future<void> _signOut(Emitter<ProfileState> emit) async {
     emit(ProfileState.processing());
