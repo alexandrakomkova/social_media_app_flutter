@@ -2,8 +2,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:social_media_app/data/repository/auth/auth_repository_impl.dart';
+import 'package:social_media_app/domain/model/user_entity.dart';
 import 'package:social_media_app/presentation/pages/auth/sign_in_page.dart';
 import 'package:social_media_app/presentation/pages/profile/bloc/profile_bloc.dart';
+import 'package:social_media_app/presentation/widget/profile_avatar.dart';
 import 'package:social_media_app/presentation/widget/profile_info_card.dart';
 
 class ProfilePage extends StatelessWidget {
@@ -74,37 +76,24 @@ class _ProfileView extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      Container(
-                        child: state.user?.photoUrl == null
-                            ? CircleAvatar(
-                              radius: 45.0,
-                              backgroundColor: Theme.of(context)
-                                  .colorScheme
-                                  .secondary,
-                              child: Center(
-                                child: Text(
-                                  '${state.user?.username![0].toUpperCase()}',
-                                  style: TextStyle(
-                                    color: Theme.of(context).colorScheme.primary,
-                                    fontSize: 15.0,
-                                    fontWeight: FontWeight.w900,
-                                  ),
-                                ),
-                              ),
-                            )
-                            : CircleAvatar(
-                              radius: 45.0,
-                              backgroundImage:
-                                CachedNetworkImageProvider(
-                                  '${state.user?.photoUrl}',
-                                ),
-                            ),
+                      ProfileAvatar(
+                          radius: 45.0,
+                          userEntity: state.user ?? UserEntity(),
                       ),
-                      ProfileInfoCard(value: '123', valueLabel: 'posts',),
+                      ProfileInfoCard(
+                        value: '123',
+                        valueLabel: 'posts',
+                      ),
                       //SizedBox(width: 10.0,),
-                      ProfileInfoCard(value: '17', valueLabel: 'followers',),
+                      ProfileInfoCard(
+                        value: '17',
+                        valueLabel: 'followers',
+                      ),
                       //SizedBox(width: 10.0,),
-                      ProfileInfoCard(value: '54', valueLabel: 'following',)
+                      ProfileInfoCard(
+                        value: '54',
+                        valueLabel: 'following',
+                      ),
                     ],
                   ),
                   Row(
