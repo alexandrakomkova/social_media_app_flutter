@@ -25,8 +25,8 @@ class ProfileAvatar extends StatelessWidget {
           child: Text(
             userEntity.username![0].toUpperCase(),
             style: TextStyle(
-              color: Theme.of(context).colorScheme.primary,
-              fontSize: radius * 100 / 33,
+              color: Theme.of(context).colorScheme.onPrimary,
+              fontSize: radius * 30 / 100,
               fontWeight: FontWeight.w900,
             ),
           ),

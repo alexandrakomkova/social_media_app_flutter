@@ -12,43 +12,26 @@ class UserCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          ProfileAvatar(
-              radius: 30.0,
-              userEntity: userEntity,
-          ),
-          SizedBox(width: 15.0,),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                userEntity.username ?? '',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600
-                ),
-              ),
-
-               Expanded(
-                 child: Text(
-                    userEntity.bio ?? '',
-                    style: TextStyle(
-                        fontSize: 16,
-                    ),
-                     overflow: TextOverflow.ellipsis
-                  ),
-               ),
-
-            ],
-          )
-        ],
+    return ListTile(
+      leading: ProfileAvatar(
+        radius: 30.0,
+        userEntity: userEntity,
+      ),
+      title: Text(
+        userEntity.username ?? '',
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w600
+        ),
+      ),
+      subtitle: Text(
+        userEntity.bio ?? '',
+        style: TextStyle(
+          fontSize: 14,
+        ),
+        overflow: TextOverflow.ellipsis
       ),
     );
+
   }
 }
