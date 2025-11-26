@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:social_media_app/domain/model/user_entity.dart';
+import 'package:social_media_app/presentation/widget/user_card.dart';
 import 'bloc/search_bloc.dart';
 
 class SearchPage extends StatelessWidget {
@@ -30,8 +32,33 @@ class _SearchView extends StatelessWidget {
         child:  Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
+            // search bar
             _SearchBar(),
+            SizedBox(height: 10.0,),
 
+            // search result in cards
+            BlocBuilder<SearchBloc, SearchState>(
+              builder: (context, state) {
+                return Expanded(
+                    child: ListView.builder(
+                      itemCount: 2, // state.searchResult.length,
+                      itemBuilder: (context, index) {
+                        // var user = state.searchResult.elementAt(index);
+
+                        var user = UserEntity(
+                          username: 'kikiki',
+                          bio: 'nobody scares me more than people',
+                          photoUrl: 'https://media.4-paws.org/d/2/5/f/d25ff020556e4b5eae747c55576f3b50886c0b90/cut%20cat%20serhio%2002-1813x1811-720x719.jpg'
+                        );
+
+                        return UserCard(
+                          userEntity: user,
+                        );
+                      },
+                    )
+                );
+              },
+            ),
           ],
         ),
       ),
