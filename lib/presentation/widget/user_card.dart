@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:social_media_app/domain/model/user_entity.dart';
+import 'package:social_media_app/presentation/pages/profile/profile_page.dart';
 import 'package:social_media_app/presentation/widget/profile_avatar.dart';
 
 class UserCard extends StatelessWidget {
@@ -31,7 +32,17 @@ class UserCard extends StatelessWidget {
         ),
         overflow: TextOverflow.ellipsis
       ),
+      onTap: () => _showUserProfile(context, userEntity.id),
     );
 
+  }
+
+  void _showUserProfile(BuildContext context, String? id) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ProfilePage(userId: id,),
+      ),
+    );
   }
 }
