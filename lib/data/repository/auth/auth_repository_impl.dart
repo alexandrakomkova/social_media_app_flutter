@@ -5,18 +5,18 @@ import 'package:social_media_app/data/model/user_model.dart';
 import 'package:social_media_app/domain/model/user_entity.dart';
 import 'package:social_media_app/domain/repository/auth/auth_firebase_service.dart';
 import 'package:social_media_app/domain/repository/auth/auth_repository.dart';
-import 'package:social_media_app/domain/repository/firebase_db_service.dart';
+import 'package:social_media_app/domain/repository/db_service.dart';
 import 'package:social_media_app/utils/result.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthFirebaseService _authFirebaseService;
-  final FirebaseDbService _firebaseDbService;
+  final DbService _dbService;
 
   AuthRepositoryImpl({
     required AuthFirebaseService authFirebaseService,
-    required FirebaseDbService firebaseDbService,
+    required DbService firebaseDbService,
 }): _authFirebaseService = authFirebaseService,
-        _firebaseDbService = firebaseDbService;
+        _dbService = firebaseDbService;
 
   @override
   Future<void> signUp(UserModel userModel) async {
@@ -24,7 +24,7 @@ class AuthRepositoryImpl implements AuthRepository {
     final res =  await _authFirebaseService.signUp(userModel);
 
     if(res is Ok<User>) {
-      await _firebaseDbService.createUser(res.value, userModel);
+      await _dbService.createUser(res.value, userModel);
     }
   }
 
@@ -54,7 +54,7 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<UserEntity?> getUserInfo(String? id) async {
     debugPrint('id: $id userId: ${FirebaseAuth.instance.currentUser?.uid}');
-    final res = await _firebaseDbService.getUserById(id ?? FirebaseAuth.instance.currentUser?.uid);
+    final res = await _dbService.getUserById(id ?? FirebaseAuth.instance.currentUser?.uid);
 
     switch (res) {
       case Ok<UserEntity>():
