@@ -1,25 +1,41 @@
 import 'package:bloc/bloc.dart';
+import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:social_media_app/domain/model/user_entity.dart';
+import 'package:social_media_app/domain/repository/search_repository.dart';
 
 part 'search_event.dart';
 part 'search_state.dart';
 part 'search_bloc.freezed.dart';
 
 class SearchBloc extends Bloc<SearchEvent, SearchState> {
-  SearchBloc() : super(const SearchState.idle()) {
+  final SearchRepository _searchRepository;
+  SearchBloc({
+    required SearchRepository searchRepository,
+}) : _searchRepository = searchRepository ,super(const SearchState.idle()) {
     on<SearchEvent>((events, emit) async {
       await events.map(
         queryChanged: (event) => _queryChanged(event, emit),
+        searchUsers: (event) => _searchUsers(event, emit),
       );
-    },
-      // transformer: debounced(
-      //   duration: const Duration(milliseconds: 500),
-      // ),
+    }, transformer: restartable()
     );
   }
 
   _queryChanged(event, Emitter<SearchState> emit) {
-    emit(state.copyWith(searchQuery: event.searchQuery));
+    emit(state.copyWith(searchQuery: event.query));
+  }
+
+  _searchUsers(event, Emitter<SearchState> emit) async {
+    emit(SearchState.processing(searchQuery: state.searchQuery));
+
+    try {
+      final res = await _searchRepository.searchUserByUsername(state.searchQuery);
+
+      emit(SearchState.success(searchResult: res, searchQuery: state.searchQuery));
+    } catch(e) {
+      emit(SearchState.failed(searchQuery: state.searchQuery));
+    }
   }
 }

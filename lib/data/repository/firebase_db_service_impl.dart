@@ -1,8 +1,6 @@
-import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:social_media_app/data/model/user_model.dart';
 import 'package:social_media_app/domain/model/user_entity.dart';
 import 'package:social_media_app/domain/repository/db_service.dart';
@@ -34,8 +32,6 @@ class FirebaseDbServiceImpl implements DbService {
       final docSnap = await userRef.get();
       final userEntity = docSnap.data();
 
-      debugPrint('--- FirebaseDbService getUserById email${userEntity?.email}');
-
       return Result.ok(UserEntity(
         id: userEntity?.id,
         username: userEntity?.username,
@@ -45,7 +41,6 @@ class FirebaseDbServiceImpl implements DbService {
         photoUrl: userEntity?.photoUrl,
       ));
     } on Exception catch(e) {
-      debugPrint('--- FirebaseDbService getUserById exception ${e.toString()}');
       return Result.error(e);
     }
   }
@@ -55,9 +50,10 @@ class FirebaseDbServiceImpl implements DbService {
     List<UserEntity> foundUsers = [];
 
     try {
-      await _usersRef.where("username", isEqualTo: username).get().then(
+      await _usersRef.where('username', isGreaterThanOrEqualTo: username)
+          .where("username", isLessThanOrEqualTo: "$username\uf7ff")
+          .get().then(
             (querySnapshot) {
-          //print("Successfully completed");
           for (var docSnapshot in querySnapshot.docs) {
             print('${docSnapshot.id} => ${docSnapshot.data()}');
             var data = docSnapshot.data();
@@ -74,7 +70,6 @@ class FirebaseDbServiceImpl implements DbService {
         }
       );
       return Result.ok(foundUsers);
-
     } on Exception catch(e) {
       return Result.error(e);
     }
