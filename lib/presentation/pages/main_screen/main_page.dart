@@ -3,6 +3,7 @@ import 'package:social_media_app/presentation/pages/home/home_page.dart';
 import 'package:social_media_app/presentation/pages/notifications/notifications_page.dart';
 import 'package:social_media_app/presentation/pages/profile/profile_page.dart';
 import 'package:social_media_app/presentation/pages/search/search_page.dart';
+import 'package:social_media_app/presentation/widget/choose_creation_variants.dart';
 
 class MainPage extends StatelessWidget {
   const MainPage({super.key});
@@ -37,9 +38,9 @@ class _MainViewState extends State<_MainView> {
       'index': 1,
     },
     {
-      'title': 'unsee',
+      'title': 'Add post',
       'icon': Icons.add_circle,
-      'page': '', //Text('nes'),
+      'page': Text(''),
       'index': 2,
     },
     {
@@ -70,13 +71,15 @@ class _MainViewState extends State<_MainView> {
           children: [
             for (Map item in pages)
               Padding(
-                  padding: EdgeInsets.only(top: 5.0),
+                padding: EdgeInsets.only(top: 5.0),
                 child: IconButton(
                   icon: Icon(
-                      item['icon'],
+                    item['icon'],
                     size: _currentPage == item['index'] ? 38 : 24,
                   ),
-                  onPressed: () => _navigationTapped(item['index']),
+                  onPressed: () {
+                     _navigationTapped(item['index'], context);
+                  },
                 ),
               ),
           ],
@@ -86,11 +89,14 @@ class _MainViewState extends State<_MainView> {
     );
   }
 
-  void _navigationTapped(int page) {
+  void _navigationTapped(int page, BuildContext context) {
     setState(() {
-      _currentPage = page;
+      if(page == 2) {
+        showBottomSheetCreationVariants(context);
+      } else {
+        _currentPage = page;
+      }
     });
   }
 }
-
 
