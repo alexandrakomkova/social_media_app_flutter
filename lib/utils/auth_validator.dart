@@ -15,8 +15,8 @@ class AuthValidator {
   }
 
   static String? validatePassword(String? password) {
-    if(password == null || password.length < 3) {
-      return 'Password must be at least 3 symbols';
+    if(password == null || password.length < 6) {
+      return 'Password must be at least 6 symbols';
     }
 
     return null;
@@ -25,6 +25,14 @@ class AuthValidator {
   static String? validateRepeatPassword(String? password, String? repeatPassword) {
     if(password != repeatPassword) {
       return 'Passwords must be equal';
+    }
+
+    return null;
+  }
+
+  static String? validateUsername(String? username) {
+    if(username == null || username.length < 3) {
+      return 'Username must be at least 3 symbols';
     }
 
     return null;
