@@ -1,14 +1,20 @@
 
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:social_media_app/data/model/user_model.dart';
 import 'package:social_media_app/domain/model/user_entity.dart';
 import 'package:social_media_app/domain/repository/db_service.dart';
+import 'package:social_media_app/utils/firebase_utils.dart';
+import 'package:social_media_app/utils/image_loader.dart';
 import 'package:social_media_app/utils/result.dart';
 
 class FirebaseDbServiceImpl implements DbService {
   final firestore = FirebaseFirestore.instance;
   late final _usersRef = firestore.collection('users');
+  late final _postsRef = firestore.collection('posts');
 
   @override
   Future<void> createUser(User user, UserModel userModel) async {
@@ -74,6 +80,28 @@ class FirebaseDbServiceImpl implements DbService {
       );
       return Result.ok(foundUsers);
     } on Exception catch(e) {
+      return Result.error(e);
+    }
+  }
+
+  @override
+  Future<Result<void>> createPost(File image, String description) async {
+    try {
+      final int creationTimestamp = DateTime.now().millisecondsSinceEpoch;
+      final String imageUrl = await ImageLoader.getImageUrl(image, creationTimestamp.toString());
+
+      await _postsRef.doc(creationTimestamp.toString()).set({
+        'creationTimestamp': creationTimestamp,
+        'description': description,
+        'imageUrl': imageUrl,
+        "userId": FirebaseUtils.currentUser,
+      });
+
+      debugPrint('loaded ${imageUrl}');
+
+      return Result.ok('');
+    } on Exception catch(e) {
+      debugPrint('--- FirebaseDbServiceImpl createPost ${e.toString()}');
       return Result.error(e);
     }
   }

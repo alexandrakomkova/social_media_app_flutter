@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:social_media_app/data/repository/firebase_db_service_impl.dart';
 import 'package:social_media_app/data/repository/image_service_impl.dart';
 import 'package:social_media_app/presentation/pages/post/bloc/create_post_bloc.dart';
 import 'package:social_media_app/presentation/widget/choose_image_source.dart';
@@ -11,7 +12,8 @@ class CreatePostPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider<CreatePostBloc>(
       create: (imageServiceContext) => CreatePostBloc(
-        imageService: imageServiceContext.read<ImageServiceImpl>()
+        imageService: imageServiceContext.read<ImageServiceImpl>(),
+        dbService: imageServiceContext.read<FirebaseDbServiceImpl>(),
       ),
       child: _CreatePostView(),
     );
