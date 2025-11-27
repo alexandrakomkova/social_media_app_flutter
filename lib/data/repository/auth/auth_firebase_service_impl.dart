@@ -1,7 +1,5 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:social_media_app/data/model/user_model.dart';
 import 'package:social_media_app/domain/repository/auth/auth_firebase_service.dart';
 import 'package:social_media_app/utils/result.dart';
