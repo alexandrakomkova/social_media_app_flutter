@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:social_media_app/data/repository/image_service_impl.dart';
 import 'package:social_media_app/presentation/pages/post/bloc/create_post_bloc.dart';
 import 'package:social_media_app/presentation/widget/choose_image_source.dart';
 
@@ -9,7 +10,9 @@ class CreatePostPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<CreatePostBloc>(
-      create: (_) => CreatePostBloc(),
+      create: (imageServiceContext) => CreatePostBloc(
+        imageService: imageServiceContext.read<ImageServiceImpl>()
+      ),
       child: _CreatePostView(),
     );
   }
@@ -60,7 +63,11 @@ class _CreatePostView extends StatelessWidget {
         children: [
           // photo inkwell
           InkWell(
-            onTap: () => showBottomSheetToChooseImageSource(context),
+            onTap: () => showBottomSheetToChooseImageSource(
+                context: context,
+                onCameraTap: () => context.read<CreatePostBloc>().add(CreatePostEvent.selectImage(true)),
+                onGalleryTap: () => context.read<CreatePostBloc>().add(CreatePostEvent.selectImage(false)),
+            ),
             child: Container(
               height: MediaQuery
                   .of(context)
@@ -82,7 +89,28 @@ class _CreatePostView extends StatelessWidget {
                       .secondary,
                 ),
               ),
-              child: Center(child: Text('Tap to select an image')), // image
+              child: BlocBuilder<CreatePostBloc, CreatePostState>(
+                  builder: (context, state) {
+                    if(state.imageFile == null) {
+                      return Center(
+                        child: Text(
+                          'Upload a Photo',
+                          style: TextStyle(
+                            color:
+                            Theme.of(context).colorScheme.secondary,
+                          ),
+                        ),
+                      );
+                    } else {
+                      return Image.file(
+                        state.imageFile!,
+                        width: MediaQuery.of(context).size.width * 0.5,
+                        height: MediaQuery.of(context).size.width  * 0.5,
+                        fit: BoxFit.cover,
+                      );
+                    }
+                  },
+              ) // image
             ),
           ),
           SizedBox(height: 20.0),

@@ -45,7 +45,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     try {
      final user =  await _authRepository.getUserInfo(event.id);
 
-     debugPrint('--- ${user?.email}');
+     // debugPrint('--- ${user?.email}');
       emit(ProfileState.success(user: user));
     } catch(e) {
       emit(ProfileState.failed());

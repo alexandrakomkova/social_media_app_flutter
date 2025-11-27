@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 
 import 'bottom_sheet_list_tile.dart';
 
-void showBottomSheetToChooseImageSource(BuildContext context) {
+void showBottomSheetToChooseImageSource({
+  required BuildContext context,
+  required void Function()? onCameraTap,
+  required void Function()? onGalleryTap,
+}) {
   showModalBottomSheet(
     shape: const RoundedRectangleBorder(
       borderRadius:
@@ -33,12 +37,12 @@ void showBottomSheetToChooseImageSource(BuildContext context) {
             BottomSheetListTile(
               icon: Icons.camera_alt,
               title: 'Camera',
-              onTap: () { },
+              onTap: onCameraTap,
             ),
             BottomSheetListTile(
               icon: Icons.image,
               title: 'Gallery',
-              onTap: () { },
+              onTap: onGalleryTap,
             ),
           ],
         ),
