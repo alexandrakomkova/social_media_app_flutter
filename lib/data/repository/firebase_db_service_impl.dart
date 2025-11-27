@@ -12,9 +12,11 @@ class FirebaseDbServiceImpl implements DbService {
 
   @override
   Future<void> createUser(User user, UserModel userModel) async {
+    //debugPrint('FirebaseDbServiceImpl createUser ${userModel.username}');
+
     await _usersRef.doc(user.uid).set({
       'id': user.uid,
-      'username': '',
+      'username': userModel.username,
       'email': userModel.email,
       'creationTime': userModel.creationTimestamp,
       'bio': '',
@@ -32,14 +34,15 @@ class FirebaseDbServiceImpl implements DbService {
       final docSnap = await userRef.get();
       final userEntity = docSnap.data();
 
-      return Result.ok(UserEntity(
-        id: userEntity?.id,
-        username: userEntity?.username,
-        email: userEntity?.email,
-        bio: userEntity?.bio,
-        creationTimestamp: userEntity?.creationTimestamp,
-        photoUrl: userEntity?.photoUrl,
-      ));
+      // return Result.ok(UserEntity(
+      //   id: userEntity!.id,
+      //   username: userEntity.username,
+      //   email: userEntity.email,
+      //   bio: userEntity.bio,
+      //   creationTimestamp: userEntity.creationTimestamp,
+      //   photoUrl: userEntity.photoUrl,
+      // ));
+      return Result.ok(userEntity ?? UserEntity());
     } on Exception catch(e) {
       return Result.error(e);
     }
@@ -55,7 +58,7 @@ class FirebaseDbServiceImpl implements DbService {
           .get().then(
             (querySnapshot) {
           for (var docSnapshot in querySnapshot.docs) {
-            print('${docSnapshot.id} => ${docSnapshot.data()}');
+            // print('${docSnapshot.id} => ${docSnapshot.data()}');
             var data = docSnapshot.data();
 
             foundUsers.add(UserEntity(
@@ -74,5 +77,4 @@ class FirebaseDbServiceImpl implements DbService {
       return Result.error(e);
     }
   }
-
 }
