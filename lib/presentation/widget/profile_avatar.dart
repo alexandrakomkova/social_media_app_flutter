@@ -15,7 +15,7 @@ class ProfileAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: userEntity.photoUrl == null
+      child: userEntity.photoUrl.isEmpty
           ? CircleAvatar(
         radius: radius,
         backgroundColor: Theme.of(context)
@@ -23,7 +23,8 @@ class ProfileAvatar extends StatelessWidget {
             .secondary,
         child: Center(
           child: Text(
-            userEntity.username![0].toUpperCase(),
+            userEntity.username.isEmpty ? '?' : userEntity.username[0].toUpperCase(),
+            //userEntity.username[0].toUpperCase(),
             style: TextStyle(
               color: Theme.of(context).colorScheme.onPrimary,
               fontSize: radius * 30 / 100,
@@ -36,7 +37,7 @@ class ProfileAvatar extends StatelessWidget {
         radius: radius,
         backgroundImage:
         CachedNetworkImageProvider(
-          '${userEntity.photoUrl}',
+          userEntity.photoUrl,
         ),
       ),
     );

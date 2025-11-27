@@ -1,26 +1,26 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UserEntity {
-  String? id;
-  String? email;
-  String? username;
+  String id;
+  String email;
+  String username;
   int? creationTimestamp;
-  String? bio;
-  String? photoUrl;
+  String bio;
+  String photoUrl;
 
   UserEntity({
-    this.email,
-    this.creationTimestamp,
-    this.username,
-    this.bio,
-    this.photoUrl,
-    this.id
+    this.email = '',
+    this.creationTimestamp = 0,
+    this.username = '',
+    this.bio = '',
+    this.photoUrl = '',
+    this.id = ''
   });
 
   factory UserEntity.fromFirestore(
       DocumentSnapshot<Map<String, dynamic>> snapshot,
       SnapshotOptions? options,
-      ) {
+  ) {
     final data = snapshot.data();
     return UserEntity(
         email: data?['email'],
