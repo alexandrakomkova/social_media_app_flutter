@@ -4,6 +4,7 @@ import 'package:social_media_app/data/repository/auth/auth_repository_impl.dart'
 import 'package:social_media_app/domain/model/user_entity.dart';
 import 'package:social_media_app/presentation/pages/auth/sign_in_page.dart';
 import 'package:social_media_app/presentation/pages/profile/bloc/profile_bloc.dart';
+import 'package:social_media_app/presentation/widget/custom_alert_dialog.dart';
 import 'package:social_media_app/presentation/widget/profile_avatar.dart';
 import 'package:social_media_app/presentation/widget/profile_info_card.dart';
 
@@ -53,12 +54,7 @@ class _ProfileView extends StatelessWidget {
             ),
             IconButton(
               onPressed: () {
-                context.read<ProfileBloc>().add(ProfileEvent.signOut());
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => SignInPage(),
-                  ),
-                );
+                _showLogoutAlertDialog(context);
               },
               icon: Icon(Icons.logout),
             ),
@@ -140,6 +136,29 @@ class _ProfileView extends StatelessWidget {
             };
           },
         )
+    );
+  }
+
+  void _showLogoutAlertDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) => CustomAlertDialog(
+        dialogTitle: 'Logout',
+        dialogContent: 'Are you sure you want to logout?',
+        rightButtonTitle: 'Continue',
+        onRightPressed: () {
+          context.read<ProfileBloc>().add(ProfileEvent.signOut());
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => SignInPage(),
+            ),
+          );
+        },
+        leftButtonTitle: 'Cancel',
+        onLeftPressed: () {
+          Navigator.pop(context);
+        },
+      ),
     );
   }
 }
