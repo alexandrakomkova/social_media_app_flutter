@@ -5,6 +5,7 @@ import 'package:social_media_app/data/repository/image_service_impl.dart';
 import 'package:social_media_app/presentation/pages/main_screen/main_page.dart';
 import 'package:social_media_app/presentation/pages/post/bloc/create_post_bloc.dart';
 import 'package:social_media_app/presentation/widget/choose_image_source.dart';
+import 'package:social_media_app/presentation/widget/custom_alert_dialog.dart';
 
 class CreatePostPage extends StatelessWidget {
   const CreatePostPage({super.key});
@@ -30,12 +31,7 @@ class _CreatePostView extends StatelessWidget {
       appBar: AppBar(
         leading: IconButton(
           onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => MainPage(),
-              ),
-            );
+            _showCloseCreatePostAlertDialog(context);
           },
           icon: Icon(
             Icons.close,
@@ -78,20 +74,7 @@ class _CreatePostView extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 4.0),
         children: [
           // photo inkwell
-        AnimatedContainer(
-        height: MediaQuery
-          .of(context)
-          .size
-          .height * 0.5,
-        width: MediaQuery
-            .of(context)
-            .size
-            .width * 0.5,
-        duration: const Duration(seconds: 2),
-        curve: Curves.easeIn,
-        child: Material(
-          color: Colors.yellow,
-          child: InkWell(
+         InkWell(
             onTap: () {
               showBottomSheetToChooseImageSource(
                 context: context,
@@ -149,9 +132,7 @@ class _CreatePostView extends StatelessWidget {
                   },
               ) // image
             ),
-          )
-        )
-        ),
+          ),
           SizedBox(height: 20.0),
 
           //description
@@ -180,6 +161,29 @@ class _CreatePostView extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  void _showCloseCreatePostAlertDialog(BuildContext context) {
+    showDialog(
+        context: context,
+        builder: (_) => CustomAlertDialog(
+            dialogTitle: 'Discard changes',
+            dialogContent: 'Your changes will be discarded.',
+            rightButtonTitle: 'Ok',
+            onRightPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => MainPage(),
+                ),
+              );
+            },
+            leftButtonTitle: 'Cancel',
+            onLeftPressed: () {
+              Navigator.pop(context);
+            },
+        ),
     );
   }
 }
