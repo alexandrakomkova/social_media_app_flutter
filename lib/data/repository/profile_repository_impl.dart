@@ -15,7 +15,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
 
   @override
   Future<List<PostEntity>> getUserPosts(String? userId) async {
-    final res = await _dbService.getPostsByUser(userId ?? FirebaseUtils.currentUser);
+    final res = await _dbService.getUserPosts(userId ?? FirebaseUtils.currentUser);
 
     switch(res) {
       case Ok<List<PostEntity>>():
