@@ -4,7 +4,7 @@ import 'package:social_media_app/data/repository/auth/auth_repository_impl.dart'
 import 'package:social_media_app/utils/auth_validator.dart';
 import 'package:social_media_app/presentation/pages/auth/bloc/sign_up/sign_up_bloc.dart';
 import 'package:social_media_app/presentation/pages/auth/sign_in_page.dart';
-import 'package:social_media_app/presentation/widget/auth_text_field.dart';
+import 'package:social_media_app/presentation/widget/custom_text_form_field.dart';
 
 class SignUpPage extends StatelessWidget {
   const SignUpPage({super.key});
@@ -69,7 +69,7 @@ class _SignUpViewState extends State<_SignUpView> {
                     children: [
                       BlocBuilder<SignUpBloc, SignUpState>(
                         builder: (signUpContext, state) {
-                          return AuthTextField(
+                          return CustomTextFormField(
                             textFieldKey: const Key(
                                 'signUpForm_username_textFormField'),
                             initialValue: state.username,
@@ -85,7 +85,7 @@ class _SignUpViewState extends State<_SignUpView> {
                       const SizedBox(height: 15.0),
                       BlocBuilder<SignUpBloc, SignUpState>(
                         builder: (signUpContext, state) {
-                          return AuthTextField(
+                          return CustomTextFormField(
                             textFieldKey: const Key(
                                 'signUpForm_email_textFormField'),
                             initialValue: state.email,
@@ -101,7 +101,7 @@ class _SignUpViewState extends State<_SignUpView> {
                       const SizedBox(height: 15.0),
                       BlocBuilder<SignUpBloc, SignUpState>(
                         builder: (signUpContext, state) {
-                          return AuthTextField(
+                          return CustomTextFormField(
                             textFieldKey: const Key(
                                 'signUpForm_password_textFormField'),
                             initialValue: state.password,
@@ -117,7 +117,7 @@ class _SignUpViewState extends State<_SignUpView> {
                       const SizedBox(height: 15.0),
                       BlocBuilder<SignUpBloc, SignUpState>(
                         builder: (signUpContext, state) {
-                          return AuthTextField(
+                          return CustomTextFormField(
                             textFieldKey: const Key(
                                 'signUpForm_repeatPassword_textFormField'),
                             initialValue: state.repeatPassword,

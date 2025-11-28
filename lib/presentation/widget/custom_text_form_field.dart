@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class AuthTextField extends StatelessWidget {
+class CustomTextFormField extends StatelessWidget {
   final Key textFieldKey;
   final String initialValue;
   final String hintText;
@@ -9,7 +9,7 @@ class AuthTextField extends StatelessWidget {
   void Function(String)? onChanged;
 
 
-  AuthTextField({
+  CustomTextFormField({
     required this.textFieldKey,
     required this.initialValue,
     required this.hintText,
