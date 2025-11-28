@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:social_media_app/domain/model/post_entity.dart';
@@ -26,8 +27,10 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         signOut: (_) => _signOut(emit),
         getUserInfo: (event) => _getUserInfo(event, emit),
         getUserPosts: (event) => _getUserPosts(event, emit),
+        getUserProfile: (event) => _getUserProfile(event, emit),
       );
-    });
+    }, transformer: sequential()
+    );
   }
 
   factory ProfileBloc.getUserProfile({
@@ -37,7 +40,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   }) => ProfileBloc(
       authRepository: authRepository,
     profileRepository: profileRepository
-  )..add(ProfileEvent.getUserInfo(id))..add(ProfileEvent.getUserPosts(id));
+  )..add(ProfileEvent.getUserProfile(id));
 
   Future<void> _signOut(Emitter<ProfileState> emit) async {
     emit(ProfileState.processing());
@@ -76,6 +79,24 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     } catch(e) {
       emit(ProfileState.failed(
         posts: []
+      ));
+    }
+  }
+
+  _getUserProfile(_GetUserProfile event, Emitter<ProfileState> emit) async {
+    emit(ProfileState.processing());
+
+    try {
+      final res = await _profileRepository.getUserPosts(event.userId);
+      final user =  await _profileRepository.getUserInfo(event.userId);
+
+      emit(ProfileState.success(
+        posts: res,
+        user: user,
+      ));
+    } catch(e) {
+      emit(ProfileState.failed(
+          posts: [],
       ));
     }
   }
