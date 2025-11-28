@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:social_media_app/presentation/pages/edit_profile/edit_profile_page.dart';
-import 'package:social_media_app/presentation/widget/custom_alert_dialog.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
