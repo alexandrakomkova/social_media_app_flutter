@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:social_media_app/data/repository/firebase_db_service_impl.dart';
 import 'package:social_media_app/data/repository/image_service_impl.dart';
 import 'package:social_media_app/presentation/pages/main_screen/main_page.dart';
-import 'package:social_media_app/presentation/pages/post/bloc/create_post_bloc.dart';
+import 'package:social_media_app/presentation/pages/create_post/bloc/create_post_bloc.dart';
 import 'package:social_media_app/presentation/widget/choose_image_source.dart';
 import 'package:social_media_app/presentation/widget/custom_alert_dialog.dart';
 
