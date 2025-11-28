@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:social_media_app/data/repository/auth/auth_repository_impl.dart';
+import 'package:social_media_app/data/repository/profile_repository_impl.dart';
 import 'package:social_media_app/domain/model/user_entity.dart';
 import 'package:social_media_app/presentation/pages/auth/sign_in_page.dart';
 import 'package:social_media_app/presentation/pages/profile/bloc/profile_bloc.dart';
@@ -20,8 +21,9 @@ class ProfilePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider<ProfileBloc>(
       create: (profileContext) =>
-        ProfileBloc.getUserInfo(
+        ProfileBloc.getUserProfile(
           authRepository: profileContext.read<AuthRepositoryImpl>(),
+          profileRepository: profileContext.read<ProfileRepositoryImpl>(),
           id: userId
         ),
       child: const _ProfileView(),
@@ -130,6 +132,8 @@ class _ProfileView extends StatelessWidget {
 
                     SizedBox(height: 10.0,),
                     // pics grid
+
+
                   ],
                 ),
               ),
