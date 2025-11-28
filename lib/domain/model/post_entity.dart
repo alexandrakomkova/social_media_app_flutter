@@ -1,12 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class PostEntity {
+  String userId;
   String description;
-  String image;
+  String imageUrl;
   int? creationTimestamp;
 
   PostEntity({
-    this.image = '',
+    this.userId = '',
+    this.imageUrl = '',
     this.description = '',
     this.creationTimestamp = 0,
   });
@@ -17,8 +19,9 @@ class PostEntity {
       ) {
     final data = snapshot.data();
     return PostEntity(
+      userId: data?['userId'],
       description: data?['description'],
-      image: data?['image'],
+      imageUrl: data?['image'],
       creationTimestamp: data?['creationTimestamp'],
     );
   }
@@ -27,7 +30,8 @@ class PostEntity {
     return {
       "description": description,
       "creationTimestamp": creationTimestamp,
-      "image": image,
+      "image": imageUrl,
+      "userId": userId,
     };
   }
 }
