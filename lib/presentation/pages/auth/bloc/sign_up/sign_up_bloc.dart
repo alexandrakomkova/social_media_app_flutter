@@ -1,5 +1,4 @@
 import 'package:bloc/bloc.dart';
-import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:social_media_app/data/model/user_model.dart';
 import 'package:social_media_app/domain/repository/auth/auth_repository.dart';
@@ -16,6 +15,7 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
 }) : _authRepository = authRepository, super(const SignUpState.idle()) {
     on<SignUpEvent>((events, emit) async {
       await events.map(
+          usernameChanged: (event) => _usernameChanged(event, emit),
           emailChanged: (event) => _emailChanged(event, emit),
           passwordChanged: (event) => _passwordChanged(event, emit),
           repeatPasswordChanged: (event) => _repeatPasswordChanged(event, emit),
@@ -24,21 +24,26 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
     });
   }
 
-  _emailChanged(event, Emitter<SignUpState> emit) {
+  _usernameChanged(_UsernameChanged event, Emitter<SignUpState> emit) {
+    emit(state.copyWith(username: event.username));
+  }
+
+  _emailChanged(_EmailChanged event, Emitter<SignUpState> emit) {
     emit(state.copyWith(email: event.email));
   }
 
-  _passwordChanged(event, Emitter<SignUpState> emit) {
+  _passwordChanged(_PasswordChanged event, Emitter<SignUpState> emit) {
     emit(state.copyWith(password: event.password));
   }
 
-  _repeatPasswordChanged(event, Emitter<SignUpState> emit) {
+  _repeatPasswordChanged(_RepeatPasswordChanged event, Emitter<SignUpState> emit) {
     emit(state.copyWith(repeatPassword: event.repeatPassword));
   }
 
   _signUp(Emitter<SignUpState> emit) async {
-    debugPrint('SignUpBloc _signUp ${state.email} ${state.password}');
+
     emit(SignUpState.processing(
+        username: state.username,
         email: state.email,
         password: state.password,
         repeatPassword: state.repeatPassword,
@@ -46,16 +51,15 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
 
     try {
       final user = UserModel(
+          username: state.username,
           email: state.email,
           password: state.password,
           creationTimestamp: DateTime.now().millisecondsSinceEpoch
       );
       await _authRepository.signUp(user);
 
-      debugPrint('SignUpBloc _signUp success');
       emit(SignUpState.success());
     } catch(e) {
-      debugPrint('SignUpBloc _signUp failure');
       emit(SignUpState.failed());
     }
   }

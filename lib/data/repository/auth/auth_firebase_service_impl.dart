@@ -1,7 +1,5 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:social_media_app/data/model/user_model.dart';
 import 'package:social_media_app/domain/repository/auth/auth_firebase_service.dart';
 import 'package:social_media_app/utils/result.dart';
@@ -9,18 +7,17 @@ import 'package:social_media_app/utils/result.dart';
 
 class AuthFirebaseServiceImpl implements AuthFirebaseService {
   final _firebaseAuth = FirebaseAuth.instance;
-  final _firestore = FirebaseFirestore.instance;
 
   @override
   Future<Either> signIn(UserModel user) async {
     try {
-      debugPrint('---------${user.email} ${user.password}');
+      //debugPrint('---------${user.email} ${user.password}');
       await _firebaseAuth.signInWithEmailAndPassword(
           email: user.email,
           password: user.password,
       );
 
-      debugPrint('AuthFirebaseServiceImpl signIn success');
+      //debugPrint('AuthFirebaseServiceImpl signIn success');
       return Right('You signed in successfully');
     } on FirebaseAuthException catch (e) {
       String message = '';
@@ -30,39 +27,16 @@ class AuthFirebaseServiceImpl implements AuthFirebaseService {
       } else if (e.code == 'invalid-credential') {
         message = 'Wrong password provided for that user';
       } else { message = e.code; }
-      debugPrint('AuthFirebaseServiceImpl signIn fail: $message');
+      //debugPrint('AuthFirebaseServiceImpl signIn fail: $message');
       return Left(message);
     }
   }
 
-  // @override
-  // Future<Either<User, String>> signUp(UserModel user) async {
-  //   try {
-  //     debugPrint('---------${user.email} ${user.password}');
-  //
-  //     final res = await _firebaseAuth.createUserWithEmailAndPassword(
-  //         email: user.email,
-  //         password: user.password,
-  //     );
-  //     debugPrint('AuthFirebaseServiceImpl signUp success');
-  //     return Right(res.user); //Right('You signed up successfully');
-  //   } on FirebaseAuthException catch(e) {
-  //     String message = '';
-  //
-  //     if (e.code == 'weak-password') {
-  //       message = 'The password provided is too weak.';
-  //     } else if (e.code == 'email-already-in-use') {
-  //       message = 'An account already exists with that email.';
-  //     } else { message = e.code; }
-  //
-  //     debugPrint('AuthFirebaseServiceImpl signUp fail: $e');
-  //     return Either.r
-  //   }
-  // }
-
   @override
   Future<Result<User>> signUp(UserModel user) async {
     try {
+      // debugPrint('AuthFirebaseServiceImpl signUp ${user.username}');
+
       final res = await _firebaseAuth.createUserWithEmailAndPassword(
         email: user.email,
         password: user.password,

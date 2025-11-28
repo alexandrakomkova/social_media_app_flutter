@@ -71,6 +71,22 @@ class _SignUpViewState extends State<_SignUpView> {
                         builder: (signUpContext, state) {
                           return AuthTextField(
                             textFieldKey: const Key(
+                                'signUpForm_username_textFormField'),
+                            initialValue: state.username,
+                            hintText: 'Username',
+                            validator: (value) => AuthValidator.validateUsername(value),
+                            onChanged: (value) =>
+                                signUpContext.read<SignUpBloc>().add(
+                                    SignUpEvent.usernameChanged(value)
+                                ),
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 15.0),
+                      BlocBuilder<SignUpBloc, SignUpState>(
+                        builder: (signUpContext, state) {
+                          return AuthTextField(
+                            textFieldKey: const Key(
                                 'signUpForm_email_textFormField'),
                             initialValue: state.email,
                             hintText: 'Email',
