@@ -46,6 +46,7 @@ class _CreatePostView extends StatelessWidget {
             ),
           )
         ),
+        centerTitle: true,
         actions: [
           GestureDetector(
             onTap: () {
