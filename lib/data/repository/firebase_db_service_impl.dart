@@ -89,6 +89,7 @@ class FirebaseDbServiceImpl implements DbService {
     try {
       final int creationTimestamp = DateTime.now().millisecondsSinceEpoch;
       final String imageUrl = await ImageLoader.getImageUrl(image, creationTimestamp.toString());
+      if(imageUrl.isEmpty) { return Result.error(Exception()); }
 
       await _postsRef.doc(creationTimestamp.toString()).set({
         'creationTimestamp': creationTimestamp,

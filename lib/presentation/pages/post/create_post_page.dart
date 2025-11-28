@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:social_media_app/data/repository/firebase_db_service_impl.dart';
 import 'package:social_media_app/data/repository/image_service_impl.dart';
+import 'package:social_media_app/presentation/pages/main_screen/main_page.dart';
 import 'package:social_media_app/presentation/pages/post/bloc/create_post_bloc.dart';
 import 'package:social_media_app/presentation/widget/choose_image_source.dart';
 
@@ -29,23 +30,36 @@ class _CreatePostView extends StatelessWidget {
       appBar: AppBar(
         leading: IconButton(
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => MainPage(),
+              ),
+            );
           },
           icon: Icon(
             Icons.close,
           ),
         ),
-        title: Text(
+        title: Center(
+          child: Text(
             'New post',
-          style: TextStyle(
-            fontSize: 18.0,
-            //fontWeight: FontWeight.w300,
-          ),
+            style: TextStyle(
+              fontSize: 18.0,
+              //fontWeight: FontWeight.w300,
+            ),
+          )
         ),
         actions: [
           GestureDetector(
             onTap: () {
               context.read<CreatePostBloc>().add(CreatePostEvent.createPost());
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => MainPage(),
+                ),
+              );
             },
             child: Padding(
               padding: const EdgeInsets.all(10.0),
@@ -64,12 +78,33 @@ class _CreatePostView extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 4.0),
         children: [
           // photo inkwell
-          InkWell(
-            onTap: () => showBottomSheetToChooseImageSource(
+        AnimatedContainer(
+        height: MediaQuery
+          .of(context)
+          .size
+          .height * 0.5,
+        width: MediaQuery
+            .of(context)
+            .size
+            .width * 0.5,
+        duration: const Duration(seconds: 2),
+        curve: Curves.easeIn,
+        child: Material(
+          color: Colors.yellow,
+          child: InkWell(
+            onTap: () {
+              showBottomSheetToChooseImageSource(
                 context: context,
-                onCameraTap: () => context.read<CreatePostBloc>().add(CreatePostEvent.selectImage(true)),
-                onGalleryTap: () => context.read<CreatePostBloc>().add(CreatePostEvent.selectImage(false)),
-            ),
+                onCameraTap: () {
+                  context.read<CreatePostBloc>().add(CreatePostEvent.selectImage(true));
+                  Navigator.pop(context);
+                },
+                onGalleryTap: () {
+                  context.read<CreatePostBloc>().add(CreatePostEvent.selectImage(false));
+                  Navigator.pop(context);
+                },
+              );
+            },
             child: Container(
               height: MediaQuery
                   .of(context)
@@ -114,7 +149,9 @@ class _CreatePostView extends StatelessWidget {
                   },
               ) // image
             ),
-          ),
+          )
+        )
+        ),
           SizedBox(height: 20.0),
 
           //description

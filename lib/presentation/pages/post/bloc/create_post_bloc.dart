@@ -53,7 +53,10 @@ class CreatePostBloc extends Bloc<CreatePostEvent, CreatePostState> {
 
       switch(res) {
         case Ok<void>():
-          emit(CreatePostState.success());
+          emit(CreatePostState.success(
+              postDescription: '',
+            imageFile: null
+          ));
         case Error<void>():
           emit(CreatePostState.failed());
       }
