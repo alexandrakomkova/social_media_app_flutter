@@ -2,11 +2,8 @@ import 'dart:io';
 
 import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:meta/meta.dart';
-import 'package:social_media_app/domain/model/post_entity.dart';
 import 'package:social_media_app/domain/repository/db_service.dart';
 import 'package:social_media_app/domain/repository/image_service.dart';
-import 'package:social_media_app/utils/image_loader.dart';
 import 'package:social_media_app/utils/result.dart';
 
 part 'create_post_event.dart';
