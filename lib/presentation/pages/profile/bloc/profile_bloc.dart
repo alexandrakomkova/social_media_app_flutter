@@ -6,7 +6,6 @@ import 'package:social_media_app/domain/model/user_entity.dart';
 import 'package:social_media_app/domain/repository/auth/auth_repository.dart';
 import 'package:social_media_app/domain/repository/db_service.dart';
 import 'package:social_media_app/domain/repository/profile_repository.dart';
-import 'package:social_media_app/utils/firebase_utils.dart';
 
 part 'profile_event.dart';
 part 'profile_state.dart';

@@ -1,7 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:social_media_app/data/model/user_model.dart';
-import 'package:social_media_app/domain/model/user_entity.dart';
 import 'package:social_media_app/domain/repository/auth/auth_firebase_service.dart';
 import 'package:social_media_app/domain/repository/auth/auth_repository.dart';
 import 'package:social_media_app/domain/repository/db_service.dart';
