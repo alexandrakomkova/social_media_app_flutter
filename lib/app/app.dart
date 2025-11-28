@@ -5,6 +5,7 @@ import 'package:social_media_app/data/repository/auth/auth_firebase_service_impl
 import 'package:social_media_app/data/repository/auth/auth_repository_impl.dart';
 import 'package:social_media_app/data/repository/firebase_db_service_impl.dart';
 import 'package:social_media_app/data/repository/image_service_impl.dart';
+import 'package:social_media_app/data/repository/profile_repository_impl.dart';
 import 'package:social_media_app/data/repository/search_repository_impl.dart';
 import 'package:social_media_app/presentation/pages/auth/sign_in_page.dart';
 import 'package:social_media_app/presentation/pages/main_screen/main_page.dart';
@@ -31,6 +32,11 @@ class App extends StatelessWidget {
         ),
         RepositoryProvider(create:
             (_) => ImageServiceImpl()
+        ),
+        RepositoryProvider(create:
+            (searchContext) => ProfileRepositoryImpl(
+          dbService: searchContext.read<FirebaseDbServiceImpl>(),
+        )
         ),
       ],
       child: _AppView(),
