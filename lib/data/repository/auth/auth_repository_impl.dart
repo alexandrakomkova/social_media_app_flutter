@@ -50,19 +50,4 @@ class AuthRepositoryImpl implements AuthRepository {
         return res.error.toString();
     }
   }
-
-  @override
-  Future<UserEntity?> getUserInfo(String? id) async {
-    //debugPrint('id: $id userId: ${FirebaseAuth.instance.currentUser?.uid}');
-    final res = await _dbService.getUserById(id ?? FirebaseAuth.instance.currentUser?.uid);
-
-    switch (res) {
-      case Ok<UserEntity>():
-        //debugPrint('--- ${res.value.email}');
-        return res.value;
-      case Error<UserEntity>():
-        //debugPrint('--- exception');
-        return null;
-    }
-  }
 }
