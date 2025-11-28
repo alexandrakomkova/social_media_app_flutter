@@ -27,7 +27,7 @@ class ProfilePage extends StatelessWidget {
           authRepository: profileContext.read<AuthRepositoryImpl>(),
           profileRepository: profileContext.read<ProfileRepositoryImpl>(),
           id: userId
-        ),//..add(ProfileEvent.getUserPosts(userId)),
+        ),
       child: const _ProfileView(),
     );
   }
@@ -84,7 +84,7 @@ class _ProfileView extends StatelessWidget {
                           userEntity: state.user ?? UserEntity(),
                         ),
                         ProfileInfoCard(
-                          value: '123',
+                          value: state.posts.length.toString(),
                           valueLabel: 'posts',
                         ),
                         //SizedBox(width: 10.0,),
@@ -155,7 +155,7 @@ class _ProfileView extends StatelessWidget {
         rightButtonTitle: 'Continue',
         onRightPressed: () {
           context.read<ProfileBloc>().add(ProfileEvent.signOut());
-          Navigator.of(context).push(
+          Navigator.of(context).pushReplacement(
             MaterialPageRoute(
               builder: (_) => SignInPage(),
             ),
