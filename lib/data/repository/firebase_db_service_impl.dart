@@ -99,11 +99,11 @@ class FirebaseDbServiceImpl implements DbService {
         "userId": FirebaseUtils.currentUser,
       });
 
-      debugPrint('loaded ${imageUrl}');
+      //debugPrint('loaded ${imageUrl}');
 
       return Result.ok('');
     } on Exception catch(e) {
-      debugPrint('--- FirebaseDbServiceImpl createPost ${e.toString()}');
+      //debugPrint('--- FirebaseDbServiceImpl createPost ${e.toString()}');
       return Result.error(e);
     }
   }
@@ -134,4 +134,35 @@ class FirebaseDbServiceImpl implements DbService {
       return Result.error(e);
     }
   }
+
+  @override
+  Future<Result<void>> updateUserInfo(File image, String username, String bio)  async {
+    debugPrint('--- FirebaseDbServiceImpl updateUserInfo');
+    try {
+
+      final int creationTimestamp = DateTime.now().millisecondsSinceEpoch;
+
+      final String imageUrl = await ImageLoader.getImageUrl(image, creationTimestamp.toString());
+      debugPrint('--- FirebaseDbServiceImpl updateUserInfo ${imageUrl}');
+      // if(imageUrl.isEmpty) {
+      //   debugPrint('--- FirebaseDbServiceImpl updateUserInfo empty imageYrl');
+      //   return Result.error(Exception());
+      // }
+      debugPrint('--- FirebaseDbServiceImpl updateUserInfo ${imageUrl}');
+
+      await _usersRef.doc(FirebaseUtils.currentUser).update({
+        'username': username,
+        'bio': bio,
+        'imageUrl': imageUrl,
+      });
+      debugPrint('--- FirebaseDbServiceImpl updateUserInfo success');
+
+      return Result.ok('');
+    } on Exception catch(e) {
+      debugPrint('--- FirebaseDbServiceImpl updateUserInfo ${e.toString()}');
+      return Result.error(e);
+    }
+  }
+
+
 }
