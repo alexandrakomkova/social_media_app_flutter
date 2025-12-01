@@ -35,8 +35,8 @@ class _SettingsView extends StatelessWidget {
                 onPressed: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                        builder: (_) => EditProfilePage()
-                    )
+                      builder: (_) => EditProfilePage(),
+                    ),
                   );
                 },
                 child: Text(

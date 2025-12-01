@@ -160,10 +160,12 @@ class _ProfileView extends StatelessWidget {
         rightButtonTitle: 'Continue',
         onRightPressed: () {
           context.read<ProfileBloc>().add(ProfileEvent.signOut());
-          Navigator.of(context).pushReplacement(
+          Navigator.pushAndRemoveUntil(
+            context,
             MaterialPageRoute(
               builder: (_) => SignInPage(),
             ),
+              (route) => false
           );
         },
         leftButtonTitle: 'Cancel',

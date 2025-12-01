@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class CustomAppBar extends AppBar {
+class CustomAppBar extends AppBar{
   final String appBarTitle;
   final IconData leadingIcon;
   final void Function()? onLeadingIconPressed;
