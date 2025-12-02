@@ -1,6 +1,6 @@
 
 import 'package:flutter/material.dart';
-import 'package:social_media_app/presentation/pages/post/create_post_page.dart';
+import 'package:social_media_app/presentation/pages/create_post/create_post_page.dart';
 import 'package:social_media_app/presentation/widget/bottom_sheet_list_tile.dart';
 
 void showBottomSheetCreationVariants(BuildContext context) {

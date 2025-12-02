@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:social_media_app/presentation/pages/edit_profile/edit_profile_page.dart';
-import 'package:social_media_app/presentation/widget/custom_alert_dialog.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -36,8 +35,8 @@ class _SettingsView extends StatelessWidget {
                 onPressed: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                        builder: (_) => EditProfilePage()
-                    )
+                      builder: (_) => EditProfilePage(),
+                    ),
                   );
                 },
                 child: Text(

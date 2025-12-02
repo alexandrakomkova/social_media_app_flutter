@@ -1,4 +1,4 @@
-class AuthValidator {
+class Validator {
   static String? validateEmail(String? email) {
     if(email == null) {
       return 'Please enter an email address';

@@ -42,4 +42,40 @@ class UserEntity {
       if (id != null) "id": id,
     };
   }
+
+  factory UserEntity.fromMap(Map<String, dynamic> json) => UserEntity(
+    id: json["id"],
+    username: json["username"],
+    email: json["email"],
+    bio: json["bio"],
+    photoUrl: json["photoUrl"],
+    creationTimestamp: json["creationTime"]
+  );
+
+  Map<String, dynamic> toMap() => {
+    "id": id,
+    "username": username,
+    "email": email,
+    "bio": bio,
+    "photoUrl": photoUrl,
+    "creationTime": creationTimestamp,
+  };
+
+  UserEntity copyWith({
+    String? id,
+    String? username,
+    String? email,
+    String? bio,
+    String? photoUrl,
+    int? creationTimestamp,
+  }) {
+    return UserEntity(
+        id: id ?? this.id,
+        username: username ?? this.username,
+        email: email ?? this.email,
+        bio: bio ?? this.bio,
+        photoUrl: photoUrl ?? this.photoUrl,
+        creationTimestamp: creationTimestamp ?? this.creationTimestamp
+    );
+  }
 }

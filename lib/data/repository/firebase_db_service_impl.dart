@@ -99,11 +99,11 @@ class FirebaseDbServiceImpl implements DbService {
         "userId": FirebaseUtils.currentUser,
       });
 
-      debugPrint('loaded ${imageUrl}');
+      //debugPrint('loaded ${imageUrl}');
 
       return Result.ok('');
     } on Exception catch(e) {
-      debugPrint('--- FirebaseDbServiceImpl createPost ${e.toString()}');
+      //debugPrint('--- FirebaseDbServiceImpl createPost ${e.toString()}');
       return Result.error(e);
     }
   }
@@ -134,4 +134,43 @@ class FirebaseDbServiceImpl implements DbService {
       return Result.error(e);
     }
   }
+
+  @override
+  Future<Result<void>> updateUserInfo(String imageUrl, String username, String bio)  async {
+    debugPrint('--- FirebaseDbServiceImpl updateUserInfo');
+    try {
+
+      final int creationTimestamp = DateTime.now().millisecondsSinceEpoch;
+
+      String url = await _getImageUrl(imageUrl, creationTimestamp.toString());
+
+        debugPrint('--- FirebaseDbServiceImpl updateUserInfo $url');
+
+        await _usersRef.doc(FirebaseUtils.currentUser).update({
+          'username': username,
+          'bio': bio,
+          'photoUrl': url,
+        });
+        debugPrint('--- FirebaseDbServiceImpl updateUserInfo success');
+
+        return Result.ok('');
+    } on Exception catch(e) {
+      debugPrint('--- FirebaseDbServiceImpl updateUserInfo ${e.toString()}');
+      return Result.error(e);
+    }
+  }
+
+  Future<String> _getImageUrl(String imageUrl, String imageId) async {
+    if (imageUrl.isNotEmpty) {
+      if(RegExp(r'http').hasMatch(imageUrl)) {
+        return imageUrl;
+      } else {
+        return await ImageLoader.getImageUrl(File(imageUrl), imageId);
+      }
+    }
+
+    return '';
+  }
+
+
 }
