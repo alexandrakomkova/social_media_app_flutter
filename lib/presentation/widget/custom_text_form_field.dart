@@ -7,6 +7,7 @@ class CustomTextFormField extends StatelessWidget {
   bool obscureText;
   String? Function(String?)? validator;
   void Function(String)? onChanged;
+  int? maxLength;
 
 
   CustomTextFormField({
@@ -16,13 +17,13 @@ class CustomTextFormField extends StatelessWidget {
     this.obscureText = false,
     this.validator,
     this.onChanged,
+    this.maxLength,
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
-      // controller: _emailController,
       key: textFieldKey,
       initialValue: initialValue,
       decoration: InputDecoration(
@@ -35,6 +36,7 @@ class CustomTextFormField extends StatelessWidget {
       obscureText: obscureText,
       validator: validator,
       onChanged: onChanged,
+      maxLength: maxLength,
     );
   }
 }

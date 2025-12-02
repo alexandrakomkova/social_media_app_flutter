@@ -8,6 +8,7 @@ import 'package:social_media_app/presentation/widget/custom_text_form_field.dart
 import 'package:social_media_app/presentation/widget/choose_image_source.dart';
 import 'package:social_media_app/presentation/widget/custom_alert_dialog.dart';
 import 'package:social_media_app/presentation/widget/profile_avatar.dart';
+import 'package:social_media_app/utils/validator.dart';
 
 import 'bloc/edit_profile_bloc.dart';
 
@@ -47,9 +48,10 @@ class _EditProfileViewState extends State<_EditProfileView> {
           onLeadingIconPressed: () => _showCloseEditProfileAlertDialog(context),
           actionTitle: 'Save',
           onActionTap: () {
-            context.read<EditProfileBloc>().add(EditProfileEvent.saveProfile());
-            Navigator.pop(context);
-            //Navigator.pop(context);
+            if (_formKey.currentState?.validate() ?? false) {
+              context.read<EditProfileBloc>().add(EditProfileEvent.saveProfile());
+              Navigator.pop(context);
+            }
           },
         ),
         body: Padding(
@@ -112,6 +114,7 @@ class _EditProfileViewState extends State<_EditProfileView> {
                             onChanged: (value) {
                               editProfileContext.read<EditProfileBloc>().add(EditProfileEvent.usernameChanged(value));
                             },
+                            validator: (value) => Validator.validateUsername(value),
                           );
                         }
                     ),
@@ -126,6 +129,7 @@ class _EditProfileViewState extends State<_EditProfileView> {
                           onChanged: (value) {
                             editProfileContext.read<EditProfileBloc>().add(EditProfileEvent.bioChanged(value));
                           },
+                          maxLength: 20,
                         );
                       },
                     ),
