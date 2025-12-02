@@ -48,12 +48,12 @@ class ProfileRepositoryImpl implements ProfileRepository {
 
   @override
   Future<void> updateUserInfo({
-    required File image,
+    required String imageUrl,
     required String username,
     required String bio,
   }) async {
     debugPrint('--- ProfileRepositoryImpl updateUserInfo');
-    final res = await _dbService.updateUserInfo(image, username, bio);
+    final res = await _dbService.updateUserInfo(imageUrl, username, bio);
     switch (res) {
       case Ok<void>():
         debugPrint('--- success');

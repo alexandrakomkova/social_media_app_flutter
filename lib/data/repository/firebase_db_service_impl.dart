@@ -136,32 +136,40 @@ class FirebaseDbServiceImpl implements DbService {
   }
 
   @override
-  Future<Result<void>> updateUserInfo(File image, String username, String bio)  async {
+  Future<Result<void>> updateUserInfo(String imageUrl, String username, String bio)  async {
     debugPrint('--- FirebaseDbServiceImpl updateUserInfo');
     try {
 
       final int creationTimestamp = DateTime.now().millisecondsSinceEpoch;
 
-      final String imageUrl = await ImageLoader.getImageUrl(image, creationTimestamp.toString());
-      debugPrint('--- FirebaseDbServiceImpl updateUserInfo ${imageUrl}');
-      // if(imageUrl.isEmpty) {
-      //   debugPrint('--- FirebaseDbServiceImpl updateUserInfo empty imageYrl');
-      //   return Result.error(Exception());
-      // }
-      debugPrint('--- FirebaseDbServiceImpl updateUserInfo ${imageUrl}');
+      String url = await _getImageUrl(imageUrl, creationTimestamp.toString());
 
-      await _usersRef.doc(FirebaseUtils.currentUser).update({
-        'username': username,
-        'bio': bio,
-        'imageUrl': imageUrl,
-      });
-      debugPrint('--- FirebaseDbServiceImpl updateUserInfo success');
+        debugPrint('--- FirebaseDbServiceImpl updateUserInfo $url');
 
-      return Result.ok('');
+        await _usersRef.doc(FirebaseUtils.currentUser).update({
+          'username': username,
+          'bio': bio,
+          'photoUrl': url,
+        });
+        debugPrint('--- FirebaseDbServiceImpl updateUserInfo success');
+
+        return Result.ok('');
     } on Exception catch(e) {
       debugPrint('--- FirebaseDbServiceImpl updateUserInfo ${e.toString()}');
       return Result.error(e);
     }
+  }
+
+  Future<String> _getImageUrl(String imageUrl, String imageId) async {
+    if (imageUrl.isNotEmpty) {
+      if(RegExp(r'http').hasMatch(imageUrl)) {
+        return imageUrl;
+      } else {
+        return await ImageLoader.getImageUrl(File(imageUrl), imageId);
+      }
+    }
+
+    return '';
   }
 
 
