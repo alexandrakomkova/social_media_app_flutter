@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:social_media_app/data/repository/image_service_impl.dart';
 import 'package:social_media_app/data/repository/profile_repository_impl.dart';
 import 'package:social_media_app/domain/model/user_entity.dart';
+import 'package:social_media_app/presentation/widget/custom_appbar.dart';
 import 'package:social_media_app/presentation/widget/custom_text_form_field.dart';
 import 'package:social_media_app/presentation/widget/choose_image_source.dart';
 import 'package:social_media_app/presentation/widget/custom_alert_dialog.dart';
@@ -41,23 +42,23 @@ class _EditProfileViewState extends State<_EditProfileView> {
    // final userEntity = context.read<ProfileBloc>().state.user;
 
     return Scaffold(
-        // appBar: CustomAppBar(
-        //   appBarTitle: 'Edit profile',
-        //   leadingIcon: Icons.close,
-        //   onLeadingIconPressed: () => _showCloseEditProfileAlertDialog(context),
-        //   actionTitle: 'Save',
-        //   onActionTap: () {
-        //     context.read<EditProfileBloc>().add(EditProfileEvent.saveProfile());
-        //     Navigator.push(
-        //       context,
-        //       MaterialPageRoute(
-        //         builder: (_) => MainPage(),
-        //       ),
-        //     );
-        //   },
-        // ),
+        appBar: CustomAppBar(
+          appBarTitle: 'Edit profile',
+          leadingIcon: Icons.close,
+          onLeadingIconPressed: () => _showCloseEditProfileAlertDialog(context),
+          actionTitle: 'Save',
+          onActionTap: () {
+            context.read<EditProfileBloc>().add(EditProfileEvent.saveProfile());
+            // Navigator.pushReplacement(
+            //   context,
+            //   MaterialPageRoute(
+            //     builder: (_) => MainPage(),
+            //   ),
+            // );
+          },
+        ),
 
-        appBar: AppBar(
+        /*appBar: AppBar(
           leading: IconButton(
             onPressed: () => _showCloseEditProfileAlertDialog(context),
             icon: Icon(
@@ -98,7 +99,7 @@ class _EditProfileViewState extends State<_EditProfileView> {
               ),
             )
           ],
-        ),
+        ),*/
         body: Padding(
           padding: const EdgeInsets.all(10.0),
           child: Column(
@@ -125,7 +126,7 @@ class _EditProfileViewState extends State<_EditProfileView> {
                         username: state.username,
                         bio: state.bio,
                         photoUrl: ''
-                      ) ?? UserEntity(),
+                      ),
                     ),
                   );
                 },
