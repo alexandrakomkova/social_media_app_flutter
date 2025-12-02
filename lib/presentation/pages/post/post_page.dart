@@ -1,6 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:social_media_app/data/repository/post_repository_impl.dart';
 import 'package:social_media_app/domain/model/post_entity.dart';
+import 'package:social_media_app/presentation/pages/post/bloc/post_bloc.dart';
 
 class PostPage extends StatelessWidget {
   final PostEntity postEntity;
@@ -12,7 +15,13 @@ class PostPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _PostView(postEntity: postEntity,);
+    return BlocProvider<PostBloc>(
+      create: (context) => PostBloc.getLikesCount(
+        postEntity: postEntity,
+        postRepository: context.read<PostRepositoryImpl>()
+      ),
+      child: _PostView(postEntity: postEntity,),
+    );
   }
 }
 
@@ -89,8 +98,12 @@ Widget _postInfo(BuildContext context, PostEntity postEntity) {
                     Icons.favorite_border,
                   size: 26.0,
                 ),
-                Text(
-                  '322', // state.likes count or smth like that
+                BlocBuilder<PostBloc, PostState>(
+                  builder: (context, state) {
+                    return Text(
+                      state.likesCount.toString(),
+                    );
+                  },
                 ),
               ],
             )

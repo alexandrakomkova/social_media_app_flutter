@@ -16,6 +16,7 @@ class FirebaseDbServiceImpl implements DbService {
   final firestore = FirebaseFirestore.instance;
   late final _usersRef = firestore.collection('users');
   late final _postsRef = firestore.collection('posts');
+  late final _likesRef = firestore.collection('likes');
 
   @override
   Future<void> createUser(User user, UserModel userModel) async {
@@ -170,6 +171,27 @@ class FirebaseDbServiceImpl implements DbService {
     }
 
     return '';
+  }
+
+  @override
+  Future<Result<int>> getLikesCount(String postId) async {
+    int likesCount = 0;
+
+    try {
+      await _likesRef
+          .where('postId', isEqualTo: postId)
+          .get()
+          .then(
+              (querySnapshot) {
+
+                likesCount = querySnapshot.docs.length;
+      });
+
+      debugPrint('--- ${likesCount}');
+      return Result.ok(likesCount);
+    } on Exception catch(e) {
+      return Result.error(e);
+    }
   }
 
 

@@ -16,7 +16,7 @@ class PostEntity {
 
   DateTime get creationTimestampDateTime => DateTime.fromMillisecondsSinceEpoch(creationTimestamp ?? 0);
   String get formattedCreationTimestamp => DateFormat('dd/MM/yyyy HH:mm').format(creationTimestampDateTime);
-
+  int get id => creationTimestamp ?? 0;
 
   factory PostEntity.fromFirestore(
       DocumentSnapshot<Map<String, dynamic>> snapshot,
