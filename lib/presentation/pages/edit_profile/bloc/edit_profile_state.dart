@@ -14,27 +14,27 @@ sealed class EditProfileState with _$EditProfileState {
     @Default(EditProfileStatus.idle) EditProfileStatus status,
     @Default('') String username,
     @Default('') String bio,
-    @Default(null) File? imageFile,
+    @Default('') String imageUrl,
   }) = EditProfileState$Idle;
 
   const factory EditProfileState.processing({
     @Default(EditProfileStatus.processing) EditProfileStatus status,
     @Default('') String username,
     @Default('') String bio,
-    @Default(null) File? imageFile,
+    @Default('') String imageUrl,
   }) = EditProfileState$Processing;
 
   const factory EditProfileState.success({
     @Default(EditProfileStatus.success) EditProfileStatus status,
     @Default('') String username,
     @Default('') String bio,
-    @Default(null) File? imageFile,
+    @Default('') String imageUrl,
   }) = EditProfileState$Success;
 
   const factory EditProfileState.failed({
     @Default(EditProfileStatus.failed) EditProfileStatus status,
     @Default('') String username,
     @Default('') String bio,
-    @Default(null) File? imageFile,
+    @Default('') String imageUrl,
   }) = EditProfileState$Failed;
 }

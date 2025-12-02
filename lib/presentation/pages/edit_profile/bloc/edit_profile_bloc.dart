@@ -1,4 +1,3 @@
-import 'dart:io';
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter/foundation.dart';
@@ -51,40 +50,60 @@ class EditProfileBloc extends Bloc<EditProfileEvent, EditProfileState> {
   }
 
   _selectImage(_SelectImage event, Emitter<EditProfileState> emit) async {
-    emit(EditProfileState.processing());
+    emit(EditProfileState.processing(
+      imageUrl: state.imageUrl,
+      username: state.username,
+      bio: state.bio,
+    ));
 
     try {
       final res = await _imageService.pickImage(event.isCamera);
 
-      emit(EditProfileState.success(imageFile: res));
+      emit(EditProfileState.success(
+        imageUrl: res?.path ?? '',
+        username: state.username,
+        bio: state.bio,));
     } catch(e) {
-      emit(EditProfileState.failed());
+      emit(EditProfileState.failed(
+        imageUrl: state.imageUrl,
+        username: state.username,
+        bio: state.bio,
+      ));
     }
   }
 
   _saveProfile(Emitter<EditProfileState> emit) async {
     emit(EditProfileState.processing(
-      imageFile: state.imageFile,
+      imageUrl: state.imageUrl,
       username: state.username,
       bio: state.bio,
     ));
     try {
       debugPrint(" --- _saveProfile ${state.username} ${state.bio}");
       await _profileRepository.updateUserInfo(
-          image: state.imageFile ?? File(''),
+          imageUrl: state.imageUrl,
           username: state.username,
           bio: state.bio,
       );
-      emit(EditProfileState.success());
+      emit(EditProfileState.success(
+        imageUrl: state.imageUrl,
+        username: state.username,
+        bio: state.bio,
+      ));
     } catch(e) {
-      emit(EditProfileState.failed());
+      emit(EditProfileState.failed(
+        imageUrl: state.imageUrl,
+        username: state.username,
+        bio: state.bio,
+      ));
     }
   }
 
   _getUserInfo(Emitter<EditProfileState> emit) async {
     emit(EditProfileState.processing(
-      username: "123",
-      bio: state.username,
+      username: state.username,
+      bio: state.bio,
+      imageUrl: state.imageUrl
     ));
     debugPrint(" ---${state.username} ${state.bio}");
     try {
@@ -93,7 +112,7 @@ class EditProfileBloc extends Bloc<EditProfileEvent, EditProfileState> {
       emit(EditProfileState.success(
         username: user.username,
         bio: user.bio,
-
+        imageUrl: user.photoUrl
       ));
       debugPrint("--- ${state.username} ${state.bio}");
     } catch (e) {

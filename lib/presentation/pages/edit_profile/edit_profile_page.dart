@@ -39,7 +39,6 @@ class _EditProfileViewState extends State<_EditProfileView> {
 
   @override
   Widget build(BuildContext context) {
-   // final userEntity = context.read<ProfileBloc>().state.user;
 
     return Scaffold(
         appBar: CustomAppBar(
@@ -49,57 +48,10 @@ class _EditProfileViewState extends State<_EditProfileView> {
           actionTitle: 'Save',
           onActionTap: () {
             context.read<EditProfileBloc>().add(EditProfileEvent.saveProfile());
-            // Navigator.pushReplacement(
-            //   context,
-            //   MaterialPageRoute(
-            //     builder: (_) => MainPage(),
-            //   ),
-            // );
+            Navigator.pop(context);
+            //Navigator.pop(context);
           },
         ),
-
-        /*appBar: AppBar(
-          leading: IconButton(
-            onPressed: () => _showCloseEditProfileAlertDialog(context),
-            icon: Icon(
-              Icons.close,
-            ),
-          ),
-          title: Center(
-              child: Text(
-                'Edit profile',
-                style: TextStyle(
-                  fontSize: 18.0,
-                ),
-              )
-          ),
-          centerTitle: true,
-          actions: [
-            GestureDetector(
-              onTap: () {
-                debugPrint('--- tapped');
-                context.read<EditProfileBloc>().add(EditProfileEvent.saveProfile());
-                    // Navigator.pushReplacement(
-                    //   context,
-                    //   MaterialPageRoute(
-                    //     builder: (_) => MainPage(),
-                    //   ),
-                    // );
-                //Navigator.pop(context);
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Text(
-                  'Save',
-                  style: TextStyle(
-                    fontSize: 18.0,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            )
-          ],
-        ),*/
         body: Padding(
           padding: const EdgeInsets.all(10.0),
           child: Column(
@@ -125,7 +77,7 @@ class _EditProfileViewState extends State<_EditProfileView> {
                       userEntity: UserEntity(
                         username: state.username,
                         bio: state.bio,
-                        photoUrl: ''
+                        photoUrl: state.imageUrl
                       ),
                     ),
                   );
