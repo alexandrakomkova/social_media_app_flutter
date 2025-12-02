@@ -20,4 +20,26 @@ class PostRepositoryImpl implements PostRepository {
     }
   }
 
+  @override
+  Future<void> addLike(String postId) async {
+    final res =  await _dbService.addLike(postId);
+    switch(res) {
+      case Ok<void>():
+        return res.value;
+      case Error<void>():
+        return ;
+    }
+  }
+
+  @override
+  Future<void> removeLike(String postId) async {
+    final res =  await _dbService.removeLike(postId);
+    switch(res) {
+      case Ok<void>():
+        return res.value;
+      case Error<void>():
+        return ;
+    }
+  }
+
 }

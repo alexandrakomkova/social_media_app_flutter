@@ -176,6 +176,7 @@ class FirebaseDbServiceImpl implements DbService {
   @override
   Future<Result<int>> getLikesCount(String postId) async {
     int likesCount = 0;
+    bool isLiked = false;
 
     try {
       await _likesRef
@@ -183,13 +184,54 @@ class FirebaseDbServiceImpl implements DbService {
           .get()
           .then(
               (querySnapshot) {
-
                 likesCount = querySnapshot.docs.length;
+
+                for (var docSnapshot in querySnapshot.docs) {
+                  var data = docSnapshot.data();
+                  if(data['userId'] == FirebaseUtils.currentUser) {
+                    isLiked = true;
+                  }
+                }
       });
 
       debugPrint('--- ${likesCount}');
       return Result.ok(likesCount);
     } on Exception catch(e) {
+      return Result.error(e);
+    }
+  }
+
+  @override
+  Future<Result<void>> addLike(String postId) async {
+    try {
+      await _likesRef.add({
+        'userId': FirebaseUtils.currentUser,
+        'postId': postId,
+        'date': DateTime.now().millisecondsSinceEpoch.toString(),
+      });
+
+      return Result.ok('');
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
+  }
+
+  @override
+  Future<Result<void>> removeLike(String postId) async {
+    try {
+      await _likesRef
+          .where('postId', isEqualTo: postId)
+          .where('userId', isEqualTo: FirebaseUtils.currentUser)
+          .get()
+          .then(
+              (querySnapshot) {
+                for (var docSnapshot in querySnapshot.docs) {
+                  docSnapshot.reference.delete();
+                }
+          });
+
+      return Result.ok('');
+    } on Exception catch (e) {
       return Result.error(e);
     }
   }

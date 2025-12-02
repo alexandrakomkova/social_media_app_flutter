@@ -14,20 +14,24 @@ sealed class PostState with _$PostState{
   const factory PostState.idle({
     @Default(PostStatus.idle) PostStatus status,
     @Default(0) int likesCount,
+    @Default(false) isLiked,
   }) = PostState$Idle;
 
   const factory PostState.processing({
     @Default(PostStatus.processing) PostStatus status,
     @Default(0) int likesCount,
+    @Default(false) isLiked,
   }) = PostState$Processing;
 
   const factory PostState.success({
     @Default(PostStatus.success) PostStatus status,
     @Default(0) int likesCount,
+    @Default(false) isLiked,
   }) = PostState$Success;
 
   const factory PostState.failed({
     @Default(PostStatus.failed) PostStatus status,
     @Default(0) int likesCount,
+    @Default(false) isLiked,
   }) = PostState$Failed;
 }

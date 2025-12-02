@@ -21,6 +21,9 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     on<PostEvent>((events, emit) async {
       await events.map(
         getLikesCount: (_) => _getLikesCount(emit),
+        addLike: (_) => _addLike(emit),
+        removeLike: (_) => _removeLike(emit),
+        toggleLike: (event) => _toggleLike(event, emit),
       );
     });
   }
@@ -45,6 +48,34 @@ class PostBloc extends Bloc<PostEvent, PostState> {
       ));
     } catch(e) {
       emit(PostState.failed());
+    }
+  }
+
+  _addLike(Emitter<PostState> emit) async{
+    try {
+      await _postRepository.addLike(_postEntity.id.toString());
+
+      emit(PostState.success(
+        isLiked: true,
+          likesCount: state.likesCount + 1
+      ));
+    } catch(e) {
+      emit(PostState.failed(
+        isLiked: state.isLiked,
+          likesCount: state.likesCount
+      ));
+    }
+  }
+
+  _removeLike(Emitter<PostState> emit) {
+
+  }
+
+  _toggleLike(_ToggleLike event, Emitter<PostState> emit) {
+    if(event.isLiked) {
+      _removeLike(emit);
+    } else {
+      _addLike(emit);
     }
   }
 }

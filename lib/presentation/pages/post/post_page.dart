@@ -94,9 +94,17 @@ Widget _postInfo(BuildContext context, PostEntity postEntity) {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Icon(
-                    Icons.favorite_border,
-                  size: 26.0,
+                BlocBuilder<PostBloc, PostState>(
+                  builder: (context, state) {
+                    return IconButton(
+                      icon: Icon(state.isLiked ? Icons.favorite : Icons.favorite_border),
+                      color: state.isLiked ? Colors.redAccent : Colors.grey,
+                      iconSize: 25.0,
+                      onPressed: () {
+                        // context.read<PostBloc>().add(PostEvent.);
+                      },
+                    );
+                  },
                 ),
                 BlocBuilder<PostBloc, PostState>(
                   builder: (context, state) {
