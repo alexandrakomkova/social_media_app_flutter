@@ -60,7 +60,8 @@ class ProfileRepositoryImpl implements ProfileRepository {
 
         await DbProvider.db.updateUser(user.copyWith(
           username: username,
-          bio: bio
+          bio: bio,
+          photoUrl: imageUrl
         ));
         return;
       case Error<void>():

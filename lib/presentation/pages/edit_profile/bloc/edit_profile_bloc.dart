@@ -26,6 +26,7 @@ class EditProfileBloc extends Bloc<EditProfileEvent, EditProfileState> {
           usernameChanged: (_UsernameChanged event) => _usernameChanged(event, emit),
           bioChanged: (_BioChanged event) => _bioChanged(event, emit),
           selectImage: (_SelectImage event) => _selectImage(event, emit),
+          deleteImage: (_) => _deleteImage(emit),
           getUserInfo: (_) => _getUserInfo(emit),
           saveProfile: (_) => _saveProfile(emit),
       );
@@ -118,5 +119,9 @@ class EditProfileBloc extends Bloc<EditProfileEvent, EditProfileState> {
     } catch (e) {
       emit(EditProfileState.failed());
     }
+  }
+
+  _deleteImage(Emitter<EditProfileState> emit) {
+    emit(state.copyWith(imageUrl: ''));
   }
 }

@@ -83,7 +83,21 @@ class _EditProfileViewState extends State<_EditProfileView> {
                   );
                 },
               ),
-              SizedBox(height: 50.0,),
+              SizedBox(height: 10.0,),
+              TextButton(
+                onPressed: () {
+                  context.read<EditProfileBloc>().add(EditProfileEvent.deleteImage());
+                },
+                child: Text(
+                  'Delete profile image',
+                  style: TextStyle(
+                      fontSize: 18.0,
+                      fontWeight: FontWeight.w600,
+                    color: Theme.of(context).colorScheme.error
+                  ),
+                ),
+              ),
+              SizedBox(height: 30.0,),
               Form(
                 key: _formKey,
                 child: Column(
