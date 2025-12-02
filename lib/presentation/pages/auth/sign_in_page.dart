@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:social_media_app/data/repository/auth/auth_repository_impl.dart';
-import 'package:social_media_app/utils/auth_validator.dart';
+import 'package:social_media_app/utils/validator.dart';
 import 'package:social_media_app/presentation/pages/auth/bloc/sign_in/sign_in_bloc.dart';
 import 'package:social_media_app/presentation/pages/main_screen/main_page.dart';
-import 'package:social_media_app/presentation/widget/auth_text_field.dart';
+import 'package:social_media_app/presentation/widget/custom_text_form_field.dart';
 
 import 'package:social_media_app/presentation/pages/auth/sign_up_page.dart';
 
@@ -72,12 +72,12 @@ class _SignInViewState extends State<_SignInView> {
                     children: [
                       BlocBuilder<SignInBloc, SignInState>(
                         builder: (signInContext, state) {
-                          return AuthTextField(
+                          return CustomTextFormField(
                             textFieldKey: const Key(
                                 'signInForm_email_textFormField'),
                             initialValue: state.email,
                             hintText: 'Email',
-                            validator: (value) => AuthValidator.validateEmail(value),
+                            validator: (value) => Validator.validateEmail(value),
                             onChanged: (value) =>
                                 signInContext.read<SignInBloc>().add(
                                     SignInEvent.emailChanged(value)),
@@ -87,13 +87,13 @@ class _SignInViewState extends State<_SignInView> {
                       const SizedBox(height: 15.0),
                       BlocBuilder<SignInBloc, SignInState>(
                         builder: (signInContext, state) {
-                          return AuthTextField(
+                          return CustomTextFormField(
                             textFieldKey: const Key(
                                 'signInForm_password_textFormField'),
                             initialValue: state.password,
                             hintText: 'Password',
                             obscureText: true,
-                            validator: (value) => AuthValidator.validatePassword(value),
+                            validator: (value) => Validator.validatePassword(value),
                             onChanged: (value) =>
                               signInContext.read<SignInBloc>().add(
                                   SignInEvent.passwordChanged(value)

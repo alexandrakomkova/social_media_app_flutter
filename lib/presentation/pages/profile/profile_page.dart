@@ -6,6 +6,7 @@ import 'package:social_media_app/domain/model/post_entity.dart';
 import 'package:social_media_app/domain/model/user_entity.dart';
 import 'package:social_media_app/presentation/pages/auth/sign_in_page.dart';
 import 'package:social_media_app/presentation/pages/profile/bloc/profile_bloc.dart';
+import 'package:social_media_app/presentation/pages/settings/settings_page.dart';
 import 'package:social_media_app/presentation/widget/custom_alert_dialog.dart';
 import 'package:social_media_app/presentation/widget/profile_avatar.dart';
 import 'package:social_media_app/presentation/widget/profile_info_card.dart';
@@ -27,7 +28,7 @@ class ProfilePage extends StatelessWidget {
           authRepository: profileContext.read<AuthRepositoryImpl>(),
           profileRepository: profileContext.read<ProfileRepositoryImpl>(),
           id: userId
-        ),//..add(ProfileEvent.getUserPosts(userId)),
+        ),
       child: const _ProfileView(),
     );
   }
@@ -52,7 +53,11 @@ class _ProfileView extends StatelessWidget {
           actions: [
             IconButton(
               onPressed: () {
-
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => SettingsPage(),
+                  ),
+                );
               },
               icon: Icon(Icons.settings),
             ),
@@ -84,7 +89,7 @@ class _ProfileView extends StatelessWidget {
                           userEntity: state.user ?? UserEntity(),
                         ),
                         ProfileInfoCard(
-                          value: '123',
+                          value: state.posts.length.toString(),
                           valueLabel: 'posts',
                         ),
                         //SizedBox(width: 10.0,),
@@ -155,10 +160,12 @@ class _ProfileView extends StatelessWidget {
         rightButtonTitle: 'Continue',
         onRightPressed: () {
           context.read<ProfileBloc>().add(ProfileEvent.signOut());
-          Navigator.of(context).push(
+          Navigator.pushAndRemoveUntil(
+            context,
             MaterialPageRoute(
               builder: (_) => SignInPage(),
             ),
+              (route) => false
           );
         },
         leftButtonTitle: 'Cancel',

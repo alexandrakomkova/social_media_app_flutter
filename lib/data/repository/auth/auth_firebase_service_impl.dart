@@ -1,4 +1,3 @@
-import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:social_media_app/data/model/user_model.dart';
 import 'package:social_media_app/domain/repository/auth/auth_firebase_service.dart';
@@ -9,16 +8,17 @@ class AuthFirebaseServiceImpl implements AuthFirebaseService {
   final _firebaseAuth = FirebaseAuth.instance;
 
   @override
-  Future<Either> signIn(UserModel user) async {
+  Future<Result<String>> signIn(UserModel user) async {
     try {
       //debugPrint('---------${user.email} ${user.password}');
-      await _firebaseAuth.signInWithEmailAndPassword(
+      final res = await _firebaseAuth.signInWithEmailAndPassword(
           email: user.email,
           password: user.password,
       );
 
       //debugPrint('AuthFirebaseServiceImpl signIn success');
-      return Right('You signed in successfully');
+
+      return res.user == null ? Result.error(Exception()) : Result.ok(res.user!.uid);
     } on FirebaseAuthException catch (e) {
       String message = '';
 
@@ -28,7 +28,7 @@ class AuthFirebaseServiceImpl implements AuthFirebaseService {
         message = 'Wrong password provided for that user';
       } else { message = e.code; }
       //debugPrint('AuthFirebaseServiceImpl signIn fail: $message');
-      return Left(message);
+      return Result.error(e);
     }
   }
 

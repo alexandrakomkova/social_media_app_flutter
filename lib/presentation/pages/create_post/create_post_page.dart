@@ -3,9 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:social_media_app/data/repository/firebase_db_service_impl.dart';
 import 'package:social_media_app/data/repository/image_service_impl.dart';
 import 'package:social_media_app/presentation/pages/main_screen/main_page.dart';
-import 'package:social_media_app/presentation/pages/post/bloc/create_post_bloc.dart';
+import 'package:social_media_app/presentation/pages/create_post/bloc/create_post_bloc.dart';
 import 'package:social_media_app/presentation/widget/choose_image_source.dart';
 import 'package:social_media_app/presentation/widget/custom_alert_dialog.dart';
+import 'package:social_media_app/presentation/widget/custom_appbar.dart';
 
 class CreatePostPage extends StatelessWidget {
   const CreatePostPage({super.key});
@@ -28,47 +29,20 @@ class _CreatePostView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          onPressed: () {
-            _showCloseCreatePostAlertDialog(context);
-          },
-          icon: Icon(
-            Icons.close,
-          ),
-        ),
-        title: Center(
-          child: Text(
-            'New post',
-            style: TextStyle(
-              fontSize: 18.0,
-              //fontWeight: FontWeight.w300,
-            ),
-          )
-        ),
-        actions: [
-          GestureDetector(
-            onTap: () {
-              context.read<CreatePostBloc>().add(CreatePostEvent.createPost());
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => MainPage(),
-                ),
-              );
-            },
-            child: Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Text(
-                'Post',
-                style: TextStyle(
-                  fontSize: 15.0,
-                  fontWeight: FontWeight.w600,
-                ),
+      appBar: CustomAppBar(
+          appBarTitle: 'New post',
+          leadingIcon: Icons.close,
+          onLeadingIconPressed: () => _showCloseCreatePostAlertDialog(context),
+          actionTitle: 'Post',
+          onActionTap: () {
+            context.read<CreatePostBloc>().add(CreatePostEvent.createPost());
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => MainPage(),
               ),
-            ),
-          )
-        ],
+            );
+          },
       ),
       body: ListView(
         padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 4.0),

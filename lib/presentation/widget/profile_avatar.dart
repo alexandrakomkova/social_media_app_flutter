@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:social_media_app/domain/model/user_entity.dart';
@@ -33,12 +35,16 @@ class ProfileAvatar extends StatelessWidget {
           ),
         ),
       )
-          : CircleAvatar(
-        radius: radius,
-        backgroundImage:
-        CachedNetworkImageProvider(
-          userEntity.photoUrl,
-        ),
+        : CircleAvatar(
+            radius: radius,
+            backgroundImage:
+              RegExp(r'http').hasMatch(userEntity.photoUrl)
+                  ? CachedNetworkImageProvider(
+                      userEntity.photoUrl,
+                    )
+                  : FileImage(
+                      File(userEntity.photoUrl),
+              ),
       ),
     );
   }

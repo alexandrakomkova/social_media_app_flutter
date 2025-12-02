@@ -22,7 +22,7 @@ class _MainView extends StatefulWidget {
 }
 
 class _MainViewState extends State<_MainView> {
-  int _currentPage = 0;
+  int _currentPage = 4;
 
   List pages = [
     {
