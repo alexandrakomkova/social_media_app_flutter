@@ -1,4 +1,3 @@
-import 'dart:io';
 
 import 'package:social_media_app/domain/model/post_entity.dart';
 import 'package:social_media_app/domain/model/user_entity.dart';

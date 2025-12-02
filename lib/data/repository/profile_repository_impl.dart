@@ -1,4 +1,3 @@
-import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:social_media_app/data/db_provider.dart';
