@@ -124,7 +124,7 @@ class _EditProfileViewState extends State<_EditProfileView> {
                       userEntity: UserEntity(
                         username: state.username,
                         bio: state.bio,
-                        photoUrl: state.imageFile
+                        photoUrl: ''
                       ) ?? UserEntity(),
                     ),
                   );
@@ -137,15 +137,13 @@ class _EditProfileViewState extends State<_EditProfileView> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     BlocBuilder<EditProfileBloc, EditProfileState>(
-                        builder: (context, state) {
+                        builder: (editProfileContext, state) {
                           return CustomTextFormField(
-                            textFieldKey: const Key(
-                              'editProfileForm_username_textFormField'
-                            ),
+                            textFieldKey: UniqueKey(),
                             initialValue: state.username,
                             hintText: 'Username',
                             onChanged: (value) {
-                              context.read<EditProfileBloc>().add(EditProfileEvent.usernameChanged(value));
+                              editProfileContext.read<EditProfileBloc>().add(EditProfileEvent.usernameChanged(value));
                             },
                           );
                         }
@@ -153,15 +151,13 @@ class _EditProfileViewState extends State<_EditProfileView> {
 
                     const SizedBox(height: 15.0),
                     BlocBuilder<EditProfileBloc, EditProfileState>(
-                      builder: (context, state) {
+                      builder: (editProfileContext, state) {
                         return CustomTextFormField(
-                          textFieldKey: const Key(
-                              'editProfileForm_bio_textFormField'
-                          ),
+                          textFieldKey: UniqueKey(),
                           initialValue: state.bio,
                           hintText: 'Bio',
                           onChanged: (value) {
-                            context.read<EditProfileBloc>().add(EditProfileEvent.bioChanged(value));
+                            editProfileContext.read<EditProfileBloc>().add(EditProfileEvent.bioChanged(value));
                           },
                         );
                       },
