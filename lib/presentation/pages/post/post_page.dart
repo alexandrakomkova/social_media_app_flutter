@@ -126,39 +126,37 @@ class _PostView extends StatelessWidget {
                     .scaffoldBackgroundColor,
                 padding: const EdgeInsets.symmetric(
                     horizontal: 12.0, vertical: 8.0),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: BlocBuilder<CommentsBloc, CommentsState>(
+                child: BlocBuilder<CommentsBloc, CommentsState>(
                         builder: (context, state) {
-                          return TextFormField(
-                            initialValue: state.commentText,
-                            decoration: const InputDecoration(
-                              hintText: 'Add a comment...',
-                              border: OutlineInputBorder(),
-                              contentPadding: EdgeInsets.symmetric(
-                                  horizontal: 10.0, vertical: 10.0),
-                            ),
-                            onChanged: (value) {
-                              context.read<CommentsBloc>().add(
-                                  CommentsEvent.commentTextChanged(value));
-                            },
+                          return Row(
+                            children: [
+                              Expanded(
+                                child: TextFormField(
+                                  initialValue: state.commentText,
+                                  decoration: const InputDecoration(
+                                    hintText: 'Add a comment...',
+                                    border: OutlineInputBorder(),
+                                    contentPadding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
+                                  ),
+                                  onChanged: (value) {
+                                    context.read<CommentsBloc>().add(
+                                    CommentsEvent.commentTextChanged(value));
+                                  },
+                                )
+                              ),
+                              IconButton(
+                                onPressed: () {
+                                  context.read<CommentsBloc>().add(CommentsEvent.addComment());
+                                },
+                                icon: const Icon(Icons.send),
+                              ),
+                            ],
                           );
-                        },
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        // context.read<CommentsBloc>().add(AddComment(_commentController.text));
-                      },
-                      icon: const Icon(Icons.send),
-                    ),
-                  ],
+                        }
+                  )
                 ),
               ),
             ),
-          ),
-
         ],
       ),
     );
@@ -167,77 +165,77 @@ class _PostView extends StatelessWidget {
 
 Widget _postInfo(BuildContext context) {
   return BlocBuilder<PostBloc, PostState>(
-  builder: (context, state) {
-    return Column(
-    mainAxisSize: MainAxisSize.min,
-    mainAxisAlignment: MainAxisAlignment.center,
-    crossAxisAlignment: CrossAxisAlignment.center,
-    children: [
-      SizedBox(
-        height: MediaQuery.of(context).size.height * 0.5,
-        width: MediaQuery.of(context).size.height * 0.5,
-        child: CachedNetworkImage(
-            imageUrl: state.postEntity.imageUrl
-        ), //state.imageUrl
-      ),
-      SizedBox(height: 20.0,),
-      Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    state.postEntity.description,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16.0
-                    ),
-                    maxLines: 5,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  SizedBox(height: 4.0),
-                  Text(
-                    state.postEntity.formattedCreationTimestamp,
-                  ),
-                ],
-              ),
+    builder: (context, state) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // post image
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.5,
+            width: MediaQuery.of(context).size.height * 0.5,
+            child: CachedNetworkImage(
+              imageUrl: state.postEntity.imageUrl,
             ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
+          ),
+          const SizedBox(height: 20.0),
+
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
+                // date
+                Text(
+                  state.postEntity.formattedCreationTimestamp,
+                  style: const TextStyle(fontSize: 14.0),
+                ),
+                const SizedBox(width: 8.0),
+                // like button
                 BlocBuilder<PostBloc, PostState>(
                   builder: (context, state) {
                     return IconButton(
-                      icon: Icon(state.isLiked ? Icons.favorite : Icons.favorite_border),
-                      color: state.isLiked ? Colors.redAccent : Colors.grey,
-                      iconSize: 25.0,
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      icon: Icon(
+                        state.isLiked ? Icons.favorite : Icons.favorite_border,
+                        color: state.isLiked ? Colors.redAccent : Colors.grey,
+                        size: 22.0,
+                      ),
                       onPressed: () {
-                        // context.read<PostBloc>().add(PostEvent.);
+                        // context.read<PostBloc>().add(PostEvent.toggleLike());
                       },
                     );
                   },
                 ),
+                // likes count
                 BlocBuilder<PostBloc, PostState>(
                   builder: (context, state) {
                     return Text(
                       state.likesCount.toString(),
+                      style: const TextStyle(fontSize: 14.0),
                     );
                   },
                 ),
               ],
-            )
-          ],
-        ),
-      ),
+            ),
+          ),
 
-    ],
+          // description
+          Padding(
+            padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
+            child: Text(
+              state.postEntity.description,
+              style: const TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 16.0,
+              ),
+              maxLines: 5,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      );
+    },
   );
-  },
-);
 }
