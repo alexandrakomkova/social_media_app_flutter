@@ -5,7 +5,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:social_media_app/domain/model/post_entity.dart';
 import 'package:social_media_app/domain/model/user_entity.dart';
 import 'package:social_media_app/domain/repository/auth/auth_repository.dart';
-import 'package:social_media_app/domain/repository/db_service.dart';
 import 'package:social_media_app/domain/repository/profile_repository.dart';
 
 part 'profile_event.dart';

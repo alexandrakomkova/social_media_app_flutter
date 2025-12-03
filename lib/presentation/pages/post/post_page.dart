@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:social_media_app/data/repository/post_repository_impl.dart';
 import 'package:social_media_app/domain/model/post_entity.dart';
-import 'package:social_media_app/presentation/pages/post/bloc/post_bloc.dart';
+import 'package:social_media_app/presentation/pages/post/bloc/post/post_bloc.dart';
 
 class PostPage extends StatelessWidget {
   final PostEntity postEntity;
