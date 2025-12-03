@@ -103,7 +103,8 @@ class _PostView extends StatelessWidget {
                                     )
                                 ),
                                 subtitle: Text(
-                                    comment.commentText
+                                    comment.commentText,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               );
                             },
@@ -185,22 +186,26 @@ Widget _postInfo(BuildContext context) {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  state.postEntity.description, //state.description
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16.0
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    state.postEntity.description,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16.0
+                    ),
+                    maxLines: 5,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-                SizedBox(height: 4.0),
-                Text(
-                  state.postEntity.formattedCreationTimestamp, // state.creationTimestamp in dd/MM/YYYY
-                ),
-              ],
+                  SizedBox(height: 4.0),
+                  Text(
+                    state.postEntity.formattedCreationTimestamp,
+                  ),
+                ],
+              ),
             ),
             Column(
               mainAxisAlignment: MainAxisAlignment.start,
