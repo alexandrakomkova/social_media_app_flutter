@@ -17,7 +17,7 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     required PostRepository postRepository,
   }) : _postEntity = postEntity,
       _postRepository = postRepository,
-        super(const PostState.idle()) {
+        super(PostState.idle(postEntity: postEntity)) {
     on<PostEvent>((events, emit) async {
       await events.map(
         getLikesCount: (_) => _getLikesCount(emit),
@@ -38,16 +38,21 @@ class PostBloc extends Bloc<PostEvent, PostState> {
       )..add(PostEvent.getLikesCount());
 
   _getLikesCount(Emitter<PostState> emit) async {
-    emit(PostState.processing());
+    emit(PostState.processing(
+      postEntity: state.postEntity
+    ));
 
     try {
       final res = await _postRepository.getLikesCount(_postEntity.id.toString());
 
       emit(PostState.success(
+          postEntity: state.postEntity,
         likesCount: res
       ));
     } catch(e) {
-      emit(PostState.failed());
+      emit(PostState.failed(
+          postEntity: state.postEntity,
+      ));
     }
   }
 
@@ -56,11 +61,13 @@ class PostBloc extends Bloc<PostEvent, PostState> {
       await _postRepository.addLike(_postEntity.id.toString());
 
       emit(PostState.success(
+          postEntity: state.postEntity,
         isLiked: true,
           likesCount: state.likesCount + 1
       ));
     } catch(e) {
       emit(PostState.failed(
+          postEntity: state.postEntity,
         isLiked: state.isLiked,
           likesCount: state.likesCount
       ));
