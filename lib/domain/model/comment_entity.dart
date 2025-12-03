@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class CommentEntity {
   String userId;
   String commentText;
-  String createdAt = DateTime.now().millisecondsSinceEpoch.toString();
+  int createdAt = DateTime.now().millisecondsSinceEpoch;
   String postId;
   String userImageUrl;
   String username;

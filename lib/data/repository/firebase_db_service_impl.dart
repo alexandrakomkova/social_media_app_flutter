@@ -242,7 +242,7 @@ class FirebaseDbServiceImpl implements DbService {
         'username': user.username,
         'userImageUrl': user.photoUrl,
         'commentText': commentText,
-        'createdAt': DateTime.now().millisecondsSinceEpoch.toString(),
+        'createdAt': DateTime.now().millisecondsSinceEpoch,
       });
 
       return Result.ok('');
@@ -257,7 +257,7 @@ class FirebaseDbServiceImpl implements DbService {
   }) async {
     List<CommentEntity> comments = [];
     try {
-      await _commentsRef.where('postId', isEqualTo: postId)
+      await _commentsRef.where('postId', isEqualTo: postId).orderBy('createdAt', descending: true)
           .get().then((querySnapshot) {
             for (var docSnapshot in querySnapshot.docs) {
               debugPrint('${docSnapshot.id} => ${docSnapshot.data()}');

@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:social_media_app/domain/model/comment_entity.dart';
 import 'package:social_media_app/domain/repository/comment_repository.dart';
@@ -39,6 +40,8 @@ class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
       postId: state.postId,
     ));
 
+    debugPrint('--- getComments');
+
     try {
       final res = await _commentRepository.getComments(postId: state.postId);
 
@@ -61,9 +64,12 @@ class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
           commentText: state.commentText,
       );
 
+      // final res = await _commentRepository.getComments(postId: state.postId);
+
       emit(CommentsState.success(
-        postId: state.postId,
-        //// ????????
+          postId: state.postId,
+        //commentText: '',
+        comments: state.comments
       ));
     } catch(e) {
       emit(CommentsState.failed(

@@ -77,38 +77,47 @@ class _PostView extends StatelessWidget {
                           );
                         },
                       ),
-
+                      
                       // comments section
                       BlocBuilder<CommentsBloc, CommentsState>(
                         builder: (context, state) {
-                          return ListView.builder(
-                            physics: NeverScrollableScrollPhysics(),
-                            shrinkWrap: true,
-                            itemCount: state.comments.length,
-                            itemBuilder: (BuildContext context, int index) {
-                              var comment = state.comments[index];
+                          switch(state.status) {
+                            case CommentsStatus.idle:
+                              return SizedBox();
+                            case CommentsStatus.processing:
+                              return Center(child: CircularProgressIndicator(),);
+                            case CommentsStatus.failed:
+                              return Center(child: Text('Error loading comments'),);
+                            case CommentsStatus.success:
+                              return ListView.builder(
+                                physics: NeverScrollableScrollPhysics(),
+                                shrinkWrap: true,
+                                itemCount: state.comments.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  var comment = state.comments[index];
 
-                              return ListTile(
-                                leading: ProfileAvatar(
-                                  radius: 20.0,
-                                  userEntity: UserEntity(
-                                      username: comment.username,
-                                      photoUrl: comment.userImageUrl
-                                  ),
-                                ),
-                                title: Text(
-                                    comment.username,
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.w600
-                                    )
-                                ),
-                                subtitle: Text(
-                                    comment.commentText,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
+                                  return ListTile(
+                                    leading: ProfileAvatar(
+                                      radius: 20.0,
+                                      userEntity: UserEntity(
+                                          username: comment.username,
+                                          photoUrl: comment.userImageUrl
+                                      ),
+                                    ),
+                                    title: Text(
+                                        comment.username,
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.w600
+                                        )
+                                    ),
+                                    subtitle: Text(
+                                      comment.commentText,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  );
+                                },
                               );
-                            },
-                          );
+                          }
                         },
                       ),
                     ],
@@ -132,6 +141,7 @@ class _PostView extends StatelessWidget {
                             children: [
                               Expanded(
                                 child: TextFormField(
+                                  key: const Key('comment_textFormField'),
                                   initialValue: state.commentText,
                                   decoration: const InputDecoration(
                                     hintText: 'Add a comment...',
@@ -146,7 +156,9 @@ class _PostView extends StatelessWidget {
                               ),
                               IconButton(
                                 onPressed: () {
-                                  context.read<CommentsBloc>().add(CommentsEvent.addComment());
+                                  context.read<CommentsBloc>()
+                                    ..add(CommentsEvent.addComment())
+                                    ..add(CommentsEvent.getComments());
                                 },
                                 icon: const Icon(Icons.send),
                               ),
