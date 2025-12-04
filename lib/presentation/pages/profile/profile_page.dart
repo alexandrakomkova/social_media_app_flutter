@@ -7,16 +7,18 @@ import 'package:social_media_app/domain/model/user_entity.dart';
 import 'package:social_media_app/presentation/pages/auth/sign_in_page.dart';
 import 'package:social_media_app/presentation/pages/profile/bloc/profile_bloc.dart';
 import 'package:social_media_app/presentation/pages/settings/settings_page.dart';
+import 'package:social_media_app/presentation/widget/bottom_sheet_followers_followings_list.dart';
 import 'package:social_media_app/presentation/widget/custom_alert_dialog.dart';
 import 'package:social_media_app/presentation/widget/profile_avatar.dart';
 import 'package:social_media_app/presentation/widget/profile_info_card.dart';
 import 'package:social_media_app/presentation/widget/profile_post_tile.dart';
+import 'package:social_media_app/utils/firebase_utils.dart';
 
 class ProfilePage extends StatelessWidget {
-  final String? userId;
+  final String userId;
 
   const ProfilePage({
-    this.userId,
+    required this.userId,
     super.key
   });
 
@@ -29,13 +31,17 @@ class ProfilePage extends StatelessWidget {
           profileRepository: profileContext.read<ProfileRepositoryImpl>(),
           id: userId
         ),
-      child: const _ProfileView(),
+      child: _ProfileView(userId: userId),
     );
   }
 }
 
 class _ProfileView extends StatelessWidget {
-  const _ProfileView({super.key});
+  final String? userId;
+
+  const _ProfileView({
+    this.userId,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -50,24 +56,26 @@ class _ProfileView extends StatelessWidget {
                   ),
                 );
               }),
-          actions: [
-            IconButton(
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => SettingsPage(),
-                  ),
-                );
-              },
-              icon: Icon(Icons.settings),
-            ),
-            IconButton(
-              onPressed: () {
-                _showLogoutAlertDialog(context);
-              },
-              icon: Icon(Icons.logout),
-            ),
-          ],
+          actions: userId == FirebaseUtils.currentUserId
+            ? [
+                IconButton(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => SettingsPage(),
+                      ),
+                    );
+                  },
+                  icon: Icon(Icons.settings),
+                ),
+                IconButton(
+                  onPressed: () {
+                    _showLogoutAlertDialog(context);
+                  },
+                  icon: Icon(Icons.logout),
+                ),
+              ]
+            : null,
         ),
         body: BlocBuilder<ProfileBloc, ProfileState>(
           builder: (profileContext, state) {
@@ -82,44 +90,92 @@ class _ProfileView extends StatelessWidget {
                     // profile head
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      //mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        ProfileAvatar(
-                          radius: 45.0,
-                          userEntity: state.user ?? UserEntity(),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            ProfileAvatar(
+                              radius: 50.0,
+                              userEntity: state.user ?? UserEntity(),
+                            ),
+                          ],
                         ),
-                        ProfileInfoCard(
-                          value: state.posts.length.toString(),
-                          valueLabel: 'posts',
-                        ),
-                        //SizedBox(width: 10.0,),
-                        ProfileInfoCard(
-                          value: '17',
-                          valueLabel: 'followers',
-                        ),
-                        //SizedBox(width: 10.0,),
-                        ProfileInfoCard(
-                          value: '54',
-                          valueLabel: 'following',
-                        ),
+                        SizedBox(width: 20.0,),
+                        Expanded(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                children: [
+                                  ProfileInfoCard(
+                                    value: state.posts.length.toString(),
+                                    valueLabel: 'posts',
+                                  ),
+                                  ProfileInfoCard(
+                                    value: state.followers.length.toString(),
+                                    valueLabel: 'followers',
+                                    onTap: () {
+                                      showBottomSheetCreationVariants(
+                                          context: context,
+                                          bottomSheetTitle: 'Followers',
+                                          users: state.followers
+                                      );
+                                    },
+                                  ),
+                                  ProfileInfoCard(
+                                    value: state.followings.length.toString(),
+                                    valueLabel: 'following',
+                                    onTap: () {
+                                      showBottomSheetCreationVariants(
+                                          context: context,
+                                          bottomSheetTitle: 'Following',
+                                          users: state.followings
+                                      );
+                                    },
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 10.0,),
+
+                              if(userId != FirebaseUtils.currentUserId)
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    _followButton(
+                                        context: context,
+                                        buttonText: 'Follow',
+                                        onPressed: () {  }
+                                    ),
+                                  ],
+                                ),
+                            ],
+                          ),
+                        )
                       ],
                     ),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: Text(
-                            state.user?.bio ?? '',
-                            style: TextStyle(
-                                fontSize: 16
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.5,
+                          child: Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Text(
+                              state.user?.bio ?? '',
+                              style: TextStyle(
+                                  fontSize: 16
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                        )
+                        ),
                       ],
                     ),
 
                     SizedBox(height: 10.0,),
+
                     // 'all posts' title
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -175,6 +231,20 @@ class _ProfileView extends StatelessWidget {
       ),
     );
   }
+}
+
+Widget _followButton({
+  required BuildContext context,
+  required String buttonText,
+  required void Function()? onPressed,
+}) {
+  return ElevatedButton(
+    onPressed: onPressed,
+    child: Text(
+        buttonText,
+      style: TextStyle()
+    ),
+  );
 }
 
 Widget _postGrid(

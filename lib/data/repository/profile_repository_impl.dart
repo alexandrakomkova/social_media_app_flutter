@@ -17,7 +17,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
 
   @override
   Future<List<PostEntity>> getUserPosts(String? userId) async {
-    final res = await _dbService.getUserPosts(userId ?? FirebaseUtils.currentUser);
+    final res = await _dbService.getUserPosts(userId ?? FirebaseUtils.currentUserId);
 
     switch(res) {
       case Ok<List<PostEntity>>():
@@ -31,7 +31,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
   @override
   Future<UserEntity?> getUserInfo(String? id) async {
     //debugPrint('id: $id userId: ${FirebaseAuth.instance.currentUser?.uid}');
-    final res = await _dbService.getUserById(id ?? FirebaseUtils.currentUser);
+    final res = await _dbService.getUserById(id ?? FirebaseUtils.currentUserId);
 
     switch (res) {
       case Ok<UserEntity>():
@@ -56,7 +56,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
     switch (res) {
       case Ok<void>():
         debugPrint('--- success');
-        var user = await DbProvider.db.getClient(FirebaseUtils.currentUser);
+        var user = await DbProvider.db.getClient(FirebaseUtils.currentUserId);
 
         await DbProvider.db.updateUser(user.copyWith(
           username: username,
@@ -70,4 +70,39 @@ class ProfileRepositoryImpl implements ProfileRepository {
     }
   }
 
+  @override
+  Future<void> followUser({required String userId, required String userIdToFollow}) async {
+    await _dbService.followUser(userId: userId, userIdToFollow: userIdToFollow);
+  }
+
+  @override
+  Future<void> unfollowUser({required String userId, required String userIdToUnfollow}) async {
+    await _dbService.unfollowUser(userId: userId, userIdToUnfollow: userIdToUnfollow);
+  }
+
+  @override
+  Future<List<UserEntity>> getFollowers(String? userId) async {
+    final res = await _dbService.getFollowers(userId);
+
+    switch(res) {
+      case Ok<List<UserEntity>>():
+        return res.value;
+      case Error<List<UserEntity>>():
+        debugPrint(res.error.toString());
+        return [];
+    }
+  }
+
+  @override
+  Future<List<UserEntity>> getFollowings(String? userId) async {
+    final res = await _dbService.getFollowings(userId);
+
+    switch(res) {
+      case Ok<List<UserEntity>>():
+        return res.value;
+      case Error<List<UserEntity>>():
+        debugPrint(res.error.toString());
+        return [];
+    }
+  }
 }

@@ -4,6 +4,7 @@ import 'package:social_media_app/presentation/pages/notifications/notifications_
 import 'package:social_media_app/presentation/pages/profile/profile_page.dart';
 import 'package:social_media_app/presentation/pages/search/search_page.dart';
 import 'package:social_media_app/presentation/widget/choose_creation_variants.dart';
+import 'package:social_media_app/utils/firebase_utils.dart';
 
 class MainPage extends StatelessWidget {
   const MainPage({super.key});
@@ -15,8 +16,6 @@ class MainPage extends StatelessWidget {
 }
 
 class _MainView extends StatefulWidget {
-  const _MainView({super.key});
-
   @override
   State<_MainView> createState() => _MainViewState();
 }
@@ -52,7 +51,7 @@ class _MainViewState extends State<_MainView> {
     {
       'title': 'Profile',
       'icon': Icons.person,
-      'page': ProfilePage(),
+      'page': ProfilePage(userId: FirebaseUtils.currentUserId,),
       'index': 4,
     },
   ];

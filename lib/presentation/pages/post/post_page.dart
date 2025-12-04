@@ -39,9 +39,6 @@ class PostPage extends StatelessWidget {
 }
 
 class _PostView extends StatelessWidget {
-
-  const _PostView({super.key,});
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
