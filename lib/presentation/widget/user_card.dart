@@ -19,14 +19,14 @@ class UserCard extends StatelessWidget {
         userEntity: userEntity,
       ),
       title: Text(
-        userEntity.username ?? '',
+        userEntity.username,
         style: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w600
         ),
       ),
       subtitle: Text(
-        userEntity.bio ?? '',
+        userEntity.bio,
         style: TextStyle(
           fontSize: 14,
         ),
@@ -37,7 +37,7 @@ class UserCard extends StatelessWidget {
 
   }
 
-  void _showUserProfile(BuildContext context, String? id) {
+  void _showUserProfile(BuildContext context, String id) {
     Navigator.push(
       context,
       MaterialPageRoute(

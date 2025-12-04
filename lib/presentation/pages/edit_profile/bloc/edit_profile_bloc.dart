@@ -108,7 +108,7 @@ class EditProfileBloc extends Bloc<EditProfileEvent, EditProfileState> {
     ));
     debugPrint(" ---${state.username} ${state.bio}");
     try {
-      final user = await DbProvider.db.getClient(FirebaseUtils.currentUser);
+      final user = await DbProvider.db.getClient(FirebaseUtils.currentUserId);
 
       emit(EditProfileState.success(
         username: user.username,

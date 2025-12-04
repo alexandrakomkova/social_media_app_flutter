@@ -96,7 +96,7 @@ class FirebaseDbServiceImpl implements DbService {
         'creationTimestamp': creationTimestamp,
         'description': description,
         'imageUrl': imageUrl,
-        "userId": FirebaseUtils.currentUser,
+        "userId": FirebaseUtils.currentUserId,
       });
 
       //debugPrint('loaded ${imageUrl}');
@@ -146,7 +146,7 @@ class FirebaseDbServiceImpl implements DbService {
 
         debugPrint('--- FirebaseDbServiceImpl updateUserInfo $url');
 
-        await _usersRef.doc(FirebaseUtils.currentUser).update({
+        await _usersRef.doc(FirebaseUtils.currentUserId).update({
           'username': username,
           'bio': bio,
           'photoUrl': url,
@@ -187,7 +187,7 @@ class FirebaseDbServiceImpl implements DbService {
 
                 for (var docSnapshot in querySnapshot.docs) {
                   var data = docSnapshot.data();
-                  if(data['userId'] == FirebaseUtils.currentUser) {
+                  if(data['userId'] == FirebaseUtils.currentUserId) {
                     isLiked = true;
                   }
                 }
@@ -204,7 +204,7 @@ class FirebaseDbServiceImpl implements DbService {
   Future<Result<void>> addLike(String postId) async {
     try {
       await _likesRef.add({
-        'userId': FirebaseUtils.currentUser,
+        'userId': FirebaseUtils.currentUserId,
         'postId': postId,
         'date': DateTime.now().millisecondsSinceEpoch.toString(),
       });
@@ -220,7 +220,7 @@ class FirebaseDbServiceImpl implements DbService {
     try {
       await _likesRef
           .where('postId', isEqualTo: postId)
-          .where('userId', isEqualTo: FirebaseUtils.currentUser)
+          .where('userId', isEqualTo: FirebaseUtils.currentUserId)
           .get()
           .then(
               (querySnapshot) {
@@ -238,7 +238,7 @@ class FirebaseDbServiceImpl implements DbService {
   @override
   Future<Result<void>> addComment({required String postId, required String commentText}) async {
     try {
-      final user = await DbProvider.db.getClient(FirebaseUtils.currentUser);
+      final user = await DbProvider.db.getClient(FirebaseUtils.currentUserId);
 
       await _commentsRef.add({
         'userId': user.id,
@@ -336,7 +336,7 @@ class FirebaseDbServiceImpl implements DbService {
     List<UserEntity> followers = [];
     try {
       await _followersRef
-          .doc(userId ?? FirebaseUtils.currentUser)
+          .doc(userId ?? FirebaseUtils.currentUserId)
           .collection(_userFollowersCollection)
           .get()
           .then((querySnapshot) async {
@@ -376,7 +376,7 @@ class FirebaseDbServiceImpl implements DbService {
     List<UserEntity> followings = [];
     try {
       await _followingsRef
-          .doc(userId ?? FirebaseUtils.currentUser)
+          .doc(userId ?? FirebaseUtils.currentUserId)
           .collection(_userFollowingsCollection)
           .get()
           .then((querySnapshot) async {

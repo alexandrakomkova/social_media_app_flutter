@@ -116,11 +116,7 @@ class _SearchResult extends StatelessWidget {
                   itemBuilder: (context, index) {
                     var user = state.searchResult.elementAt(index);
 
-                    // var user = UserEntity(
-                    //     username: 'kikiki',
-                    //     bio: 'nobody scares me more than people',
-                    //     photoUrl: 'https://media.4-paws.org/d/2/5/f/d25ff020556e4b5eae747c55576f3b50886c0b90/cut%20cat%20serhio%2002-1813x1811-720x719.jpg'
-                    // );
+                    debugPrint('--- _SearchResult ${user.id} ${user.username}');
 
                     return UserCard(
                       userEntity: user,

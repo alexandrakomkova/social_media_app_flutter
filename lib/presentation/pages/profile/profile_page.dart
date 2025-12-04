@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:social_media_app/data/repository/auth/auth_repository_impl.dart';
 import 'package:social_media_app/data/repository/profile_repository_impl.dart';
 import 'package:social_media_app/domain/model/post_entity.dart';
@@ -11,12 +12,13 @@ import 'package:social_media_app/presentation/widget/custom_alert_dialog.dart';
 import 'package:social_media_app/presentation/widget/profile_avatar.dart';
 import 'package:social_media_app/presentation/widget/profile_info_card.dart';
 import 'package:social_media_app/presentation/widget/profile_post_tile.dart';
+import 'package:social_media_app/utils/firebase_utils.dart';
 
 class ProfilePage extends StatelessWidget {
-  final String? userId;
+  final String userId;
 
   const ProfilePage({
-    this.userId,
+    required this.userId,
     super.key
   });
 
@@ -29,13 +31,18 @@ class ProfilePage extends StatelessWidget {
           profileRepository: profileContext.read<ProfileRepositoryImpl>(),
           id: userId
         ),
-      child: const _ProfileView(),
+      child: _ProfileView(userId: userId),
     );
   }
 }
 
 class _ProfileView extends StatelessWidget {
-  const _ProfileView({super.key});
+  final String? userId;
+
+  const _ProfileView({
+    this.userId,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -50,24 +57,26 @@ class _ProfileView extends StatelessWidget {
                   ),
                 );
               }),
-          actions: [
-            IconButton(
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => SettingsPage(),
-                  ),
-                );
-              },
-              icon: Icon(Icons.settings),
-            ),
-            IconButton(
-              onPressed: () {
-                _showLogoutAlertDialog(context);
-              },
-              icon: Icon(Icons.logout),
-            ),
-          ],
+          actions: userId == FirebaseUtils.currentUserId
+            ? [
+                IconButton(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => SettingsPage(),
+                      ),
+                    );
+                  },
+                  icon: Icon(Icons.settings),
+                ),
+                IconButton(
+                  onPressed: () {
+                    _showLogoutAlertDialog(context);
+                  },
+                  icon: Icon(Icons.logout),
+                ),
+              ]
+            : null,
         ),
         body: BlocBuilder<ProfileBloc, ProfileState>(
           builder: (profileContext, state) {

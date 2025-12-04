@@ -68,7 +68,7 @@ class AuthRepositoryImpl implements AuthRepository {
     final res = await _authFirebaseService.signOut();
     switch (res) {
       case Ok<String>():
-        await DbProvider.db.deleteUser(FirebaseUtils.currentUser);
+        await DbProvider.db.deleteUser(FirebaseUtils.currentUserId);
         return res.value;
       case Error<String>():
         return res.error.toString();

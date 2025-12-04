@@ -17,7 +17,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
 
   @override
   Future<List<PostEntity>> getUserPosts(String? userId) async {
-    final res = await _dbService.getUserPosts(userId ?? FirebaseUtils.currentUser);
+    final res = await _dbService.getUserPosts(userId ?? FirebaseUtils.currentUserId);
 
     switch(res) {
       case Ok<List<PostEntity>>():
@@ -31,7 +31,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
   @override
   Future<UserEntity?> getUserInfo(String? id) async {
     //debugPrint('id: $id userId: ${FirebaseAuth.instance.currentUser?.uid}');
-    final res = await _dbService.getUserById(id ?? FirebaseUtils.currentUser);
+    final res = await _dbService.getUserById(id ?? FirebaseUtils.currentUserId);
 
     switch (res) {
       case Ok<UserEntity>():
@@ -56,7 +56,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
     switch (res) {
       case Ok<void>():
         debugPrint('--- success');
-        var user = await DbProvider.db.getClient(FirebaseUtils.currentUser);
+        var user = await DbProvider.db.getClient(FirebaseUtils.currentUserId);
 
         await DbProvider.db.updateUser(user.copyWith(
           username: username,
