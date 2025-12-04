@@ -33,4 +33,6 @@ abstract class DbService {
   Future<Result<List<UserEntity>>> getFollowers(String? userId);
   Future<Result<List<UserEntity>>> getFollowings(String? userId);
 
+  //home
+  Future<Result<List<PostEntity>>> getNewPosts({String? userId});
 }

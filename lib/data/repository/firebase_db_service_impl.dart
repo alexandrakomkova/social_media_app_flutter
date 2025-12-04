@@ -409,4 +409,38 @@ class FirebaseDbServiceImpl implements DbService {
       return Result.error(e);
     }
   }
+
+  @override
+  Future<Result<List<PostEntity>>> getNewPosts({String? userId}) async {
+    List<PostEntity> posts = [];
+    List<String> followingUserIds = [];
+    try {
+      var followingsSnapshot = await _followingsRef.get();
+
+      for (var doc in followingsSnapshot.docs) {
+        followingUserIds.add(doc.id);
+      }
+
+      await _postsRef.where('userId', whereIn: followingUserIds)
+          .get().then(
+              (querySnapshot) {
+            for (var docSnapshot in querySnapshot.docs) {
+              // print('${docSnapshot.id} => ${docSnapshot.data()}');
+              var data = docSnapshot.data();
+
+              posts.add(PostEntity(
+                  userId: data['userId'],
+                  imageUrl: data['imageUrl'],
+                  description: data['description'],
+                  creationTimestamp: data['creationTimestamp']
+              ));
+            }
+          }
+      );
+
+      return Result.ok(posts);
+    } on Exception catch(e) {
+      return Result.error(e);
+    }
+  }
 }
