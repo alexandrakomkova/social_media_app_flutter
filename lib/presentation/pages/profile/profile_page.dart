@@ -94,12 +94,12 @@ class _ProfileView extends StatelessWidget {
                         ),
                         //SizedBox(width: 10.0,),
                         ProfileInfoCard(
-                          value: '17',
+                          value: state.followers.length.toString(),
                           valueLabel: 'followers',
                         ),
                         //SizedBox(width: 10.0,),
                         ProfileInfoCard(
-                          value: '54',
+                          value: state.followings.length.toString(),
                           valueLabel: 'following',
                         ),
                       ],

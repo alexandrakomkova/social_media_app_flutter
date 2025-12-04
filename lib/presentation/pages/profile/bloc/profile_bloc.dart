@@ -86,17 +86,19 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     emit(ProfileState.processing());
 
     try {
-      final res = await _profileRepository.getUserPosts(event.userId);
+      final posts = await _profileRepository.getUserPosts(event.userId);
       final user =  await _profileRepository.getUserInfo(event.userId);
+      final followers = await _profileRepository.getFollowers(event.userId);
+      final followings = await _profileRepository.getFollowings(event.userId);
 
       emit(ProfileState.success(
-        posts: res,
+        posts: posts,
         user: user,
+        followers: followers,
+        followings: followings,
       ));
     } catch(e) {
-      emit(ProfileState.failed(
-          posts: [],
-      ));
+      emit(ProfileState.failed());
     }
   }
 }
