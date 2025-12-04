@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:social_media_app/data/repository/auth/auth_repository_impl.dart';
 import 'package:social_media_app/data/repository/profile_repository_impl.dart';
 import 'package:social_media_app/domain/model/post_entity.dart';
@@ -8,6 +7,7 @@ import 'package:social_media_app/domain/model/user_entity.dart';
 import 'package:social_media_app/presentation/pages/auth/sign_in_page.dart';
 import 'package:social_media_app/presentation/pages/profile/bloc/profile_bloc.dart';
 import 'package:social_media_app/presentation/pages/settings/settings_page.dart';
+import 'package:social_media_app/presentation/widget/bottom_sheet_followers_followings_list.dart';
 import 'package:social_media_app/presentation/widget/custom_alert_dialog.dart';
 import 'package:social_media_app/presentation/widget/profile_avatar.dart';
 import 'package:social_media_app/presentation/widget/profile_info_card.dart';
@@ -41,7 +41,6 @@ class _ProfileView extends StatelessWidget {
 
   const _ProfileView({
     this.userId,
-    super.key,
   });
 
   @override
@@ -105,11 +104,25 @@ class _ProfileView extends StatelessWidget {
                         ProfileInfoCard(
                           value: state.followers.length.toString(),
                           valueLabel: 'followers',
+                          onTap: () {
+                            showBottomSheetCreationVariants(
+                                context: context,
+                                bottomSheetTitle: 'Followers',
+                                users: state.followers
+                            );
+                          },
                         ),
                         //SizedBox(width: 10.0,),
                         ProfileInfoCard(
                           value: state.followings.length.toString(),
                           valueLabel: 'following',
+                          onTap: () {
+                            showBottomSheetCreationVariants(
+                                context: context,
+                                bottomSheetTitle: 'Following',
+                                users: state.followings
+                            );
+                          },
                         ),
                       ],
                     ),
