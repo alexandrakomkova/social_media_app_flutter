@@ -20,6 +20,10 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     });
   }
 
+  factory HomeBloc.getNewPosts({
+    required HomeRepository homeRepository,
+  }) => HomeBloc(homeRepository: homeRepository)..add(HomeEvent.getNewPosts());
+
   Future<void> _getNewPosts(Emitter<HomeState> emit) async {
     emit(HomeState.processing());
 
