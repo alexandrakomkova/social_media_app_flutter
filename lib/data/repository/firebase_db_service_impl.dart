@@ -4,7 +4,9 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'package:social_media_app/data/db_provider.dart';
 import 'package:social_media_app/data/model/user_model.dart';
+import 'package:social_media_app/domain/model/comment_entity.dart';
 import 'package:social_media_app/domain/model/post_entity.dart';
 import 'package:social_media_app/domain/model/user_entity.dart';
 import 'package:social_media_app/domain/repository/db_service.dart';
@@ -16,6 +18,8 @@ class FirebaseDbServiceImpl implements DbService {
   final firestore = FirebaseFirestore.instance;
   late final _usersRef = firestore.collection('users');
   late final _postsRef = firestore.collection('posts');
+  late final _likesRef = firestore.collection('likes');
+  late final _commentsRef = firestore.collection('comments');
 
   @override
   Future<void> createUser(User user, UserModel userModel) async {
@@ -41,14 +45,6 @@ class FirebaseDbServiceImpl implements DbService {
       final docSnap = await userRef.get();
       final userEntity = docSnap.data();
 
-      // return Result.ok(UserEntity(
-      //   id: userEntity!.id,
-      //   username: userEntity.username,
-      //   email: userEntity.email,
-      //   bio: userEntity.bio,
-      //   creationTimestamp: userEntity.creationTimestamp,
-      //   photoUrl: userEntity.photoUrl,
-      // ));
       return Result.ok(userEntity ?? UserEntity());
     } on Exception catch(e) {
       return Result.error(e);
@@ -170,6 +166,119 @@ class FirebaseDbServiceImpl implements DbService {
     }
 
     return '';
+  }
+
+  @override
+  Future<Result<int>> getLikesCount(String postId) async {
+    int likesCount = 0;
+    bool isLiked = false;
+
+    try {
+      await _likesRef
+          .where('postId', isEqualTo: postId)
+          .get()
+          .then(
+              (querySnapshot) {
+                likesCount = querySnapshot.docs.length;
+
+                for (var docSnapshot in querySnapshot.docs) {
+                  var data = docSnapshot.data();
+                  if(data['userId'] == FirebaseUtils.currentUser) {
+                    isLiked = true;
+                  }
+                }
+      });
+
+      debugPrint('--- ${likesCount}');
+      return Result.ok(likesCount);
+    } on Exception catch(e) {
+      return Result.error(e);
+    }
+  }
+
+  @override
+  Future<Result<void>> addLike(String postId) async {
+    try {
+      await _likesRef.add({
+        'userId': FirebaseUtils.currentUser,
+        'postId': postId,
+        'date': DateTime.now().millisecondsSinceEpoch.toString(),
+      });
+
+      return Result.ok('');
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
+  }
+
+  @override
+  Future<Result<void>> removeLike(String postId) async {
+    try {
+      await _likesRef
+          .where('postId', isEqualTo: postId)
+          .where('userId', isEqualTo: FirebaseUtils.currentUser)
+          .get()
+          .then(
+              (querySnapshot) {
+                for (var docSnapshot in querySnapshot.docs) {
+                  docSnapshot.reference.delete();
+                }
+          });
+
+      return Result.ok('');
+    } on Exception catch (e) {
+      return Result.error(e);
+    }
+  }
+
+  @override
+  Future<Result<void>> addComment({required String postId, required String commentText}) async {
+    try {
+      final user = await DbProvider.db.getClient(FirebaseUtils.currentUser);
+
+      await _commentsRef.add({
+        'userId': user.id,
+        'postId': postId,
+        'username': user.username,
+        'userImageUrl': user.photoUrl,
+        'commentText': commentText,
+        'createdAt': DateTime.now().millisecondsSinceEpoch,
+      });
+
+      return Result.ok('');
+    } on Exception catch(e) {
+      return Result.error(e);
+    }
+  }
+
+  @override
+  Future<Result<List<CommentEntity>>> getComments({
+    required String postId,
+  }) async {
+    List<CommentEntity> comments = [];
+    try {
+      await _commentsRef.where('postId', isEqualTo: postId).orderBy('createdAt', descending: true)
+          .get().then((querySnapshot) {
+            for (var docSnapshot in querySnapshot.docs) {
+              debugPrint('${docSnapshot.id} => ${docSnapshot.data()}');
+              var data = docSnapshot.data();
+
+              comments.add(CommentEntity(
+                  userId: data['userId'],
+                  username: data['username'],
+                  userImageUrl: data['userImageUrl'],
+                  postId: data['postId'],
+                  commentText: data['commentText'],
+                  createdAt: data['createdAt'],
+              ));
+            }
+          }
+      );
+
+      return Result.ok(comments);
+    } on Exception catch(e) {
+      return Result.error(e);
+    }
   }
 
 
