@@ -13,11 +13,11 @@ void showBottomSheetCreationVariants({
         BorderRadius.vertical(top: Radius.circular(20)),
       ),
       showDragHandle: true,
-      isScrollControlled: false,
+      isScrollControlled: true,
       context: context,
       builder: (BuildContext context) {
         return FractionallySizedBox(
-            heightFactor: .6,
+            heightFactor: .5,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -36,35 +36,38 @@ void showBottomSheetCreationVariants({
                 ),
 
                 Divider(),
+                Expanded(
+                    child: users.isEmpty
+                        ? Center( child: Text('No ${bottomSheetTitle.toLowerCase()} found'))
+                        : ListView.builder(
+                      physics: AlwaysScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      itemCount: users.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        var user = users[index];
 
-                ListView.builder(
-                  physics: NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  itemCount: users.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    var user = users[index];
-
-                    return ListTile(
-                      leading: ProfileAvatar(
-                        radius: 20.0,
-                        userEntity: UserEntity(
-                          username: user.username,
-                          photoUrl: user.photoUrl
-                        ),
-                      ),
-                      title: Text(
-                        user.username,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600
-                        )
-                      ),
-                      subtitle: Text(
-                        user.bio,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    );
-                  },
-                )
+                        return ListTile(
+                          leading: ProfileAvatar(
+                            radius: 20.0,
+                            userEntity: UserEntity(
+                                username: user.username,
+                                photoUrl: user.photoUrl
+                            ),
+                          ),
+                          title: Text(
+                              user.username,
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600
+                              )
+                          ),
+                          subtitle: Text(
+                            user.bio,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        );
+                      },
+                    ),
+                ),
               ],
             ),
         );
