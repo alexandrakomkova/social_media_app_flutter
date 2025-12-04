@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:social_media_app/domain/model/post_entity.dart';
+import 'package:social_media_app/presentation/pages/post/post_page.dart';
 
 class ProfilePostTile extends StatelessWidget {
   final PostEntity postEntity;
@@ -14,11 +15,11 @@ class ProfilePostTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // Navigator.of(context).push(
-        //   MaterialPageRoute(
-        //     builder: (_) => ViewImage(postEntity: postEntity),
-        //   )
-        // );
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => PostPage(postEntity: postEntity),
+          )
+        );
       },
       child: SizedBox(
         height: 100,

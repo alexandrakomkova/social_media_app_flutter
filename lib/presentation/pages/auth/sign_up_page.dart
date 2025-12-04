@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:social_media_app/data/repository/auth/auth_repository_impl.dart';
-import 'package:social_media_app/utils/auth_validator.dart';
+import 'package:social_media_app/utils/validator.dart';
 import 'package:social_media_app/presentation/pages/auth/bloc/sign_up/sign_up_bloc.dart';
 import 'package:social_media_app/presentation/pages/auth/sign_in_page.dart';
-import 'package:social_media_app/presentation/widget/auth_text_field.dart';
+import 'package:social_media_app/presentation/widget/custom_text_form_field.dart';
 
 class SignUpPage extends StatelessWidget {
   const SignUpPage({super.key});
@@ -69,12 +69,12 @@ class _SignUpViewState extends State<_SignUpView> {
                     children: [
                       BlocBuilder<SignUpBloc, SignUpState>(
                         builder: (signUpContext, state) {
-                          return AuthTextField(
+                          return CustomTextFormField(
                             textFieldKey: const Key(
                                 'signUpForm_username_textFormField'),
                             initialValue: state.username,
                             hintText: 'Username',
-                            validator: (value) => AuthValidator.validateUsername(value),
+                            validator: (value) => Validator.validateUsername(value),
                             onChanged: (value) =>
                                 signUpContext.read<SignUpBloc>().add(
                                     SignUpEvent.usernameChanged(value)
@@ -85,12 +85,12 @@ class _SignUpViewState extends State<_SignUpView> {
                       const SizedBox(height: 15.0),
                       BlocBuilder<SignUpBloc, SignUpState>(
                         builder: (signUpContext, state) {
-                          return AuthTextField(
+                          return CustomTextFormField(
                             textFieldKey: const Key(
                                 'signUpForm_email_textFormField'),
                             initialValue: state.email,
                             hintText: 'Email',
-                            validator: (value) => AuthValidator.validateEmail(value),
+                            validator: (value) => Validator.validateEmail(value),
                             onChanged: (value) =>
                                 signUpContext.read<SignUpBloc>().add(
                                     SignUpEvent.emailChanged(value)
@@ -101,13 +101,13 @@ class _SignUpViewState extends State<_SignUpView> {
                       const SizedBox(height: 15.0),
                       BlocBuilder<SignUpBloc, SignUpState>(
                         builder: (signUpContext, state) {
-                          return AuthTextField(
+                          return CustomTextFormField(
                             textFieldKey: const Key(
                                 'signUpForm_password_textFormField'),
                             initialValue: state.password,
                             hintText: 'Password',
                             obscureText: true,
-                            validator: (value) => AuthValidator.validatePassword(value),
+                            validator: (value) => Validator.validatePassword(value),
                             onChanged: (value) =>
                                 signUpContext.read<SignUpBloc>().add(
                                     SignUpEvent.passwordChanged(value)),
@@ -117,13 +117,13 @@ class _SignUpViewState extends State<_SignUpView> {
                       const SizedBox(height: 15.0),
                       BlocBuilder<SignUpBloc, SignUpState>(
                         builder: (signUpContext, state) {
-                          return AuthTextField(
+                          return CustomTextFormField(
                             textFieldKey: const Key(
                                 'signUpForm_repeatPassword_textFormField'),
                             initialValue: state.repeatPassword,
                             hintText: 'Repeat password',
                             obscureText: true,
-                            validator: (value) => AuthValidator.validateRepeatPassword(state.password, value),
+                            validator: (value) => Validator.validateRepeatPassword(state.password, value),
                             onChanged: (value) =>
                               signUpContext.read<SignUpBloc>().add(SignUpEvent.repeatPasswordChanged(value)),
                           );
