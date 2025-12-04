@@ -70,4 +70,28 @@ class ProfileRepositoryImpl implements ProfileRepository {
     }
   }
 
+  @override
+  Future<void> followUser({required String userId, required String userIdToFollow}) {
+    // TODO: implement getFollowers
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<List<UserEntity>> getFollowers(String? userId) {
+    // TODO: implement getFollowers
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<List<UserEntity>> getFollowings(String? userId) async {
+    // TODO: implement unfollowUser
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> unfollowUser({required String userId, required String userIdToUnfollow}) {
+    // TODO: implement unfollowUser
+    throw UnimplementedError();
+  }
+
 }

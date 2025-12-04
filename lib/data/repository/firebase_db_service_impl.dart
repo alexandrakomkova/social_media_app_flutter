@@ -20,6 +20,10 @@ class FirebaseDbServiceImpl implements DbService {
   late final _postsRef = firestore.collection('posts');
   late final _likesRef = firestore.collection('likes');
   late final _commentsRef = firestore.collection('comments');
+  late final _followersRef = firestore.collection('followers');
+  late final _followingsRef = firestore.collection('followings');
+  late final _userFollowersCollection = 'userFollowers';
+  late final _userFollowingsCollection = 'userFollowings';
 
   @override
   Future<void> createUser(User user, UserModel userModel) async {
@@ -189,7 +193,7 @@ class FirebaseDbServiceImpl implements DbService {
                 }
       });
 
-      debugPrint('--- ${likesCount}');
+      debugPrint('--- $likesCount');
       return Result.ok(likesCount);
     } on Exception catch(e) {
       return Result.error(e);
@@ -257,8 +261,11 @@ class FirebaseDbServiceImpl implements DbService {
   }) async {
     List<CommentEntity> comments = [];
     try {
-      await _commentsRef.where('postId', isEqualTo: postId).orderBy('createdAt', descending: true)
-          .get().then((querySnapshot) {
+      await _commentsRef
+          .where('postId', isEqualTo: postId)
+          .orderBy('createdAt', descending: true)
+          .get()
+          .then((querySnapshot) {
             for (var docSnapshot in querySnapshot.docs) {
               debugPrint('${docSnapshot.id} => ${docSnapshot.data()}');
               var data = docSnapshot.data();
@@ -281,5 +288,108 @@ class FirebaseDbServiceImpl implements DbService {
     }
   }
 
+  @override
+  Future<void> followUser({required String userId, required String userIdToFollow}) async {
+    try {
+      await _followersRef
+          .doc(userIdToFollow)
+          .collection(_userFollowersCollection)
+          .doc(userId)
+          .set({
+        'userInfo': _usersRef.doc(userId)
+      });
 
+      await _followingsRef
+          .doc(userId)
+          .collection(_userFollowingsCollection)
+          .doc(userIdToFollow)
+          .set({
+        'userInfo': _usersRef.doc(userIdToFollow)
+      });
+
+    } on Exception catch(e) {
+
+    }
+  }
+
+  @override
+  Future<void> unfollowUser({required String userId, required String userIdToUnfollow}) async {
+    try {
+      await _followersRef
+          .doc(userIdToUnfollow)
+          .collection(_userFollowersCollection)
+          .doc(userId)
+          .delete();
+
+      await _followingsRef
+          .doc(userId)
+          .collection(_userFollowingsCollection)
+          .doc(userIdToUnfollow)
+          .delete();
+    } on Exception catch(e) {
+
+    }
+  }
+
+  @override
+  Future<Result<List<UserEntity>>> getFollowers(String? userId) async {
+    List<UserEntity> followers = [];
+    try {
+      await _followersRef
+          .doc(userId ?? FirebaseUtils.currentUser)
+          .collection(_userFollowersCollection)
+          .get()
+          .then((querySnapshot) {
+            for (var docSnapshot in querySnapshot.docs) {
+              debugPrint('${docSnapshot.id} => ${docSnapshot.data()}');
+              var data = docSnapshot.data();
+              var user = data['userInfo'];
+
+              followers.add(UserEntity(
+                id: user['id'],
+                username: user['username'],
+                email: user['email'],
+                bio: user['bio'],
+                creationTimestamp: user['creationTimestamp'],
+                photoUrl: user['photoUrl'],
+              ));
+            }
+      });
+
+      return Result.ok(followers);
+    } on Exception catch(e) {
+      return Result.error(e);
+    }
+  }
+
+  @override
+  Future<Result<List<UserEntity>>> getFollowings(String? userId) async {
+    List<UserEntity> followings = [];
+    try {
+      await _followingsRef
+          .doc(userId ?? FirebaseUtils.currentUser)
+          .collection(_userFollowingsCollection)
+          .get()
+          .then((querySnapshot) {
+        for (var docSnapshot in querySnapshot.docs) {
+          debugPrint('${docSnapshot.id} => ${docSnapshot.data()}');
+          var data = docSnapshot.data();
+          var user = data['userInfo'];
+
+          followings.add(UserEntity(
+            id: user['id'],
+            username: user['username'],
+            email: user['email'],
+            bio: user['bio'],
+            creationTimestamp: user['creationTimestamp'],
+            photoUrl: user['photoUrl'],
+          ));
+        }
+      });
+
+      return Result.ok(followings);
+    } on Exception catch(e) {
+      return Result.error(e);
+    }
+  }
 }

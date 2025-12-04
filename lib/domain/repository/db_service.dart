@@ -27,4 +27,10 @@ abstract class DbService {
   Future<Result<List<CommentEntity>>> getComments({required String postId});
   Future<Result<void>> addComment({required String postId, required String commentText});
 
+  // followers and followings
+  Future<void> followUser({required String userId, required String userIdToFollow});
+  Future<void> unfollowUser({required String userId, required String userIdToUnfollow});
+  Future<Result<List<UserEntity>>> getFollowers(String? userId);
+  Future<Result<List<UserEntity>>> getFollowings(String? userId);
+
 }
