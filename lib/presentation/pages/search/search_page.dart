@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:social_media_app/data/repository/search_repository_impl.dart';
+import 'package:social_media_app/presentation/pages/profile/profile_page.dart';
 import 'package:social_media_app/presentation/widget/user_card.dart';
 import 'bloc/search_bloc.dart';
 
@@ -20,8 +21,6 @@ class SearchPage extends StatelessWidget {
 }
 
 class _SearchView extends StatelessWidget {
-  const _SearchView({super.key});
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -53,8 +52,6 @@ class _SearchView extends StatelessWidget {
   }
 }
 class _SearchBar extends StatelessWidget {
-  const _SearchBar({super.key});
-
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -100,8 +97,6 @@ class _SearchBar extends StatelessWidget {
 }
 
 class _SearchResult extends StatelessWidget {
-  const _SearchResult({super.key});
-
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<SearchBloc, SearchState>(
@@ -120,6 +115,7 @@ class _SearchResult extends StatelessWidget {
 
                     return UserCard(
                       userEntity: user,
+                      onTap: () => _showUserProfile(context: context, id: user.id),
                     );
                   },
                 )
@@ -130,5 +126,13 @@ class _SearchResult extends StatelessWidget {
   }
 }
 
+void _showUserProfile({required BuildContext context, required String id}) {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (_) => ProfilePage(userId: id,),
+    ),
+  );
+}
 
 

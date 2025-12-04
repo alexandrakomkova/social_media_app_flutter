@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:social_media_app/domain/model/user_entity.dart';
-import 'package:social_media_app/presentation/widget/profile_avatar.dart';
+import 'package:social_media_app/presentation/pages/profile/profile_page.dart';
+import 'package:social_media_app/presentation/widget/user_card.dart';
 
 void showBottomSheetCreationVariants({
   required BuildContext context,
@@ -36,6 +37,7 @@ void showBottomSheetCreationVariants({
                 ),
 
                 Divider(),
+
                 Expanded(
                     child: users.isEmpty
                         ? Center( child: Text('No ${bottomSheetTitle.toLowerCase()} found'))
@@ -44,26 +46,11 @@ void showBottomSheetCreationVariants({
                       shrinkWrap: true,
                       itemCount: users.length,
                       itemBuilder: (BuildContext context, int index) {
-                        var user = users[index];
+                        final user = users[index];
 
-                        return ListTile(
-                          leading: ProfileAvatar(
-                            radius: 20.0,
-                            userEntity: UserEntity(
-                                username: user.username,
-                                photoUrl: user.photoUrl
-                            ),
-                          ),
-                          title: Text(
-                              user.username,
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600
-                              )
-                          ),
-                          subtitle: Text(
-                            user.bio,
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                        return UserCard(
+                            userEntity: user,
+                            onTap: () => _showUserProfile(context: context, id: user.id),
                         );
                       },
                     ),
@@ -72,5 +59,15 @@ void showBottomSheetCreationVariants({
             ),
         );
       },
+  );
+}
+
+
+void _showUserProfile({required BuildContext context, required String id}) {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (_) => ProfilePage(userId: id,),
+    ),
   );
 }
