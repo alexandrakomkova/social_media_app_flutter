@@ -339,20 +339,29 @@ class FirebaseDbServiceImpl implements DbService {
           .doc(userId ?? FirebaseUtils.currentUser)
           .collection(_userFollowersCollection)
           .get()
-          .then((querySnapshot) {
+          .then((querySnapshot) async {
             for (var docSnapshot in querySnapshot.docs) {
               debugPrint('${docSnapshot.id} => ${docSnapshot.data()}');
               var data = docSnapshot.data();
-              var user = data['userInfo'];
+              var userRef = data['userInfo'] as DocumentReference;
 
-              followers.add(UserEntity(
-                id: user['id'],
-                username: user['username'],
-                email: user['email'],
-                bio: user['bio'],
-                creationTimestamp: user['creationTimestamp'],
-                photoUrl: user['photoUrl'],
-              ));
+              var userDoc = await userRef.get();
+              if(userDoc.exists) {
+
+                if(userDoc.data() == null) {
+                  return Result.ok([]);
+                }
+                var user = userDoc.data() as dynamic;
+
+                followers.add(UserEntity(
+                  id: user['id'],
+                  username: user['username'],
+                  email: user['email'],
+                  bio: user['bio'],
+                  creationTimestamp: user['creationTimestamp'],
+                  photoUrl: user['photoUrl'],
+                ));
+              }
             }
       });
 
@@ -370,20 +379,28 @@ class FirebaseDbServiceImpl implements DbService {
           .doc(userId ?? FirebaseUtils.currentUser)
           .collection(_userFollowingsCollection)
           .get()
-          .then((querySnapshot) {
+          .then((querySnapshot) async {
         for (var docSnapshot in querySnapshot.docs) {
           debugPrint('${docSnapshot.id} => ${docSnapshot.data()}');
           var data = docSnapshot.data();
-          var user = data['userInfo'];
+          var userRef = data['userInfo'] as DocumentReference;
 
-          followings.add(UserEntity(
-            id: user['id'],
-            username: user['username'],
-            email: user['email'],
-            bio: user['bio'],
-            creationTimestamp: user['creationTimestamp'],
-            photoUrl: user['photoUrl'],
-          ));
+          var userDoc = await userRef.get();
+          if(userDoc.exists) {
+            if (userDoc.data() == null) {
+              return Result.ok([]);
+            }
+            var user = userDoc.data() as dynamic;
+
+            followings.add(UserEntity(
+              id: user['id'],
+              username: user['username'],
+              email: user['email'],
+              bio: user['bio'],
+              creationTimestamp: user['creationTimestamp'],
+              photoUrl: user['photoUrl'],
+            ));
+          }
         }
       });
 
