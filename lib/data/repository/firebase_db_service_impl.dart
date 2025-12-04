@@ -308,7 +308,7 @@ class FirebaseDbServiceImpl implements DbService {
       });
 
     } on Exception catch(e) {
-
+      debugPrint('--- FirebaseDbServiceImpl followUser ${e.toString()}');
     }
   }
 
@@ -327,7 +327,7 @@ class FirebaseDbServiceImpl implements DbService {
           .doc(userIdToUnfollow)
           .delete();
     } on Exception catch(e) {
-
+      debugPrint('--- FirebaseDbServiceImpl unfollowUser ${e.toString()}');
     }
   }
 

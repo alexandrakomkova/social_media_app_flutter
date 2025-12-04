@@ -90,58 +90,92 @@ class _ProfileView extends StatelessWidget {
                     // profile head
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      //mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        ProfileAvatar(
-                          radius: 45.0,
-                          userEntity: state.user ?? UserEntity(),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            ProfileAvatar(
+                              radius: 50.0,
+                              userEntity: state.user ?? UserEntity(),
+                            ),
+                          ],
                         ),
-                        ProfileInfoCard(
-                          value: state.posts.length.toString(),
-                          valueLabel: 'posts',
-                        ),
-                        //SizedBox(width: 10.0,),
-                        ProfileInfoCard(
-                          value: state.followers.length.toString(),
-                          valueLabel: 'followers',
-                          onTap: () {
-                            showBottomSheetCreationVariants(
-                                context: context,
-                                bottomSheetTitle: 'Followers',
-                                users: state.followers
-                            );
-                          },
-                        ),
-                        //SizedBox(width: 10.0,),
-                        ProfileInfoCard(
-                          value: state.followings.length.toString(),
-                          valueLabel: 'following',
-                          onTap: () {
-                            showBottomSheetCreationVariants(
-                                context: context,
-                                bottomSheetTitle: 'Following',
-                                users: state.followings
-                            );
-                          },
-                        ),
+                        SizedBox(width: 20.0,),
+                        Expanded(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                children: [
+                                  ProfileInfoCard(
+                                    value: state.posts.length.toString(),
+                                    valueLabel: 'posts',
+                                  ),
+                                  ProfileInfoCard(
+                                    value: state.followers.length.toString(),
+                                    valueLabel: 'followers',
+                                    onTap: () {
+                                      showBottomSheetCreationVariants(
+                                          context: context,
+                                          bottomSheetTitle: 'Followers',
+                                          users: state.followers
+                                      );
+                                    },
+                                  ),
+                                  ProfileInfoCard(
+                                    value: state.followings.length.toString(),
+                                    valueLabel: 'following',
+                                    onTap: () {
+                                      showBottomSheetCreationVariants(
+                                          context: context,
+                                          bottomSheetTitle: 'Following',
+                                          users: state.followings
+                                      );
+                                    },
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 10.0,),
+
+                              if(userId != FirebaseUtils.currentUserId)
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    _followButton(
+                                        context: context,
+                                        buttonText: 'Follow',
+                                        onPressed: () {  }
+                                    ),
+                                  ],
+                                ),
+                            ],
+                          ),
+                        )
                       ],
                     ),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: Text(
-                            state.user?.bio ?? '',
-                            style: TextStyle(
-                                fontSize: 16
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.5,
+                          child: Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Text(
+                              state.user?.bio ?? '',
+                              style: TextStyle(
+                                  fontSize: 16
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                        )
+                        ),
                       ],
                     ),
 
                     SizedBox(height: 10.0,),
+
                     // 'all posts' title
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -197,6 +231,20 @@ class _ProfileView extends StatelessWidget {
       ),
     );
   }
+}
+
+Widget _followButton({
+  required BuildContext context,
+  required String buttonText,
+  required void Function()? onPressed,
+}) {
+  return ElevatedButton(
+    onPressed: onPressed,
+    child: Text(
+        buttonText,
+      style: TextStyle()
+    ),
+  );
 }
 
 Widget _postGrid(
