@@ -71,27 +71,38 @@ class ProfileRepositoryImpl implements ProfileRepository {
   }
 
   @override
-  Future<void> followUser({required String userId, required String userIdToFollow}) {
-    // TODO: implement getFollowers
-    throw UnimplementedError();
+  Future<void> followUser({required String userId, required String userIdToFollow}) async {
+    await _dbService.followUser(userId: userId, userIdToFollow: userIdToFollow);
   }
 
   @override
-  Future<List<UserEntity>> getFollowers(String? userId) {
-    // TODO: implement getFollowers
-    throw UnimplementedError();
+  Future<void> unfollowUser({required String userId, required String userIdToUnfollow}) async {
+    await _dbService.unfollowUser(userId: userId, userIdToUnfollow: userIdToUnfollow);
+  }
+
+  @override
+  Future<List<UserEntity>> getFollowers(String? userId) async {
+    final res = await _dbService.getFollowers(userId);
+
+    switch(res) {
+      case Ok<List<UserEntity>>():
+        return res.value;
+      case Error<List<UserEntity>>():
+        debugPrint(res.error.toString());
+        return [];
+    }
   }
 
   @override
   Future<List<UserEntity>> getFollowings(String? userId) async {
-    // TODO: implement unfollowUser
-    throw UnimplementedError();
-  }
+    final res = await _dbService.getFollowings(userId);
 
-  @override
-  Future<void> unfollowUser({required String userId, required String userIdToUnfollow}) {
-    // TODO: implement unfollowUser
-    throw UnimplementedError();
+    switch(res) {
+      case Ok<List<UserEntity>>():
+        return res.value;
+      case Error<List<UserEntity>>():
+        debugPrint(res.error.toString());
+        return [];
+    }
   }
-
 }
