@@ -415,7 +415,10 @@ class FirebaseDbServiceImpl implements DbService {
     List<PostEntity> posts = [];
     List<String> followingUserIds = [];
     try {
-      var followingsSnapshot = await _followingsRef.get();
+      var followingsSnapshot = await _followingsRef
+          .doc(userId ?? FirebaseUtils.currentUserId)
+          .collection(_userFollowingsCollection)
+          .get();
 
       for (var doc in followingsSnapshot.docs) {
         followingUserIds.add(doc.id);
