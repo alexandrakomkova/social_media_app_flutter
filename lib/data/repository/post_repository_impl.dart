@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:social_media_app/domain/model/comment_entity.dart';
-import 'package:social_media_app/domain/post_repository.dart';
+import 'package:social_media_app/domain/repository/post_repository.dart';
 import 'package:social_media_app/domain/repository/comment_repository.dart';
 import 'package:social_media_app/domain/repository/db_service.dart';
 import 'package:social_media_app/utils/result.dart';

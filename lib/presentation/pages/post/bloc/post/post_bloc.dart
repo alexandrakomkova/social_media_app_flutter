@@ -2,7 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:meta/meta.dart';
 import 'package:social_media_app/domain/model/post_entity.dart';
-import 'package:social_media_app/domain/post_repository.dart';
+import 'package:social_media_app/domain/repository/post_repository.dart';
 
 part 'post_event.dart';
 part 'post_state.dart';
