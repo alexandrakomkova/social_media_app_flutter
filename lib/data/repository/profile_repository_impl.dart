@@ -16,8 +16,8 @@ class ProfileRepositoryImpl implements ProfileRepository {
   }): _dbService = dbService;
 
   @override
-  Future<List<PostEntity>> getUserPosts(String? userId) async {
-    final res = await _dbService.getUserPosts(userId ?? FirebaseUtils.currentUserId);
+  Future<List<PostEntity>> getUserPosts({required String userId}) async {
+    final res = await _dbService.getUserPosts(userId);
 
     switch(res) {
       case Ok<List<PostEntity>>():
@@ -29,9 +29,9 @@ class ProfileRepositoryImpl implements ProfileRepository {
   }
 
   @override
-  Future<UserEntity?> getUserInfo(String? id) async {
+  Future<UserEntity?> getUserInfo({required String userId}) async {
     //debugPrint('id: $id userId: ${FirebaseAuth.instance.currentUser?.uid}');
-    final res = await _dbService.getUserById(id ?? FirebaseUtils.currentUserId);
+    final res = await _dbService.getUserById(userId);
 
     switch (res) {
       case Ok<UserEntity>():
@@ -81,7 +81,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
   }
 
   @override
-  Future<List<UserEntity>> getFollowers(String? userId) async {
+  Future<List<UserEntity>> getFollowers({required String userId}) async {
     final res = await _dbService.getFollowers(userId);
 
     switch(res) {
@@ -94,7 +94,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
   }
 
   @override
-  Future<List<UserEntity>> getFollowings(String? userId) async {
+  Future<List<UserEntity>> getFollowings({required String userId}) async {
     final res = await _dbService.getFollowings(userId);
 
     switch(res) {

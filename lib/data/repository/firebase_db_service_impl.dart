@@ -27,8 +27,6 @@ class FirebaseDbServiceImpl implements DbService {
 
   @override
   Future<void> createUser(User user, UserModel userModel) async {
-    //debugPrint('FirebaseDbServiceImpl createUser ${userModel.username}');
-
     await _usersRef.doc(user.uid).set({
       'id': user.uid,
       'username': userModel.username,
@@ -56,7 +54,7 @@ class FirebaseDbServiceImpl implements DbService {
   }
 
   @override
-  Future<Result<List<UserEntity>>> searchUserByUsername(String username) async {
+  Future<Result<List<UserEntity>>> searchUserByUsername({required String username}) async {
     List<UserEntity> foundUsers = [];
 
     try {
@@ -65,7 +63,7 @@ class FirebaseDbServiceImpl implements DbService {
           .get().then(
             (querySnapshot) {
           for (var docSnapshot in querySnapshot.docs) {
-            // print('${docSnapshot.id} => ${docSnapshot.data()}');
+            // debugPrint('${docSnapshot.id} => ${docSnapshot.data()}');
             var data = docSnapshot.data();
 
             foundUsers.add(UserEntity(
@@ -116,7 +114,7 @@ class FirebaseDbServiceImpl implements DbService {
           .get().then(
               (querySnapshot) {
             for (var docSnapshot in querySnapshot.docs) {
-              print('${docSnapshot.id} => ${docSnapshot.data()}');
+              //debugPrint('${docSnapshot.id} => ${docSnapshot.data()}');
               var data = docSnapshot.data();
 
               posts.add(PostEntity(
@@ -137,25 +135,25 @@ class FirebaseDbServiceImpl implements DbService {
 
   @override
   Future<Result<void>> updateUserInfo(String imageUrl, String username, String bio)  async {
-    debugPrint('--- FirebaseDbServiceImpl updateUserInfo');
+    //debugPrint('--- FirebaseDbServiceImpl updateUserInfo');
     try {
 
       final int creationTimestamp = DateTime.now().millisecondsSinceEpoch;
 
       String url = await _getImageUrl(imageUrl, creationTimestamp.toString());
 
-        debugPrint('--- FirebaseDbServiceImpl updateUserInfo $url');
+        //debugPrint('--- FirebaseDbServiceImpl updateUserInfo $url');
 
         await _usersRef.doc(FirebaseUtils.currentUserId).update({
           'username': username,
           'bio': bio,
           'photoUrl': url,
         });
-        debugPrint('--- FirebaseDbServiceImpl updateUserInfo success');
+        //debugPrint('--- FirebaseDbServiceImpl updateUserInfo success');
 
         return Result.ok('');
     } on Exception catch(e) {
-      debugPrint('--- FirebaseDbServiceImpl updateUserInfo ${e.toString()}');
+      //debugPrint('--- FirebaseDbServiceImpl updateUserInfo ${e.toString()}');
       return Result.error(e);
     }
   }
@@ -193,7 +191,7 @@ class FirebaseDbServiceImpl implements DbService {
                 }
       });
 
-      debugPrint('--- $likesCount $isLiked');
+      //debugPrint('--- $likesCount $isLiked');
       return Result.ok({'likesCount': likesCount, 'isLiked': isLiked});
     } on Exception catch(e) {
       return Result.error(e);
@@ -209,10 +207,10 @@ class FirebaseDbServiceImpl implements DbService {
         'date': DateTime.now().millisecondsSinceEpoch.toString(),
       });
 
-      debugPrint('--- FirebaseDbServiceImpl addLike success');
+      //debugPrint('--- FirebaseDbServiceImpl addLike success');
       return Result.ok('');
     } on Exception catch (e) {
-      debugPrint('--- FirebaseDbServiceImpl addLike $e');
+      //debugPrint('--- FirebaseDbServiceImpl addLike $e');
       return Result.error(e);
     }
   }

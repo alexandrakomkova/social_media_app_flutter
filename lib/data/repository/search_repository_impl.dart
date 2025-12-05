@@ -12,8 +12,8 @@ class SearchRepositoryImpl implements SearchRepository {
   }): _dbService = dbService;
 
   @override
-  Future<List<UserEntity>> searchUserByUsername(String query) async {
-    final res = await _dbService.searchUserByUsername(query);
+  Future<List<UserEntity>> searchUserByUsername({required String query}) async {
+    final res = await _dbService.searchUserByUsername(username: query);
     switch (res) {
       case Ok<List<UserEntity>>():
         return res.value;

@@ -1,6 +1,5 @@
 import 'package:bloc/bloc.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:social_media_app/domain/model/post_entity.dart';
@@ -43,7 +42,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   }) => ProfileBloc(
       authRepository: authRepository,
     profileRepository: profileRepository
-  )..add(ProfileEvent.getUserProfile(id));
+  )..add(ProfileEvent.getUserProfile(userId: id));
 
   Future<void> _signOut(Emitter<ProfileState> emit) async {
     emit(ProfileState.processing());
@@ -57,11 +56,11 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     }
   }
 
-  _getUserInfo(_GetUserInfo event, Emitter<ProfileState> emit) async {
+  Future<void> _getUserInfo(_GetUserInfo event, Emitter<ProfileState> emit) async {
     emit(ProfileState.processing());
 
     try {
-     final user =  await _profileRepository.getUserInfo(event.id);
+     final user =  await _profileRepository.getUserInfo(userId: event.userId);
 
      // debugPrint('--- ${user?.email}');
       emit(ProfileState.success(user: user));
@@ -70,11 +69,11 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     }
   }
 
-  _getUserPosts(_GetUserPosts event, Emitter<ProfileState> emit) async {
+  Future<void> _getUserPosts(_GetUserPosts event, Emitter<ProfileState> emit) async {
     emit(ProfileState.processing());
 
     try {
-      final res = await _profileRepository.getUserPosts(event.userId);
+      final res = await _profileRepository.getUserPosts(userId: event.userId);
 
       emit(ProfileState.success(
         posts: res,
@@ -86,14 +85,14 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     }
   }
 
-  _getUserProfile(_GetUserProfile event, Emitter<ProfileState> emit) async {
+  Future<void> _getUserProfile(_GetUserProfile event, Emitter<ProfileState> emit) async {
     emit(ProfileState.processing());
 
     try {
-      final List<PostEntity> posts = await _profileRepository.getUserPosts(event.userId);
-      final user = await _profileRepository.getUserInfo(event.userId);
-      final List<UserEntity> followers = await _profileRepository.getFollowers(event.userId);
-      final List<UserEntity> followings = await _profileRepository.getFollowings(event.userId);
+      final List<PostEntity> posts = await _profileRepository.getUserPosts(userId: event.userId);
+      final user = await _profileRepository.getUserInfo(userId: event.userId);
+      final List<UserEntity> followers = await _profileRepository.getFollowers(userId: event.userId);
+      final List<UserEntity> followings = await _profileRepository.getFollowings(userId: event.userId);
 
       final bool isFollowed = await _profileRepository.isFollowedByCurrentUser(profileOwnerUserId: event.userId);
 
@@ -109,10 +108,10 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     }
   }
 
-  _followUser(_FollowUser event, Emitter<ProfileState> emit) async {
+  Future<void> _followUser(_FollowUser event, Emitter<ProfileState> emit) async {
     try {
       await _profileRepository.followUser(userId: FirebaseUtils.currentUserId, userIdToFollow: event.userIdToFollow);
-      final List<UserEntity> followers = await _profileRepository.getFollowers(event.userIdToFollow);
+      final List<UserEntity> followers = await _profileRepository.getFollowers(userId: event.userIdToFollow);
 
       emit(ProfileState.success(
         posts: state.posts,
@@ -132,10 +131,10 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     }
   }
 
-  _unfollowUser(_UnfollowUser event, Emitter<ProfileState> emit) async {
+  Future<void> _unfollowUser(_UnfollowUser event, Emitter<ProfileState> emit) async {
     try {
       await _profileRepository.unfollowUser(userId: FirebaseUtils.currentUserId, userIdToUnfollow: event.userIdToUnfollow);
-      final List<UserEntity> followers = await _profileRepository.getFollowers(event.userIdToUnfollow);
+      final List<UserEntity> followers = await _profileRepository.getFollowers(userId: event.userIdToUnfollow);
 
       emit(ProfileState.success(
         posts: state.posts,

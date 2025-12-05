@@ -11,7 +11,7 @@ abstract class DbService {
   // user
   Future<void> createUser(User user, UserModel userModel);
   Future<Result<UserEntity>> getUserById(String? id);
-  Future<Result<List<UserEntity>>> searchUserByUsername(String username);
+  Future<Result<List<UserEntity>>> searchUserByUsername({required String username});
   Future<Result<void>> updateUserInfo(String imageUrl, String username, String bio);
 
   // posts

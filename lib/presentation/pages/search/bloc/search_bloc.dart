@@ -1,7 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:social_media_app/domain/model/user_entity.dart';
 import 'package:social_media_app/domain/repository/search_repository.dart';
 
@@ -23,15 +22,15 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     );
   }
 
-  _queryChanged(event, Emitter<SearchState> emit) {
+  Future<void> _queryChanged(_QueryChanged event, Emitter<SearchState> emit) async {
     emit(state.copyWith(searchQuery: event.query));
   }
 
-  _searchUsers(event, Emitter<SearchState> emit) async {
+  Future<void> _searchUsers(_SearchUsers event, Emitter<SearchState> emit) async {
     emit(SearchState.processing(searchQuery: state.searchQuery));
 
     try {
-      final res = await _searchRepository.searchUserByUsername(state.searchQuery);
+      final res = await _searchRepository.searchUserByUsername(query: state.searchQuery);
 
       emit(SearchState.success(searchResult: res, searchQuery: state.searchQuery));
     } catch(e) {
