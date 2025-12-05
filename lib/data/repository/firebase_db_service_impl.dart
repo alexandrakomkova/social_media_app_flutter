@@ -173,9 +173,9 @@ class FirebaseDbServiceImpl implements DbService {
   }
 
   @override
-  Future<Result<int>> getLikesCount(String postId) async {
+  Future<Result<Map<String, int>>> getLikesInfo(String postId) async {
     int likesCount = 0;
-    bool isLiked = false;
+    int isLiked = 0;
 
     try {
       await _likesRef
@@ -188,13 +188,13 @@ class FirebaseDbServiceImpl implements DbService {
                 for (var docSnapshot in querySnapshot.docs) {
                   var data = docSnapshot.data();
                   if(data['userId'] == FirebaseUtils.currentUserId) {
-                    isLiked = true;
+                    isLiked = 1;
                   }
                 }
       });
 
-      debugPrint('--- $likesCount');
-      return Result.ok(likesCount);
+      debugPrint('--- $likesCount $isLiked');
+      return Result.ok({'likesCount': likesCount, 'isLiked': isLiked});
     } on Exception catch(e) {
       return Result.error(e);
     }
@@ -209,8 +209,10 @@ class FirebaseDbServiceImpl implements DbService {
         'date': DateTime.now().millisecondsSinceEpoch.toString(),
       });
 
+      debugPrint('--- FirebaseDbServiceImpl addLike success');
       return Result.ok('');
     } on Exception catch (e) {
+      debugPrint('--- FirebaseDbServiceImpl addLike $e');
       return Result.error(e);
     }
   }
@@ -229,8 +231,10 @@ class FirebaseDbServiceImpl implements DbService {
                 }
           });
 
+      debugPrint('--- FirebaseDbServiceImpl removeLike success');
       return Result.ok('');
     } on Exception catch (e) {
+      debugPrint('--- FirebaseDbServiceImpl removeLike $e');
       return Result.error(e);
     }
   }

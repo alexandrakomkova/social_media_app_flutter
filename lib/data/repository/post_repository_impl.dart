@@ -13,13 +13,14 @@ class PostRepositoryImpl implements PostRepository, CommentRepository {
   }): _dbService = dbService;
 
   @override
-  Future<int> getLikesCount(String postId) async {
-    final res = await _dbService.getLikesCount(postId);
+  Future<Map<String, int>> getLikesInfo(String postId) async {
+    final res = await _dbService.getLikesInfo(postId);
+
     switch(res) {
-      case Ok<int>():
+      case Ok<Map<String, int>>():
         return res.value;
-      case Error<int>():
-        return 0;
+      case Error<Map<String, int>>():
+        return {'likesCount': 0, 'isLiked': 0};
     }
   }
 
