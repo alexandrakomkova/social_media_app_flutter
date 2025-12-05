@@ -34,12 +34,12 @@ class UserEntity {
 
   Map<String, dynamic> toFirestore() {
     return {
-      if (email != null) "email": email,
-      if (username != null) "username": username,
-      if (bio != null) "bio": bio,
-      if (photoUrl != null) "photoUrl": photoUrl,
+      "email": email,
+      "username": username,
+      "bio": bio,
+      "photoUrl": photoUrl,
       if (creationTimestamp != null) "creationTimestamp": creationTimestamp,
-      if (id != null) "id": id,
+      "id": id,
     };
   }
 

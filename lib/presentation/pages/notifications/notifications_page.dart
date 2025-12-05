@@ -5,12 +5,12 @@ class NotificationsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _NotificationsView();
+    return const _NotificationsView();
   }
 }
 
 class _NotificationsView extends StatelessWidget {
-  const _NotificationsView({super.key});
+  const _NotificationsView();
 
   @override
   Widget build(BuildContext context) {

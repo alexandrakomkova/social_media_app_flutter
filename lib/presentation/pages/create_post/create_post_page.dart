@@ -18,13 +18,13 @@ class CreatePostPage extends StatelessWidget {
         imageService: imageServiceContext.read<ImageServiceImpl>(),
         dbService: imageServiceContext.read<FirebaseDbServiceImpl>(),
       ),
-      child: _CreatePostView(),
+      child: const _CreatePostView(),
     );
   }
 }
 
 class _CreatePostView extends StatelessWidget {
-  const _CreatePostView({super.key});
+  const _CreatePostView();
 
   @override
   Widget build(BuildContext context) {

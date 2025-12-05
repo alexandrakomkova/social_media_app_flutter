@@ -418,7 +418,7 @@ class FirebaseDbServiceImpl implements DbService {
     List<String> followingUserIds = [];
     try {
       var followingsSnapshot = await _followingsRef
-          .doc(userId ?? FirebaseUtils.currentUserId)
+          .doc(userId)
           .collection(_userFollowingsCollection)
           .get();
       debugPrint('--- FirebaseDbServiceImpl getNewPosts ${followingsSnapshot.docs.length}');

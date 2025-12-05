@@ -3,7 +3,6 @@ import 'package:social_media_app/data/model/user_model.dart';
 import 'package:social_media_app/domain/repository/auth/auth_firebase_service.dart';
 import 'package:social_media_app/utils/result.dart';
 
-
 class AuthFirebaseServiceImpl implements AuthFirebaseService {
   final _firebaseAuth = FirebaseAuth.instance;
 

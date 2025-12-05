@@ -4,13 +4,13 @@ class CustomTextFormField extends StatelessWidget {
   final Key textFieldKey;
   final String initialValue;
   final String hintText;
-  bool obscureText;
-  String? Function(String?)? validator;
-  void Function(String)? onChanged;
-  int? maxLength;
+  final bool obscureText;
+  final String? Function(String?)? validator;
+  final void Function(String)? onChanged;
+  final int? maxLength;
 
 
-  CustomTextFormField({
+  const CustomTextFormField({
     required this.textFieldKey,
     required this.initialValue,
     required this.hintText,

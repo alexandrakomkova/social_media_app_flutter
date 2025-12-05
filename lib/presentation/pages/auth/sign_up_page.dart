@@ -16,13 +16,13 @@ class SignUpPage extends StatelessWidget {
           SignUpBloc(
             authRepository: signUpContext.read<AuthRepositoryImpl>(),
           ),
-      child: _SignUpView(),
+      child: const _SignUpView(),
     );
   }
 }
 
 class _SignUpView extends StatefulWidget {
-  const _SignUpView({super.key});
+  const _SignUpView();
 
   @override
   State<_SignUpView> createState() => _SignUpViewState();

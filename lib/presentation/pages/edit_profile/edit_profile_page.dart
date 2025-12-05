@@ -23,13 +23,13 @@ class EditProfilePage extends StatelessWidget {
               profileRepository: editProfileContext.read<ProfileRepositoryImpl>(),
               imageService: editProfileContext.read<ImageServiceImpl>(),
           )..add(EditProfileEvent.getUserInfo()),
-      child: _EditProfileView(),
+      child: const _EditProfileView(),
     );
   }
 }
 
 class _EditProfileView extends StatefulWidget {
-  const _EditProfileView({super.key});
+  const _EditProfileView();
 
   @override
   State<_EditProfileView> createState() => _EditProfileViewState();

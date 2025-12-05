@@ -5,9 +5,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget{
   final IconData leadingIcon;
   final void Function()? onLeadingIconPressed;
   final String actionTitle;
-  void Function()? onActionTap;
+  final void Function()? onActionTap;
 
-  CustomAppBar({
+  const CustomAppBar({
     required this.appBarTitle,
     required this.leadingIcon,
     this.onLeadingIconPressed,

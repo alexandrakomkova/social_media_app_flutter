@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 class BottomSheetListTile extends StatelessWidget {
   final IconData icon;
   final String title;
-  void Function()? onTap;
+  final void Function()? onTap;
 
-  BottomSheetListTile({
+  const BottomSheetListTile({
     required this.icon,
     required this.title,
     this.onTap,

@@ -51,13 +51,13 @@ class App extends StatelessWidget {
           )
         ),
       ],
-      child: _AppView(),
+      child: const _AppView(),
     );
   }
 }
 
 class _AppView extends StatelessWidget {
-  const _AppView({super.key});
+  const _AppView();
 
   @override
   Widget build(BuildContext context) {
