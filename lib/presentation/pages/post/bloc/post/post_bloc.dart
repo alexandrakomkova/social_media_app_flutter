@@ -1,6 +1,5 @@
 import 'package:bloc/bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:meta/meta.dart';
 import 'package:social_media_app/domain/model/post_entity.dart';
 import 'package:social_media_app/domain/repository/post_repository.dart';
 
@@ -9,18 +8,16 @@ part 'post_state.dart';
 part 'post_bloc.freezed.dart';
 
 class PostBloc extends Bloc<PostEvent, PostState> {
-  final PostEntity _postEntity;
   final PostRepository _postRepository;
 
   PostBloc({
     required PostEntity postEntity,
     required PostRepository postRepository,
-  }) : _postEntity = postEntity,
-      _postRepository = postRepository,
+  }) : _postRepository = postRepository,
         super(PostState.idle(postEntity: postEntity)) {
     on<PostEvent>((events, emit) async {
       await events.map(
-        getLikesCount: (_) => _getLikesCount(emit),
+        getLikesInfo: (_) => _getLikesInfo(emit),
         addLike: (_) => _addLike(emit),
         removeLike: (_) => _removeLike(emit),
         toggleLike: (event) => _toggleLike(event, emit),
@@ -35,19 +32,20 @@ class PostBloc extends Bloc<PostEvent, PostState> {
       PostBloc(
         postEntity: postEntity,
         postRepository: postRepository
-      )..add(PostEvent.getLikesCount());
+      )..add(PostEvent.getLikesInfo());
 
-  _getLikesCount(Emitter<PostState> emit) async {
+  _getLikesInfo(Emitter<PostState> emit) async {
     emit(PostState.processing(
       postEntity: state.postEntity
     ));
 
     try {
-      final res = await _postRepository.getLikesCount(_postEntity.id.toString());
+      final res = await _postRepository.getLikesInfo(state.postEntity.id.toString());
 
       emit(PostState.success(
           postEntity: state.postEntity,
-        likesCount: res
+        likesCount: res['likesCount'] ?? 0,
+        isLiked: res['isLiked'] == 1 ? true : false
       ));
     } catch(e) {
       emit(PostState.failed(
@@ -58,7 +56,7 @@ class PostBloc extends Bloc<PostEvent, PostState> {
 
   _addLike(Emitter<PostState> emit) async{
     try {
-      await _postRepository.addLike(_postEntity.id.toString());
+      await _postRepository.addLike(state.postEntity.id.toString());
 
       emit(PostState.success(
           postEntity: state.postEntity,
@@ -74,15 +72,28 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     }
   }
 
-  _removeLike(Emitter<PostState> emit) {
-
+  _removeLike(Emitter<PostState> emit) async {
+    try {
+      await _postRepository.removeLike(state.postEntity.id.toString());
+      emit(PostState.success(
+          postEntity: state.postEntity,
+          isLiked: false,
+          likesCount: state.likesCount - 1
+      ));
+    } catch (e) {
+      emit(PostState.failed(
+          postEntity: state.postEntity,
+          isLiked: state.isLiked,
+          likesCount: state.likesCount
+      ));
+    }
   }
 
-  _toggleLike(_ToggleLike event, Emitter<PostState> emit) {
+  _toggleLike(_ToggleLike event, Emitter<PostState> emit) async {
     if(event.isLiked) {
-      _removeLike(emit);
+      await _removeLike(emit);
     } else {
-      _addLike(emit);
+      await _addLike(emit);
     }
   }
 }
