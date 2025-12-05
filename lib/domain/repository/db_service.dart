@@ -19,7 +19,7 @@ abstract class DbService {
   Future<Result<List<PostEntity>>> getUserPosts(String? id);
 
   // likes
-  Future<Result<int>> getLikesCount(String postId);
+  Future<Result<Map<String, int>>> getLikesInfo(String postId);
   Future<Result<void>> addLike(String postId);
   Future<Result<void>> removeLike(String postId);
 
@@ -33,4 +33,6 @@ abstract class DbService {
   Future<Result<List<UserEntity>>> getFollowers(String? userId);
   Future<Result<List<UserEntity>>> getFollowings(String? userId);
 
+  //home
+  Future<Result<List<PostEntity>>> getNewPosts({String? userId});
 }

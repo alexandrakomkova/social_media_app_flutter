@@ -173,9 +173,9 @@ class FirebaseDbServiceImpl implements DbService {
   }
 
   @override
-  Future<Result<int>> getLikesCount(String postId) async {
+  Future<Result<Map<String, int>>> getLikesInfo(String postId) async {
     int likesCount = 0;
-    bool isLiked = false;
+    int isLiked = 0;
 
     try {
       await _likesRef
@@ -188,13 +188,13 @@ class FirebaseDbServiceImpl implements DbService {
                 for (var docSnapshot in querySnapshot.docs) {
                   var data = docSnapshot.data();
                   if(data['userId'] == FirebaseUtils.currentUserId) {
-                    isLiked = true;
+                    isLiked = 1;
                   }
                 }
       });
 
-      debugPrint('--- $likesCount');
-      return Result.ok(likesCount);
+      debugPrint('--- $likesCount $isLiked');
+      return Result.ok({'likesCount': likesCount, 'isLiked': isLiked});
     } on Exception catch(e) {
       return Result.error(e);
     }
@@ -209,8 +209,10 @@ class FirebaseDbServiceImpl implements DbService {
         'date': DateTime.now().millisecondsSinceEpoch.toString(),
       });
 
+      debugPrint('--- FirebaseDbServiceImpl addLike success');
       return Result.ok('');
     } on Exception catch (e) {
+      debugPrint('--- FirebaseDbServiceImpl addLike $e');
       return Result.error(e);
     }
   }
@@ -229,8 +231,10 @@ class FirebaseDbServiceImpl implements DbService {
                 }
           });
 
+      debugPrint('--- FirebaseDbServiceImpl removeLike success');
       return Result.ok('');
     } on Exception catch (e) {
+      debugPrint('--- FirebaseDbServiceImpl removeLike $e');
       return Result.error(e);
     }
   }
@@ -406,6 +410,48 @@ class FirebaseDbServiceImpl implements DbService {
 
       return Result.ok(followings);
     } on Exception catch(e) {
+      return Result.error(e);
+    }
+  }
+
+  @override
+  Future<Result<List<PostEntity>>> getNewPosts({String? userId}) async {
+    List<PostEntity> posts = [];
+    List<String> followingUserIds = [];
+    try {
+      var followingsSnapshot = await _followingsRef
+          .doc(userId ?? FirebaseUtils.currentUserId)
+          .collection(_userFollowingsCollection)
+          .get();
+      debugPrint('--- FirebaseDbServiceImpl getNewPosts ${followingsSnapshot.docs.length}');
+
+      for (var doc in followingsSnapshot.docs) {
+        followingUserIds.add(doc.id);
+      }
+
+      if(followingUserIds.isEmpty) { return Result.ok([]); }
+
+      debugPrint('--- FirebaseDbServiceImpl getNewPosts ${followingUserIds.length}');
+
+      await _postsRef.where('userId', whereIn: followingUserIds)
+          .get().then(
+              (querySnapshot) {
+            for (var docSnapshot in querySnapshot.docs) {
+              debugPrint('${docSnapshot.id} => ${docSnapshot.data()}');
+              var data = docSnapshot.data();
+
+              posts.add(PostEntity(
+                  userId: data['userId'],
+                  imageUrl: data['imageUrl'],
+                  description: data['description'],
+                  creationTimestamp: data['creationTimestamp']
+              ));
+            }
+          }
+      );
+      return Result.ok(posts);
+    } on Exception catch(e) {
+      debugPrint('--- FirebaseDbServiceImpl getNewPosts error $e');
       return Result.error(e);
     }
   }

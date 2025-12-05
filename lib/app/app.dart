@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:social_media_app/data/repository/auth/auth_firebase_service_impl.dart';
 import 'package:social_media_app/data/repository/auth/auth_repository_impl.dart';
 import 'package:social_media_app/data/repository/firebase_db_service_impl.dart';
+import 'package:social_media_app/data/repository/home_repository_impl.dart';
 import 'package:social_media_app/data/repository/image_service_impl.dart';
 import 'package:social_media_app/data/repository/post_repository_impl.dart';
 import 'package:social_media_app/data/repository/profile_repository_impl.dart';
@@ -27,6 +28,11 @@ class App extends StatelessWidget {
             )
         ),
         RepositoryProvider(create:
+            (context) => HomeRepositoryImpl(
+                dbService: context.read<FirebaseDbServiceImpl>()
+            )
+        ),
+        RepositoryProvider(create:
           (searchContext) => SearchRepositoryImpl(
               dbService: searchContext.read<FirebaseDbServiceImpl>(),
           )
@@ -43,7 +49,7 @@ class App extends StatelessWidget {
           (postContext) => PostRepositoryImpl(
               dbService: postContext.read<FirebaseDbServiceImpl>()
           )
-        )
+        ),
       ],
       child: _AppView(),
     );
