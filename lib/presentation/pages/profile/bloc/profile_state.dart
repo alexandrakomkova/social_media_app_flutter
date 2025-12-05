@@ -17,6 +17,7 @@ sealed class ProfileState with _$ProfileState{
     @Default([]) List<PostEntity> posts,
     @Default([]) List<UserEntity> followers,
     @Default([]) List<UserEntity> followings,
+    @Default(false) bool isFollowed,
   }) = ProfileState$Idle;
 
   const factory ProfileState.processing({
@@ -25,6 +26,7 @@ sealed class ProfileState with _$ProfileState{
     @Default([]) List<PostEntity> posts,
     @Default([]) List<UserEntity> followers,
     @Default([]) List<UserEntity> followings,
+    @Default(false) bool isFollowed,
   }) = ProfileState$Processing;
 
   const factory ProfileState.success({
@@ -33,6 +35,7 @@ sealed class ProfileState with _$ProfileState{
     @Default([]) List<PostEntity> posts,
     @Default([]) List<UserEntity> followers,
     @Default([]) List<UserEntity> followings,
+    @Default(false) bool isFollowed,
   }) = ProfileState$Success;
 
   const factory ProfileState.failed({
@@ -41,5 +44,6 @@ sealed class ProfileState with _$ProfileState{
     @Default([]) List<PostEntity> posts,
     @Default([]) List<UserEntity> followers,
     @Default([]) List<UserEntity> followings,
+    @Default(false) bool isFollowed,
   }) = ProfileState$Failed;
 }

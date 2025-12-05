@@ -13,4 +13,5 @@ abstract class ProfileRepository {
   Future<void> unfollowUser({required String userId, required String userIdToUnfollow});
   Future<List<UserEntity>> getFollowers(String? userId);
   Future<List<UserEntity>> getFollowings(String? userId);
+  Future<bool> isFollowedByCurrentUser({required String profileOwnerUserId});
 }

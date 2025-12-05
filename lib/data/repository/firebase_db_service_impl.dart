@@ -455,4 +455,28 @@ class FirebaseDbServiceImpl implements DbService {
       return Result.error(e);
     }
   }
+
+  @override
+  Future<Result<bool>> isFollowedByCurrentUser({required String profileOwnerUserId}) async {
+    bool isFollowed = false;
+    try {
+      await _followingsRef
+          .doc(FirebaseUtils.currentUserId)
+          .collection(_userFollowingsCollection)
+          .get()
+          .then((querySnapshot) async {
+            for (var docSnapshot in querySnapshot.docs) {
+              if(docSnapshot.id == profileOwnerUserId) {
+                isFollowed = true;
+                break;
+              }
+            }
+          });
+
+      debugPrint('--- FirebaseDbServiceImpl isFollowedByCurrentUser $isFollowed');
+      return Result.ok(isFollowed);
+    } on Exception catch(e) {
+      return Result.error(e);
+    }
+  }
 }

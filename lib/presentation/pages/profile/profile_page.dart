@@ -37,10 +37,10 @@ class ProfilePage extends StatelessWidget {
 }
 
 class _ProfileView extends StatelessWidget {
-  final String? userId;
+  final String userId;
 
   const _ProfileView({
-    this.userId,
+    required this.userId,
   });
 
   @override
@@ -143,10 +143,18 @@ class _ProfileView extends StatelessWidget {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    _followButton(
-                                        context: context,
-                                        buttonText: 'Follow',
-                                        onPressed: () {  }
+                                    BlocBuilder<ProfileBloc, ProfileState>(
+                                      builder: (context, state) {
+                                        return _followButton(
+                                            context: context,
+                                            buttonText: state.isFollowed ? 'Unfollow' : 'Follow',
+                                            onPressed: () {
+                                              state.isFollowed
+                                                  ? context.read<ProfileBloc>().add(ProfileEvent.unfollowUser(userIdToUnfollow: userId))
+                                                  : context.read<ProfileBloc>().add(ProfileEvent.followUser(userIdToFollow: userId));
+                                            }
+                                        );
+                                      },
                                     ),
                                   ],
                                 ),
@@ -196,8 +204,6 @@ class _ProfileView extends StatelessWidget {
                     SizedBox(height: 10.0,),
                     // pics grid
                     _postGrid(context, state.posts),
-
-
                   ],
                 ),
               ),

@@ -32,6 +32,7 @@ abstract class DbService {
   Future<void> unfollowUser({required String userId, required String userIdToUnfollow});
   Future<Result<List<UserEntity>>> getFollowers(String? userId);
   Future<Result<List<UserEntity>>> getFollowings(String? userId);
+  Future<Result<bool>> isFollowedByCurrentUser({required String profileOwnerUserId});
 
   //home
   Future<Result<List<PostEntity>>> getNewPosts({String? userId});

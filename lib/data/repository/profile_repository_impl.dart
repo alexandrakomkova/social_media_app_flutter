@@ -105,4 +105,17 @@ class ProfileRepositoryImpl implements ProfileRepository {
         return [];
     }
   }
+
+  @override
+  Future<bool> isFollowedByCurrentUser({required String profileOwnerUserId}) async {
+    final res = await _dbService.isFollowedByCurrentUser(profileOwnerUserId: profileOwnerUserId);
+
+    switch(res) {
+    case Ok<bool>():
+      return res.value;
+    case Error<bool>():
+      debugPrint(res.error.toString());
+      return false;
+    }
+  }
 }
