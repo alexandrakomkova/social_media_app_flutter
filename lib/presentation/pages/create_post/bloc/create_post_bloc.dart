@@ -67,7 +67,7 @@ class CreatePostBloc extends Bloc<CreatePostEvent, CreatePostState> {
     emit(CreatePostState.processing());
 
     try {
-      final res = await _imageService.pickImage(event.isCamera);
+      final res = await _imageService.pickImage(isCamera: event.isCamera);
 
       emit(CreatePostState.success(imageFile: res));
     } catch(e) {

@@ -58,7 +58,7 @@ class EditProfileBloc extends Bloc<EditProfileEvent, EditProfileState> {
     ));
 
     try {
-      final res = await _imageService.pickImage(event.isCamera);
+      final res = await _imageService.pickImage(isCamera: event.isCamera);
 
       emit(EditProfileState.success(
         imageUrl: res?.path ?? '',

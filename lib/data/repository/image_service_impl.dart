@@ -8,7 +8,7 @@ class ImageServiceImpl implements ImageService {
   final _picker = ImagePicker();
 
   @override
-  Future<File?> pickImage(bool isCamera) async {
+  Future<File?> pickImage({required bool isCamera}) async {
 
     try {
       XFile? pickedFile = await _picker.pickImage(
