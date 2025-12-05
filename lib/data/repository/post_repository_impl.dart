@@ -13,8 +13,8 @@ class PostRepositoryImpl implements PostRepository, CommentRepository {
   }): _dbService = dbService;
 
   @override
-  Future<Map<String, int>> getLikesInfo(String postId) async {
-    final res = await _dbService.getLikesInfo(postId);
+  Future<Map<String, int>> getLikesInfo({required String postId}) async {
+    final res = await _dbService.getLikesInfo(postId: postId);
 
     switch(res) {
       case Ok<Map<String, int>>():
@@ -25,8 +25,8 @@ class PostRepositoryImpl implements PostRepository, CommentRepository {
   }
 
   @override
-  Future<void> addLike(String postId) async {
-    final res =  await _dbService.addLike(postId);
+  Future<void> addLike({required String postId}) async {
+    final res =  await _dbService.addLike(postId: postId);
     switch(res) {
       case Ok<void>():
         return res.value;
@@ -36,8 +36,8 @@ class PostRepositoryImpl implements PostRepository, CommentRepository {
   }
 
   @override
-  Future<void> removeLike(String postId) async {
-    final res =  await _dbService.removeLike(postId);
+  Future<void> removeLike({required String postId}) async {
+    final res =  await _dbService.removeLike(postId: postId);
     switch(res) {
       case Ok<void>():
         return res.value;

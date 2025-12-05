@@ -29,14 +29,14 @@ class CreatePostBloc extends Bloc<CreatePostEvent, CreatePostState> {
     });
   }
 
-  _postDescriptionChanged(
+  Future<void> _postDescriptionChanged(
     _PostDescriptionChanged event,
     Emitter<CreatePostState> emit
-  ) {
+  ) async {
     emit(state.copyWith(postDescription: event.postDescription));
   }
 
-  _createPost(Emitter<CreatePostState> emit) async {
+  Future<void> _createPost(Emitter<CreatePostState> emit) async {
     emit(CreatePostState.processing(
         imageFile: state.imageFile,
         postDescription: state.postDescription,
@@ -44,8 +44,8 @@ class CreatePostBloc extends Bloc<CreatePostEvent, CreatePostState> {
 
     try {
       final res = await _dbService.createPost(
-        state.imageFile!,
-        state.postDescription,
+        image: state.imageFile!,
+        description: state.postDescription,
       );
 
       switch(res) {
@@ -63,7 +63,7 @@ class CreatePostBloc extends Bloc<CreatePostEvent, CreatePostState> {
     }
   }
 
-  _selectImage(_SelectImage event, Emitter<CreatePostState> emit) async {
+  Future<void> _selectImage(_SelectImage event, Emitter<CreatePostState> emit) async {
     emit(CreatePostState.processing());
 
     try {

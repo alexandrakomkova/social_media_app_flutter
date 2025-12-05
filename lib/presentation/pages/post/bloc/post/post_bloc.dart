@@ -34,13 +34,13 @@ class PostBloc extends Bloc<PostEvent, PostState> {
         postRepository: postRepository
       )..add(PostEvent.getLikesInfo());
 
-  _getLikesInfo(Emitter<PostState> emit) async {
+  Future<void> _getLikesInfo(Emitter<PostState> emit) async {
     emit(PostState.processing(
       postEntity: state.postEntity
     ));
 
     try {
-      final res = await _postRepository.getLikesInfo(state.postEntity.id.toString());
+      final res = await _postRepository.getLikesInfo(postId: state.postEntity.id.toString());
 
       emit(PostState.success(
           postEntity: state.postEntity,
@@ -54,9 +54,9 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     }
   }
 
-  _addLike(Emitter<PostState> emit) async{
+  Future<void> _addLike(Emitter<PostState> emit) async{
     try {
-      await _postRepository.addLike(state.postEntity.id.toString());
+      await _postRepository.addLike(postId: state.postEntity.id.toString());
 
       emit(PostState.success(
           postEntity: state.postEntity,
@@ -72,9 +72,9 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     }
   }
 
-  _removeLike(Emitter<PostState> emit) async {
+  Future<void> _removeLike(Emitter<PostState> emit) async {
     try {
-      await _postRepository.removeLike(state.postEntity.id.toString());
+      await _postRepository.removeLike(postId: state.postEntity.id.toString());
       emit(PostState.success(
           postEntity: state.postEntity,
           isLiked: false,
@@ -89,7 +89,7 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     }
   }
 
-  _toggleLike(_ToggleLike event, Emitter<PostState> emit) async {
+  Future<void> _toggleLike(_ToggleLike event, Emitter<PostState> emit) async {
     if(event.isLiked) {
       await _removeLike(emit);
     } else {

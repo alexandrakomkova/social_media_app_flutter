@@ -17,7 +17,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
 
   @override
   Future<List<PostEntity>> getUserPosts({required String userId}) async {
-    final res = await _dbService.getUserPosts(userId);
+    final res = await _dbService.getUserPosts(userId: userId);
 
     switch(res) {
       case Ok<List<PostEntity>>():
@@ -82,7 +82,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
 
   @override
   Future<List<UserEntity>> getFollowers({required String userId}) async {
-    final res = await _dbService.getFollowers(userId);
+    final res = await _dbService.getFollowers(userId: userId);
 
     switch(res) {
       case Ok<List<UserEntity>>():
@@ -95,7 +95,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
 
   @override
   Future<List<UserEntity>> getFollowings({required String userId}) async {
-    final res = await _dbService.getFollowings(userId);
+    final res = await _dbService.getFollowings(userId: userId);
 
     switch(res) {
       case Ok<List<UserEntity>>():

@@ -15,13 +15,13 @@ abstract class DbService {
   Future<Result<void>> updateUserInfo(String imageUrl, String username, String bio);
 
   // posts
-  Future<Result<void>> createPost(File image, String description);
-  Future<Result<List<PostEntity>>> getUserPosts(String? id);
+  Future<Result<void>> createPost({required File image, required String description});
+  Future<Result<List<PostEntity>>> getUserPosts({required String userId});
 
   // likes
-  Future<Result<Map<String, int>>> getLikesInfo(String postId);
-  Future<Result<void>> addLike(String postId);
-  Future<Result<void>> removeLike(String postId);
+  Future<Result<Map<String, int>>> getLikesInfo({required String postId});
+  Future<Result<void>> addLike({required String postId});
+  Future<Result<void>> removeLike({required String postId});
 
   //comments
   Future<Result<List<CommentEntity>>> getComments({required String postId});
@@ -30,8 +30,8 @@ abstract class DbService {
   // followers and followings
   Future<void> followUser({required String userId, required String userIdToFollow});
   Future<void> unfollowUser({required String userId, required String userIdToUnfollow});
-  Future<Result<List<UserEntity>>> getFollowers(String? userId);
-  Future<Result<List<UserEntity>>> getFollowings(String? userId);
+  Future<Result<List<UserEntity>>> getFollowers({required String userId});
+  Future<Result<List<UserEntity>>> getFollowings({required String userId});
   Future<Result<bool>> isFollowedByCurrentUser({required String profileOwnerUserId});
 
   //home

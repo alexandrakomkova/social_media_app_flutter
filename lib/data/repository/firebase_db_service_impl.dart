@@ -84,7 +84,7 @@ class FirebaseDbServiceImpl implements DbService {
   }
 
   @override
-  Future<Result<void>> createPost(File image, String description) async {
+  Future<Result<void>> createPost({required File image, required String description}) async {
     try {
       final int creationTimestamp = DateTime.now().millisecondsSinceEpoch;
       final String imageUrl = await ImageLoader.getImageUrl(image, creationTimestamp.toString());
@@ -107,10 +107,10 @@ class FirebaseDbServiceImpl implements DbService {
   }
 
   @override
-  Future<Result<List<PostEntity>>> getUserPosts(String? id) async {
+  Future<Result<List<PostEntity>>> getUserPosts({required String userId}) async {
     List<PostEntity> posts = [];
     try {
-      await _postsRef.where('userId', isEqualTo: id)
+      await _postsRef.where('userId', isEqualTo: userId)
           .get().then(
               (querySnapshot) {
             for (var docSnapshot in querySnapshot.docs) {
@@ -171,7 +171,7 @@ class FirebaseDbServiceImpl implements DbService {
   }
 
   @override
-  Future<Result<Map<String, int>>> getLikesInfo(String postId) async {
+  Future<Result<Map<String, int>>> getLikesInfo({required String postId}) async {
     int likesCount = 0;
     int isLiked = 0;
 
@@ -199,7 +199,7 @@ class FirebaseDbServiceImpl implements DbService {
   }
 
   @override
-  Future<Result<void>> addLike(String postId) async {
+  Future<Result<void>> addLike({required String postId}) async {
     try {
       await _likesRef.add({
         'userId': FirebaseUtils.currentUserId,
@@ -216,7 +216,7 @@ class FirebaseDbServiceImpl implements DbService {
   }
 
   @override
-  Future<Result<void>> removeLike(String postId) async {
+  Future<Result<void>> removeLike({required String postId}) async {
     try {
       await _likesRef
           .where('postId', isEqualTo: postId)
@@ -334,11 +334,11 @@ class FirebaseDbServiceImpl implements DbService {
   }
 
   @override
-  Future<Result<List<UserEntity>>> getFollowers(String? userId) async {
+  Future<Result<List<UserEntity>>> getFollowers({required String userId}) async {
     List<UserEntity> followers = [];
     try {
       await _followersRef
-          .doc(userId ?? FirebaseUtils.currentUserId)
+          .doc(userId)
           .collection(_userFollowersCollection)
           .get()
           .then((querySnapshot) async {
@@ -374,11 +374,11 @@ class FirebaseDbServiceImpl implements DbService {
   }
 
   @override
-  Future<Result<List<UserEntity>>> getFollowings(String? userId) async {
+  Future<Result<List<UserEntity>>> getFollowings({required String userId}) async {
     List<UserEntity> followings = [];
     try {
       await _followingsRef
-          .doc(userId ?? FirebaseUtils.currentUserId)
+          .doc(userId)
           .collection(_userFollowingsCollection)
           .get()
           .then((querySnapshot) async {
