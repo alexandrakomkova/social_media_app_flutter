@@ -6,6 +6,7 @@ import 'package:social_media_app/domain/model/post_entity.dart';
 import 'package:social_media_app/domain/model/user_entity.dart';
 import 'package:social_media_app/presentation/pages/post/bloc/comments/comments_bloc.dart';
 import 'package:social_media_app/presentation/pages/post/bloc/post/post_bloc.dart';
+import 'package:social_media_app/presentation/widget/post_card.dart';
 import 'package:social_media_app/presentation/widget/profile_avatar.dart';
 
 class PostPage extends StatelessWidget {
@@ -57,8 +58,8 @@ class _PostView extends StatelessWidget {
                         horizontal: 10.0, vertical: 4.0),
                     children: [
                       // post
-                      _postInfo(context),
-                      const Divider(),
+                      //_postInfo(context),
+                      PostCard(postEntity: context.read<PostBloc>().state.postEntity,),
 
                       BlocBuilder<CommentsBloc, CommentsState>(
                         builder: (context, state) {
