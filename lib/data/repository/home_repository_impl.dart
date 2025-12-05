@@ -12,7 +12,7 @@ class HomeRepositoryImpl implements HomeRepository {
   }): _dbService = dbService;
 
   @override
-  Future<List<PostEntity>> getNewPosts({String? userId}) async {
+  Future<List<PostEntity>> getNewPosts({required String userId}) async {
     final posts = await _dbService.getNewPosts(userId: userId);
 
     switch(posts) {

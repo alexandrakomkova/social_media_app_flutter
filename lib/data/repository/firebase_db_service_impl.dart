@@ -413,7 +413,7 @@ class FirebaseDbServiceImpl implements DbService {
   }
 
   @override
-  Future<Result<List<PostEntity>>> getNewPosts({String? userId}) async {
+  Future<Result<List<PostEntity>>> getNewPosts({required String userId}) async {
     List<PostEntity> posts = [];
     List<String> followingUserIds = [];
     try {

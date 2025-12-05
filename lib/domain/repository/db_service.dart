@@ -35,5 +35,5 @@ abstract class DbService {
   Future<Result<bool>> isFollowedByCurrentUser({required String profileOwnerUserId});
 
   //home
-  Future<Result<List<PostEntity>>> getNewPosts({String? userId});
+  Future<Result<List<PostEntity>>> getNewPosts({required String userId});
 }

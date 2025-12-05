@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:social_media_app/domain/model/post_entity.dart';
 import 'package:social_media_app/domain/repository/home_repository.dart';
+import 'package:social_media_app/utils/firebase_utils.dart';
 
 part 'home_event.dart';
 part 'home_state.dart';
@@ -30,7 +31,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     emit(HomeState.processing());
 
     try {
-      final posts = await _homeRepository.getNewPosts();
+      final posts = await _homeRepository.getNewPosts(userId: FirebaseUtils.currentUserId);
 
       emit(HomeState.success(
         posts: posts,
