@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:social_media_app/domain/model/post_entity.dart';
 import 'package:social_media_app/domain/repository/home_repository.dart';
@@ -35,6 +36,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         posts: posts,
       ));
     } catch(e) {
+      debugPrint('--- $e');
       emit(HomeState.failed());
     }
   }

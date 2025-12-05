@@ -423,16 +423,21 @@ class FirebaseDbServiceImpl implements DbService {
           .doc(userId ?? FirebaseUtils.currentUserId)
           .collection(_userFollowingsCollection)
           .get();
+      debugPrint('--- FirebaseDbServiceImpl getNewPosts ${followingsSnapshot.docs.length}');
 
       for (var doc in followingsSnapshot.docs) {
         followingUserIds.add(doc.id);
       }
 
+      if(followingUserIds.isEmpty) { return Result.ok([]); }
+
+      debugPrint('--- FirebaseDbServiceImpl getNewPosts ${followingUserIds.length}');
+
       await _postsRef.where('userId', whereIn: followingUserIds)
           .get().then(
               (querySnapshot) {
             for (var docSnapshot in querySnapshot.docs) {
-              // print('${docSnapshot.id} => ${docSnapshot.data()}');
+              debugPrint('${docSnapshot.id} => ${docSnapshot.data()}');
               var data = docSnapshot.data();
 
               posts.add(PostEntity(
@@ -444,9 +449,9 @@ class FirebaseDbServiceImpl implements DbService {
             }
           }
       );
-
       return Result.ok(posts);
     } on Exception catch(e) {
+      debugPrint('--- FirebaseDbServiceImpl getNewPosts error $e');
       return Result.error(e);
     }
   }
