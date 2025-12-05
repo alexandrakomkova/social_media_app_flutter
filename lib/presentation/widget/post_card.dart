@@ -1,71 +1,124 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:social_media_app/domain/model/post_entity.dart';
+import 'package:social_media_app/presentation/pages/post/bloc/comments/comments_bloc.dart';
+import 'package:social_media_app/presentation/pages/post/bloc/post/post_bloc.dart';
 
 class PostCard extends StatelessWidget {
   final PostEntity postEntity;
+  final void Function()? onCommentsPressed;
 
   const PostCard({
     required this.postEntity,
+    this.onCommentsPressed,
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        // post image
-        SizedBox(
-          // height: MediaQuery.of(context).size.height * 0.5,
-          // width: MediaQuery.of(context).size.height * 0.5,
-          child: CachedNetworkImage(
-            imageUrl: postEntity.imageUrl,
-          ),
-        ),
-        const SizedBox(height: 10.0),
-
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // date
-              Text(
-                postEntity.formattedCreationTimestamp,
-                style: const TextStyle(fontSize: 14.0),
-              ),
-              const SizedBox(width: 8.0),
-              // like button
-               Icon(
-                 Icons.favorite,
-                 color: Colors.redAccent,
-                 size: 22.0,
-               ),
-              // likes count
-              Text(
-                '81',
-                style: const TextStyle(fontSize: 14.0),
-              ),
-            ],
-          ),
-        ),
-
-        // description
-        Padding(
-          padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
-          child: Text(
-            postEntity.description,
-            style: const TextStyle(
-              fontWeight: FontWeight.w600,
-              fontSize: 16.0,
-            ),
-            maxLines: 5,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider.value(value: BlocProvider.of<PostBloc>(context),),
+        BlocProvider.value(value: BlocProvider.of<CommentsBloc>(context),),
       ],
+      child: BlocBuilder<PostBloc, PostState>(
+            builder: (context, state) {
+              return Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).cardColor,
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // post image
+                    SizedBox(
+                      child: CachedNetworkImage(
+                        imageUrl: state.postEntity.imageUrl,
+                      ),
+                    ),
+
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: Row(
+                        //mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          // date
+                          Text(
+                            state.postEntity.formattedCreationTimestamp,
+                            style: const TextStyle(fontSize: 14.0),
+                          ),
+                          const SizedBox(width: 8.0),
+
+                          Row(
+                            children: [
+                              // like button
+                              IconButton(
+                                icon: Icon(
+                                  state.isLiked ? Icons.favorite : Icons.favorite_border,
+                                  color: state.isLiked ? Colors.redAccent : Colors.grey,
+                                  size: 22.0,
+                                ),
+                                onPressed: () {
+                                  context.read<PostBloc>().add(PostEvent.toggleLike(state
+                                      .isLiked));
+                                },
+                              ),
+                              // likes count
+                              Text(
+                                state.likesCount.toString(),
+                                style: const TextStyle(fontSize: 14.0),
+                              ),
+
+                              const SizedBox(width: 20.0),
+                              // comments icon
+                              IconButton(
+                                icon: Icon(
+                                  Icons.chat_bubble_outline_rounded,
+                                  color: Colors.grey,
+                                  size: 22.0,
+                                ),
+                                onPressed: onCommentsPressed,
+                              ),
+
+                              // comments count
+                              BlocBuilder<CommentsBloc, CommentsState>(
+                                builder: (_, state) {
+                                  return Text(
+                                   state.comments.length.toString(),
+                                   style: const TextStyle(fontSize: 14.0),
+                                  );
+                                },
+                              ),
+                            ],
+                          )
+
+                        ],
+                      ),
+                    ),
+
+                    // description
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: Text(
+                        state.postEntity.description,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16.0,
+                        ),
+                        maxLines: 5,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    Divider()
+                  ],
+                ),
+              );
+            },
+          ),
     );
   }
 }
