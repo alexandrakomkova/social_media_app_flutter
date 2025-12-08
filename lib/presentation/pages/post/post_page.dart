@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:social_media_app/data/repository/post_repository_impl.dart';
@@ -98,12 +97,12 @@ class _PostView extends StatelessWidget {
                                     leading: ProfileAvatar(
                                       radius: 20.0,
                                       userEntity: UserEntity(
-                                          username: comment.username,
-                                          photoUrl: comment.userImageUrl
+                                          username: comment.userEntity.username,
+                                          photoUrl: comment.userEntity.photoUrl
                                       ),
                                     ),
                                     title: Text(
-                                        comment.username,
+                                        comment.userEntity.username,
                                         style: TextStyle(
                                             fontWeight: FontWeight.w600
                                         )

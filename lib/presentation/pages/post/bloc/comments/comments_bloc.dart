@@ -10,13 +10,11 @@ part 'comments_bloc.freezed.dart';
 
 class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
   final CommentRepository _commentRepository;
-  final String _postId;
 
   CommentsBloc({
     required CommentRepository commentRepository,
     required String postId,
   }) : _commentRepository = commentRepository,
-       _postId = postId,
        super(CommentsState.idle(postId: postId)) {
     on<CommentsEvent>((events, emit) async {
       await events.map(
@@ -35,7 +33,7 @@ class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
       postId: postId,
   )..add(CommentsEvent.getComments());
 
-  _getComments(Emitter<CommentsState> emit) async {
+  Future<void> _getComments(Emitter<CommentsState> emit) async {
     emit(CommentsState.processing(
       postId: state.postId,
     ));
@@ -57,7 +55,7 @@ class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
     }
   }
 
-  _addComment(Emitter<CommentsState> emit) async {
+  Future<void> _addComment(Emitter<CommentsState> emit) async {
     try {
       await _commentRepository.addComment(
           postId: state.postId,
@@ -79,7 +77,7 @@ class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
     }
   }
 
-  _commentTextChanged(_CommentTextChanged event, Emitter<CommentsState> emit) {
+  Future<void> _commentTextChanged(_CommentTextChanged event, Emitter<CommentsState> emit) async {
     emit(state.copyWith(commentText: event.commentText));
   }
 }

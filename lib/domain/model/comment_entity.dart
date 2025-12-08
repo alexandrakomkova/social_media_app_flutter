@@ -1,45 +1,41 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:social_media_app/domain/model/user_entity.dart';
 
 class CommentEntity {
-  String userId;
   String commentText;
   int createdAt = DateTime.now().millisecondsSinceEpoch;
   String postId;
-  String userImageUrl;
-  String username;
+  UserEntity userEntity;
 
   CommentEntity({
     required this.postId,
-    required this.userId,
     required this.commentText,
     required this.createdAt,
-    required this.username,
-    this.userImageUrl = '',
+    required this.userEntity,
   });
 
-  factory CommentEntity.fromFirestore(
-      DocumentSnapshot<Map<String, dynamic>> snapshot,
-      SnapshotOptions? options,
-      ) {
-    final data = snapshot.data();
-    return CommentEntity(
-      userId: data?['userId'],
-      username: data?['username'],
-      userImageUrl: data?['userImageUrl'],
-      postId: data?['postId'],
-      commentText: data?['commentText'],
-      createdAt: data?['createdAt'],
-    );
-  }
-
-  Map<String, dynamic> toFirestore() {
-    return {
-      'userId': userId,
-      'username': username,
-      'userImageUrl': userImageUrl,
-      'postId': postId,
-      'commentText': commentText,
-      'createdAt': createdAt,
-    };
-  }
+  // factory CommentEntity.fromFirestore(
+  //     DocumentSnapshot<Map<String, dynamic>> snapshot,
+  //     SnapshotOptions? options,
+  //     ) {
+  //   final data = snapshot.data();
+  //   return CommentEntity(
+  //     userId: data?['userId'],
+  //     username: data?['username'],
+  //     userImageUrl: data?['userImageUrl'],
+  //     postId: data?['postId'],
+  //     commentText: data?['commentText'],
+  //     createdAt: data?['createdAt'],
+  //   );
+  // }
+  //
+  // Map<String, dynamic> toFirestore() {
+  //   return {
+  //     'userId': userId,
+  //     'username': username,
+  //     'userImageUrl': userImageUrl,
+  //     'postId': postId,
+  //     'commentText': commentText,
+  //     'createdAt': createdAt,
+  //   };
+  // }
 }

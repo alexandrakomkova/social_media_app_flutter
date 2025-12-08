@@ -243,10 +243,8 @@ class FirebaseDbServiceImpl implements DbService {
       final user = await DbProvider.db.getClient(FirebaseUtils.currentUserId);
 
       await _commentsRef.add({
-        'userId': user.id,
         'postId': postId,
-        'username': user.username,
-        'userImageUrl': user.photoUrl,
+        'userInfo': _usersRef.doc(user.id),
         'commentText': commentText,
         'createdAt': DateTime.now().millisecondsSinceEpoch,
       });
@@ -260,28 +258,44 @@ class FirebaseDbServiceImpl implements DbService {
   @override
   Future<Result<List<CommentEntity>>> getComments({
     required String postId,
-  }) async {
+}) async {
     List<CommentEntity> comments = [];
     try {
       await _commentsRef
           .where('postId', isEqualTo: postId)
           .orderBy('createdAt', descending: true)
           .get()
-          .then((querySnapshot) {
-            for (var docSnapshot in querySnapshot.docs) {
-              debugPrint('${docSnapshot.id} => ${docSnapshot.data()}');
-              var data = docSnapshot.data();
+          .then((querySnapshot) async {
+        for (var docSnapshot in querySnapshot.docs) {
+          debugPrint('${docSnapshot.id} => ${docSnapshot.data()}');
+          var data = docSnapshot.data();
 
-              comments.add(CommentEntity(
-                  userId: data['userId'],
-                  username: data['username'],
-                  userImageUrl: data['userImageUrl'],
-                  postId: data['postId'],
-                  commentText: data['commentText'],
-                  createdAt: data['createdAt'],
-              ));
+          var userRef = data['userInfo'] as DocumentReference;
+
+          var userDoc = await userRef.get();
+          if(userDoc.exists) {
+
+            if(userDoc.data() == null) {
+              return Result.ok([]);
             }
+            var user = userDoc.data() as dynamic;
+
+            comments.add(CommentEntity(
+              postId: data['postId'],
+              commentText: data['commentText'],
+              userEntity: UserEntity(
+                id: user['id'],
+                username: user['username'],
+                email: user['email'],
+                bio: user['bio'],
+                creationTimestamp: user['creationTimestamp'],
+                photoUrl: user['photoUrl'],
+              ),
+              createdAt: data['createdAt'],
+            ));
           }
+        }
+      }
       );
 
       return Result.ok(comments);
