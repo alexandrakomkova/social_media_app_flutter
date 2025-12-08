@@ -46,7 +46,7 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
   Future<void> _deleteAll(Emitter<NotificationState> emit) async {
     emit(NotificationState.processing());
     try {
-      final notifications = await _notificationRepository.deleteAll(userId: FirebaseUtils.currentUserId);
+      await _notificationRepository.deleteAll(userId: FirebaseUtils.currentUserId);
 
       emit(NotificationState.success(
         notifications: [],
