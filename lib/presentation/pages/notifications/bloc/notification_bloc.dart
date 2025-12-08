@@ -18,9 +18,16 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     on<NotificationEvent>((events, emit) async {
       await events.map(
           getNotifications: (_) => _getNotifications(emit),
+        deleteAll: (_) => _deleteAll(emit),
       );
     });
   }
+
+  factory NotificationBloc.getNotifications({
+    required NotificationRepository notificationRepository
+  }) => NotificationBloc(
+      notificationRepository: notificationRepository,
+  )..add(NotificationEvent.getNotifications());
 
   Future<void> _getNotifications(Emitter<NotificationState> emit) async {
     emit(NotificationState.processing());
@@ -34,6 +41,18 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     } catch(e) {
       emit(NotificationState.failed());
     }
+  }
 
+  Future<void> _deleteAll(Emitter<NotificationState> emit) async {
+    emit(NotificationState.processing());
+    try {
+      final notifications = await _notificationRepository.deleteAll(userId: FirebaseUtils.currentUserId);
+
+      emit(NotificationState.success(
+        notifications: [],
+      ));
+    } catch(e) {
+      emit(NotificationState.failed());
+    }
   }
 }

@@ -49,4 +49,5 @@ abstract class DbService {
     required String ownerId,
     required NotificationType type,
   });
+  Future<Result<void>> deleteAllNotifications({required String userId});
 }

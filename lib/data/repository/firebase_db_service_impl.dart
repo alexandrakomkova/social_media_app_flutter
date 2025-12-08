@@ -532,6 +532,27 @@ class FirebaseDbServiceImpl implements DbService {
       return Result.error(e);
     }
   }
+
+  @override
+  Future<Result<void>> deleteAllNotifications({required String userId}) async {
+    try {
+      final notificationSnapshot = await _notificationsRef
+      .doc(userId)
+      .collection(_userNotificationCollection)
+      .get();
+
+      for (var doc in notificationSnapshot.docs) {
+        await doc.reference.delete();
+      }
+
+      //debugPrint('--- FirebaseDbServiceImpl deleteAllNotifications success $userId');
+
+      return Result.ok(null);
+    } on Exception catch(e) {
+      debugPrint('--- FirebaseDbServiceImpl deleteAllNotifications $e');
+      return Result.error(e);
+    }
+  }
 }
 
 extension on String {

@@ -5,4 +5,5 @@ abstract class NotificationEvent with _$NotificationEvent {
   const NotificationEvent._();
 
   const factory NotificationEvent.getNotifications() = _GetNotifications;
+  const factory NotificationEvent.deleteAll() = _DeleteAll;
 }

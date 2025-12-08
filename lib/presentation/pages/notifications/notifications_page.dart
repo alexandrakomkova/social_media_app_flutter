@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:social_media_app/data/repository/notification_repository_impl.dart';
 
 import 'package:social_media_app/presentation/pages/notifications/bloc/notification_bloc.dart';
+import 'package:social_media_app/presentation/widget/notification_card.dart';
 
 class NotificationsPage extends StatelessWidget {
   const NotificationsPage({super.key});
@@ -12,7 +13,7 @@ class NotificationsPage extends StatelessWidget {
     return BlocProvider<NotificationBloc>(
       create:
         (notificationContext) =>
-          NotificationBloc(
+          NotificationBloc.getNotifications(
               notificationRepository: notificationContext.read<NotificationRepositoryImpl>()
           ),
       child: const _NotificationsView(),
@@ -27,11 +28,15 @@ class _NotificationsView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
+          title: Text('Notifications'),
+          centerTitle: true,
           actions: [
             GestureDetector(
-              onTap: () {},
+              onTap: () {
+                context.read<NotificationBloc>().add(NotificationEvent.deleteAll());
+              },
               child: Padding(
-                padding: const EdgeInsets.all(10.0),
+                padding: const EdgeInsets.all(8.0),
                 child: Text(
                   'Delete All',
                   style: TextStyle(
@@ -43,29 +48,6 @@ class _NotificationsView extends StatelessWidget {
             )
           ],
         ),
-        // body: Column(
-        //   mainAxisAlignment: MainAxisAlignment.center,
-        //   children: [
-        //     Expanded(
-        //         child: BlocBuilder<NotificationBloc, NotificationState>(
-        //           builder: (context, state) {
-        //             return ListView.builder(
-        //                 itemCount: state.notifications.length,
-        //                 itemBuilder: (BuildContext context, int index) {
-        //                   final notification = state.notifications[index];
-        //
-        //                   return ListTile(
-        //                     trailing: Icon(notification.type.icon),
-        //                     title: Text(notification.userEntity.username),
-        //                     subtitle: Text(notification.type.typeName),
-        //                   );
-        //                 }
-        //             );
-        //           },
-        //         )
-        //     )
-        //   ],
-        // )
       body: Padding(
           padding: const EdgeInsets.all(8.0),
         child: BlocBuilder<NotificationBloc, NotificationState>(
@@ -74,7 +56,10 @@ class _NotificationsView extends StatelessWidget {
                 NotificationStatus.idle => SizedBox(),
                 NotificationStatus.processing => Center(child: CircularProgressIndicator(),),
                 NotificationStatus.failed => Center(child: Text('something went wrong'),),
-                NotificationStatus.success => Column(
+                NotificationStatus.success =>
+                  state.notifications.isEmpty
+                ? Center(child: Text('there are no any new notifications'),)
+                : Column(
                   children: [
                     Expanded(
                         child: ListView.builder(
@@ -82,11 +67,7 @@ class _NotificationsView extends StatelessWidget {
                           itemBuilder: (BuildContext context, int index) {
                             final notification = state.notifications[index];
 
-                            return ListTile(
-                              trailing: Icon(notification.type.icon),
-                              title: Text(notification.userEntity.username),
-                              subtitle: Text(notification.type.typeName),
-                              );
+                            return NotificationCard(notificationEntity: notification);
                           }
                         ),
                     ),

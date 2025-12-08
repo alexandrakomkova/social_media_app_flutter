@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:social_media_app/domain/model/user_entity.dart';
 
 enum NotificationType {
@@ -16,7 +17,6 @@ enum NotificationType {
     required this.icon,
     required this.typeName,
   });
-
 }
 
 class NotificationEntity {
@@ -31,4 +31,8 @@ class NotificationEntity {
     required this.type,
     this.creationTimestamp = 0,
   });
+
+
+  DateTime get creationTimestampDateTime => DateTime.fromMillisecondsSinceEpoch(creationTimestamp ?? 0);
+  String get formattedCreationTimestamp => DateFormat('dd/MM/yyyy HH:mm').format(creationTimestampDateTime);
 }
