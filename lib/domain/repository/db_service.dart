@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:social_media_app/data/model/user_model.dart';
 import 'package:social_media_app/domain/model/comment_entity.dart';
+import 'package:social_media_app/domain/model/notification_entity.dart';
 import 'package:social_media_app/domain/model/post_entity.dart';
 import 'package:social_media_app/domain/model/user_entity.dart';
 import 'package:social_media_app/utils/result.dart';
@@ -20,12 +21,16 @@ abstract class DbService {
 
   // likes
   Future<Result<Map<String, int>>> getLikesInfo({required String postId});
-  Future<Result<void>> addLike({required String postId});
+  Future<Result<void>> addLike({required String postId, required String postOwnerId});
   Future<Result<void>> removeLike({required String postId});
 
   //comments
   Future<Result<List<CommentEntity>>> getComments({required String postId});
-  Future<Result<void>> addComment({required String postId, required String commentText});
+  Future<Result<void>> addComment({
+    required String postId,
+    required String commentText,
+    required String postOwnerId,
+  });
 
   // followers and followings
   Future<void> followUser({required String userId, required String userIdToFollow});
@@ -36,4 +41,12 @@ abstract class DbService {
 
   //home
   Future<Result<List<PostEntity>>> getNewPosts({required String userId});
+
+  // notifications
+  Future<Result<List<NotificationEntity>>> getNotifications({required String userId});
+  Future<Result<void>> addNotification({
+    String? postId,
+    required String ownerId,
+    required NotificationType type,
+  });
 }

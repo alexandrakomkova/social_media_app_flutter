@@ -25,8 +25,8 @@ class PostRepositoryImpl implements PostRepository, CommentRepository {
   }
 
   @override
-  Future<void> addLike({required String postId}) async {
-    final res =  await _dbService.addLike(postId: postId);
+  Future<void> addLike({required String postId, required String postOwnerId}) async {
+    final res =  await _dbService.addLike(postId: postId, postOwnerId: postOwnerId);
     switch(res) {
       case Ok<void>():
         return res.value;
@@ -50,11 +50,14 @@ class PostRepositoryImpl implements PostRepository, CommentRepository {
   Future<void> addComment({
     required String postId,
     required String commentText,
+    required String postOwnerId,
   }) async {
+    debugPrint('--- PostRepositoryImpl addComment postOwnerId $postOwnerId');
 
     final res = await _dbService.addComment(
       postId: postId,
       commentText: commentText,
+      postOwnerId: postOwnerId,
     );
     switch(res) {
       case Ok<void>():

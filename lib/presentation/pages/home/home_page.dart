@@ -67,6 +67,7 @@ class _HomeView extends StatelessWidget {
                                           create: (context) => CommentsBloc.getComments(
                                             commentRepository: context.read<PostRepositoryImpl>(),
                                             postId: post.id.toString(),
+                                            postOwnerId: post.userId,
                                           ),
                                         ),
                                       ],

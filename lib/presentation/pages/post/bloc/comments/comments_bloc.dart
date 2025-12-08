@@ -14,8 +14,9 @@ class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
   CommentsBloc({
     required CommentRepository commentRepository,
     required String postId,
+    required String postOwnerId,
   }) : _commentRepository = commentRepository,
-       super(CommentsState.idle(postId: postId)) {
+       super(CommentsState.idle(postId: postId, postOwnerId: postOwnerId)) {
     on<CommentsEvent>((events, emit) async {
       await events.map(
         getComments: (_) => _getComments(emit),
@@ -28,14 +29,18 @@ class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
   factory CommentsBloc.getComments({
     required CommentRepository commentRepository,
     required String postId,
+    required String postOwnerId,
   }) => CommentsBloc(
       commentRepository: commentRepository,
       postId: postId,
+      postOwnerId: postOwnerId,
   )..add(CommentsEvent.getComments());
 
   Future<void> _getComments(Emitter<CommentsState> emit) async {
     emit(CommentsState.processing(
       postId: state.postId,
+      postOwnerId: state.postOwnerId,
+
     ));
 
     debugPrint('--- getComments');
@@ -45,12 +50,14 @@ class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
 
       emit(CommentsState.success(
         postId: state.postId,
-        comments: res
+        comments: res,
+        postOwnerId: state.postOwnerId,
       ));
     } catch(e) {
       emit(CommentsState.failed(
         comments: [],
         postId: state.postId,
+        postOwnerId: state.postOwnerId,
       ));
     }
   }
@@ -60,19 +67,19 @@ class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
       await _commentRepository.addComment(
           postId: state.postId,
           commentText: state.commentText,
+        postOwnerId: state.postOwnerId,
       );
-
-      // final res = await _commentRepository.getComments(postId: state.postId);
 
       emit(CommentsState.success(
           postId: state.postId,
-        //commentText: '',
-        comments: state.comments
+        comments: state.comments,
+        postOwnerId: state.postOwnerId,
       ));
     } catch(e) {
       emit(CommentsState.failed(
         comments: state.comments,
         postId: state.postId,
+        postOwnerId: state.postOwnerId,
       ));
     }
   }

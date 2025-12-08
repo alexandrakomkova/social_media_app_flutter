@@ -14,28 +14,32 @@ sealed class CommentsState with _$CommentsState {
   const factory CommentsState.idle({
     @Default(CommentsStatus.idle) CommentsStatus status,
     @Default([]) List<CommentEntity> comments,
-    @Default('') commentText,
-    @Default('') postId,
+    @Default('') String commentText,
+    @Default('') String postId,
+    @Default('') String postOwnerId,
   }) = CommentsState$Idle;
 
   const factory CommentsState.processing({
     @Default(CommentsStatus.processing) CommentsStatus status,
     @Default([]) List<CommentEntity> comments,
-    @Default('') commentText,
-    @Default('') postId,
+    @Default('') String commentText,
+    @Default('') String postId,
+    @Default('') String postOwnerId,
   }) = CommentsState$Processing;
 
   const factory CommentsState.success({
     @Default(CommentsStatus.success) CommentsStatus status,
     @Default([]) List<CommentEntity> comments,
-    @Default('') commentText,
-    @Default('') postId,
+    @Default('') String commentText,
+    @Default('') String postId,
+    @Default('') String postOwnerId,
   }) = CommentsState$Success;
 
   const factory CommentsState.failed({
     @Default(CommentsStatus.failed) CommentsStatus status,
     @Default([]) List<CommentEntity> comments,
-    @Default('') commentText,
-    @Default('') postId,
+    @Default('') String commentText,
+    @Default('') String postId,
+    @Default('') String postOwnerId,
   }) = CommentsState$Failed;
 }

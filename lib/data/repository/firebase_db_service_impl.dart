@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:social_media_app/data/model/user_model.dart';
 import 'package:social_media_app/domain/model/comment_entity.dart';
+import 'package:social_media_app/domain/model/notification_entity.dart';
 import 'package:social_media_app/domain/model/post_entity.dart';
 import 'package:social_media_app/domain/model/user_entity.dart';
 import 'package:social_media_app/domain/repository/db_service.dart';
@@ -23,6 +24,8 @@ class FirebaseDbServiceImpl implements DbService {
   late final _followingsRef = firestore.collection('followings');
   late final _userFollowersCollection = 'userFollowers';
   late final _userFollowingsCollection = 'userFollowings';
+  late final _notificationsRef = firestore.collection('notifications');
+  late final _userNotificationCollection = 'userNotification';
 
   @override
   Future<void> createUser(User user, UserModel userModel) async {
@@ -170,13 +173,19 @@ class FirebaseDbServiceImpl implements DbService {
   }
 
   @override
-  Future<Result<void>> addLike({required String postId}) async {
+  Future<Result<void>> addLike({required String postId, required String postOwnerId}) async {
     try {
       await _likesRef.add({
         'userId': FirebaseUtils.currentUserId,
         'postId': postId,
         'date': DateTime.now().millisecondsSinceEpoch.toString(),
       });
+
+      await addNotification(
+        postId: postId,
+        ownerId: postOwnerId,
+        type: NotificationType.like,
+      );
 
       //debugPrint('--- FirebaseDbServiceImpl addLike success');
       return Result.ok(null);
@@ -209,7 +218,11 @@ class FirebaseDbServiceImpl implements DbService {
   }
 
   @override
-  Future<Result<void>> addComment({required String postId, required String commentText}) async {
+  Future<Result<void>> addComment({
+    required String postId,
+    required String commentText,
+    required String postOwnerId,
+  }) async {
     try {
       await _commentsRef.add({
         'postId': postId,
@@ -217,6 +230,12 @@ class FirebaseDbServiceImpl implements DbService {
         'commentText': commentText,
         'createdAt': DateTime.now().millisecondsSinceEpoch,
       });
+
+      await addNotification(
+          postId: postId,
+          ownerId: postOwnerId,
+          type: NotificationType.comment,
+      );
 
       return Result.ok(null);
     } on Exception catch(e) {
@@ -292,6 +311,13 @@ class FirebaseDbServiceImpl implements DbService {
           'userInfo': _usersRef.doc(userIdToFollow)
         })
       ]);
+
+      await addNotification(
+        postId: '',
+        ownerId: userIdToFollow,
+        type: NotificationType.follow,
+      );
+
     } on Exception catch(e) {
       debugPrint('--- FirebaseDbServiceImpl followUser ${e.toString()}');
     }
@@ -312,6 +338,12 @@ class FirebaseDbServiceImpl implements DbService {
             .doc(userIdToUnfollow)
             .delete(),
       ]);
+
+      await addNotification(
+        postId: '',
+        ownerId: userIdToUnfollow,
+        type: NotificationType.unfollow,
+      );
     } catch (e) {
       debugPrint('--- FirebaseDbServiceImpl unfollowUser ${e.toString()}');
     }
@@ -430,5 +462,91 @@ class FirebaseDbServiceImpl implements DbService {
       return Result.error(e);
     }
 
+  }
+
+  @override
+  Future<Result<List<NotificationEntity>>> getNotifications({required String userId}) async {
+    try {
+      final notificationsSnapshot = await _notificationsRef
+          .doc(userId)
+          .collection(_userNotificationCollection)
+          .get();
+
+      if (notificationsSnapshot.docs.isEmpty) return Result.ok([]);
+      List<NotificationEntity> notifications = [];
+
+      for(var docSnapshot in notificationsSnapshot.docs) {
+          final data = docSnapshot.data() as dynamic;
+          var userRef = data['userInfo'] as DocumentReference;
+
+          final userDoc = await userRef.get();
+          if(userDoc.exists) {
+            final userData = userDoc.data() as dynamic;
+
+            debugPrint('${userDoc.id} => $userData');
+
+            notifications.add(NotificationEntity(
+                userEntity: UserEntity(
+                  id: userData['id'],
+                  username: userData['username'],
+                  email: userData['email'],
+                  bio: userData['bio'],
+                  creationTimestamp: userData['creationTimestamp'],
+                  photoUrl: userData['photoUrl'],
+                ),
+                postId: data['postId'],
+                type: data['type'].toString().toNotificationType,
+                creationTimestamp: data['creationTimestamp']
+            ));
+          }
+      }
+
+      return Result.ok(notifications);
+    } on Exception catch(e) {
+      return Result.error(e);
+    }
+  }
+
+  @override
+  Future<Result<void>> addNotification({
+    String? postId,
+    required String ownerId,
+    required NotificationType type,
+  }) async {
+    try {
+      debugPrint('--- FirebaseDbServiceImpl addNotification $ownerId $postId');
+      await _notificationsRef
+        .doc(ownerId)
+        .collection(_userNotificationCollection)
+        .add({
+          'postId': postId,
+          'userInfo': _usersRef.doc(FirebaseUtils.currentUserId),
+          'type': type.typeName,
+          'creationTimestamp': DateTime.now().millisecondsSinceEpoch
+        });
+
+      debugPrint('--- FirebaseDbServiceImpl addNotification success');
+      return Result.ok(null);
+    } on Exception catch(e) {
+      debugPrint('--- FirebaseDbServiceImpl addNotification $e');
+      return Result.error(e);
+    }
+  }
+}
+
+extension on String {
+  NotificationType get toNotificationType {
+    switch(this) {
+      case 'like':
+        return NotificationType.like;
+      case 'comment':
+        return NotificationType.comment;
+      case 'follow':
+        return NotificationType.follow;
+      case 'unfollow':
+        return NotificationType.unfollow;
+      default:
+        return NotificationType.unknown;
+    }
   }
 }
