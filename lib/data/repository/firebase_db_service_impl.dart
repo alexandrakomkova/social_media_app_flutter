@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
-import 'package:social_media_app/data/db_provider.dart';
 import 'package:social_media_app/data/model/user_model.dart';
 import 'package:social_media_app/domain/model/comment_entity.dart';
 import 'package:social_media_app/domain/model/post_entity.dart';
@@ -94,7 +93,8 @@ class FirebaseDbServiceImpl implements DbService {
         'creationTimestamp': creationTimestamp,
         'description': description,
         'imageUrl': imageUrl,
-        "userId": FirebaseUtils.currentUserId,
+        'userInfo': _usersRef.doc(FirebaseUtils.currentUserId),
+        'userId': FirebaseUtils.currentUserId,
       });
 
       //debugPrint('loaded ${imageUrl}');
@@ -112,17 +112,35 @@ class FirebaseDbServiceImpl implements DbService {
     try {
       await _postsRef.where('userId', isEqualTo: userId)
           .get().then(
-              (querySnapshot) {
+              (querySnapshot) async {
             for (var docSnapshot in querySnapshot.docs) {
-              //debugPrint('${docSnapshot.id} => ${docSnapshot.data()}');
+              debugPrint('${docSnapshot.id} => ${docSnapshot.data()}');
               var data = docSnapshot.data();
+              var userRef = data['userInfo'] as DocumentReference;
 
-              posts.add(PostEntity(
-                userId: data['userId'],
-                imageUrl: data['imageUrl'],
-                description: data['description'],
-                creationTimestamp: data['creationTimestamp']
-              ));
+              var userDoc = await userRef.get();
+              if(userDoc.exists) {
+
+                if(userDoc.data() == null) {
+                  return Result.ok([]);
+                }
+                var user = userDoc.data() as dynamic;
+
+                posts.add(PostEntity(
+                    userEntity: UserEntity(
+                      id: user['id'],
+                      username: user['username'],
+                      email: user['email'],
+                      bio: user['bio'],
+                      creationTimestamp: user['creationTimestamp'],
+                      photoUrl: user['photoUrl'],
+                    ),
+                    userId: data['userId'],
+                    imageUrl: data['imageUrl'],
+                    description: data['description'],
+                    creationTimestamp: data['creationTimestamp']
+                ));
+              }
             }
           }
       );
@@ -240,11 +258,11 @@ class FirebaseDbServiceImpl implements DbService {
   @override
   Future<Result<void>> addComment({required String postId, required String commentText}) async {
     try {
-      final user = await DbProvider.db.getClient(FirebaseUtils.currentUserId);
+      //final user = await DbProvider.db.getClient(FirebaseUtils.currentUserId);
 
       await _commentsRef.add({
         'postId': postId,
-        'userInfo': _usersRef.doc(user.id),
+        'userInfo': _usersRef.doc(FirebaseUtils.currentUserId),
         'commentText': commentText,
         'createdAt': DateTime.now().millisecondsSinceEpoch,
       });
@@ -447,17 +465,35 @@ class FirebaseDbServiceImpl implements DbService {
 
       await _postsRef.where('userId', whereIn: followingUserIds)
           .get().then(
-              (querySnapshot) {
+              (querySnapshot) async {
             for (var docSnapshot in querySnapshot.docs) {
               debugPrint('${docSnapshot.id} => ${docSnapshot.data()}');
               var data = docSnapshot.data();
 
-              posts.add(PostEntity(
-                  userId: data['userId'],
-                  imageUrl: data['imageUrl'],
-                  description: data['description'],
-                  creationTimestamp: data['creationTimestamp']
-              ));
+              var userRef = data['userInfo'] as DocumentReference;
+              var userDoc = await userRef.get();
+
+              if(userDoc.exists) {
+                if(userDoc.data() == null) {
+                  return Result.ok([]);
+                }
+                var user = userDoc.data() as dynamic;
+
+                posts.add(PostEntity(
+                    userEntity: UserEntity(
+                      id: user['id'],
+                      username: user['username'],
+                      email: user['email'],
+                      bio: user['bio'],
+                      creationTimestamp: user['creationTimestamp'],
+                      photoUrl: user['photoUrl'],
+                    ),
+                    userId: data['userId'],
+                    imageUrl: data['imageUrl'],
+                    description: data['description'],
+                    creationTimestamp: data['creationTimestamp']
+                ));
+             }
             }
           }
       );

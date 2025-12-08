@@ -12,30 +12,4 @@ class CommentEntity {
     required this.createdAt,
     required this.userEntity,
   });
-
-  // factory CommentEntity.fromFirestore(
-  //     DocumentSnapshot<Map<String, dynamic>> snapshot,
-  //     SnapshotOptions? options,
-  //     ) {
-  //   final data = snapshot.data();
-  //   return CommentEntity(
-  //     userId: data?['userId'],
-  //     username: data?['username'],
-  //     userImageUrl: data?['userImageUrl'],
-  //     postId: data?['postId'],
-  //     commentText: data?['commentText'],
-  //     createdAt: data?['createdAt'],
-  //   );
-  // }
-  //
-  // Map<String, dynamic> toFirestore() {
-  //   return {
-  //     'userId': userId,
-  //     'username': username,
-  //     'userImageUrl': userImageUrl,
-  //     'postId': postId,
-  //     'commentText': commentText,
-  //     'createdAt': createdAt,
-  //   };
-  // }
 }
