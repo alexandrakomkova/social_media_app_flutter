@@ -39,11 +39,14 @@ class FirebaseDbServiceImpl implements DbService {
   @override
   Future<Result<UserEntity>> getUserById(String? id) async {
     try {
-      var userRef = await _usersRef.doc(id).withConverter(
-          fromFirestore: UserEntity.fromFirestore,
-          toFirestore: (UserEntity userEntity, _) => userEntity.toFirestore(),
-      );
-      final docSnap = await userRef.get();
+      final docSnap = await _usersRef
+          .doc(id)
+          .withConverter(
+            fromFirestore: UserEntity.fromFirestore,
+            toFirestore: (UserEntity userEntity, _) => userEntity.toFirestore(),
+          )
+          .get();
+
       final userEntity = docSnap.data();
 
       return Result.ok(userEntity ?? UserEntity());
@@ -52,32 +55,29 @@ class FirebaseDbServiceImpl implements DbService {
     }
   }
 
+
   @override
   Future<Result<List<UserEntity>>> searchUserByUsername({required String username}) async {
-    List<UserEntity> foundUsers = [];
-
     try {
-      await _usersRef.where('username', isGreaterThanOrEqualTo: username)
-          .where("username", isLessThanOrEqualTo: "$username\uf7ff")
-          .get().then(
-            (querySnapshot) {
-          for (var docSnapshot in querySnapshot.docs) {
-            // debugPrint('${docSnapshot.id} => ${docSnapshot.data()}');
-            var data = docSnapshot.data();
+      final querySnapshot = await _usersRef
+          .where('username', isGreaterThanOrEqualTo: username)
+          .where('username', isLessThanOrEqualTo: '$username\uf7ff')
+          .get();
 
-            foundUsers.add(UserEntity(
-              id: data['id'],
-              username: data['username'],
-              email: data['email'],
-              bio: data['bio'],
-              creationTimestamp: data['creationTimestamp'],
-              photoUrl: data['photoUrl'],
-            ));
-          }
-        }
-      );
+      List<UserEntity> foundUsers = querySnapshot.docs.map((doc) {
+        final data = doc.data();
+        return UserEntity(
+          id: data['id'],
+          username: data['username'],
+          email: data['email'],
+          bio: data['bio'],
+          creationTimestamp: data['creationTimestamp'],
+          photoUrl: data['photoUrl'],
+        );
+      }).toList();
+
       return Result.ok(foundUsers);
-    } on Exception catch(e) {
+    } on Exception catch (e) {
       return Result.error(e);
     }
   }
@@ -99,7 +99,7 @@ class FirebaseDbServiceImpl implements DbService {
 
       //debugPrint('loaded ${imageUrl}');
 
-      return Result.ok('');
+      return Result.ok(null);
     } on Exception catch(e) {
       //debugPrint('--- FirebaseDbServiceImpl createPost ${e.toString()}');
       return Result.error(e);
@@ -108,45 +108,13 @@ class FirebaseDbServiceImpl implements DbService {
 
   @override
   Future<Result<List<PostEntity>>> getUserPosts({required String userId}) async {
-    List<PostEntity> posts = [];
     try {
-      await _postsRef.where('userId', isEqualTo: userId)
-          .get().then(
-              (querySnapshot) async {
-            for (var docSnapshot in querySnapshot.docs) {
-              debugPrint('${docSnapshot.id} => ${docSnapshot.data()}');
-              var data = docSnapshot.data();
-              var userRef = data['userInfo'] as DocumentReference;
-
-              var userDoc = await userRef.get();
-              if(userDoc.exists) {
-
-                if(userDoc.data() == null) {
-                  return Result.ok([]);
-                }
-                var user = userDoc.data() as dynamic;
-
-                posts.add(PostEntity(
-                    userEntity: UserEntity(
-                      id: user['id'],
-                      username: user['username'],
-                      email: user['email'],
-                      bio: user['bio'],
-                      creationTimestamp: user['creationTimestamp'],
-                      photoUrl: user['photoUrl'],
-                    ),
-                    userId: data['userId'],
-                    imageUrl: data['imageUrl'],
-                    description: data['description'],
-                    creationTimestamp: data['creationTimestamp']
-                ));
-              }
-            }
-          }
-      );
-
+      final querySnapshot = await _postsRef
+          .where('userId', isEqualTo: userId)
+          .get();
+      List<PostEntity> posts = await _getPostEntitiesFromQuery(querySnapshot);
       return Result.ok(posts);
-    } on Exception catch(e) {
+    } on Exception catch (e) {
       return Result.error(e);
     }
   }
@@ -169,7 +137,7 @@ class FirebaseDbServiceImpl implements DbService {
         });
         //debugPrint('--- FirebaseDbServiceImpl updateUserInfo success');
 
-        return Result.ok('');
+        return Result.ok(null);
     } on Exception catch(e) {
       //debugPrint('--- FirebaseDbServiceImpl updateUserInfo ${e.toString()}');
       return Result.error(e);
@@ -190,28 +158,13 @@ class FirebaseDbServiceImpl implements DbService {
 
   @override
   Future<Result<Map<String, int>>> getLikesInfo({required String postId}) async {
-    int likesCount = 0;
-    int isLiked = 0;
-
     try {
-      await _likesRef
-          .where('postId', isEqualTo: postId)
-          .get()
-          .then(
-              (querySnapshot) {
-                likesCount = querySnapshot.docs.length;
+      final querySnapshot = await _likesRef.where('postId', isEqualTo: postId).get();
+      int likesCount = querySnapshot.docs.length;
+      int isLiked = querySnapshot.docs.any((doc) => doc['userId'] == FirebaseUtils.currentUserId) ? 1 : 0;
 
-                for (var docSnapshot in querySnapshot.docs) {
-                  var data = docSnapshot.data();
-                  if(data['userId'] == FirebaseUtils.currentUserId) {
-                    isLiked = 1;
-                  }
-                }
-      });
-
-      //debugPrint('--- $likesCount $isLiked');
       return Result.ok({'likesCount': likesCount, 'isLiked': isLiked});
-    } on Exception catch(e) {
+    } on Exception catch (e) {
       return Result.error(e);
     }
   }
@@ -226,7 +179,7 @@ class FirebaseDbServiceImpl implements DbService {
       });
 
       //debugPrint('--- FirebaseDbServiceImpl addLike success');
-      return Result.ok('');
+      return Result.ok(null);
     } on Exception catch (e) {
       //debugPrint('--- FirebaseDbServiceImpl addLike $e');
       return Result.error(e);
@@ -236,30 +189,28 @@ class FirebaseDbServiceImpl implements DbService {
   @override
   Future<Result<void>> removeLike({required String postId}) async {
     try {
-      await _likesRef
+      final querySnapshot = await _likesRef
           .where('postId', isEqualTo: postId)
           .where('userId', isEqualTo: FirebaseUtils.currentUserId)
-          .get()
-          .then(
-              (querySnapshot) {
-                for (var docSnapshot in querySnapshot.docs) {
-                  docSnapshot.reference.delete();
-                }
-          });
+          .get();
+
+      for (var docSnapshot in querySnapshot.docs) {
+        await docSnapshot.reference.delete();
+      }
 
       debugPrint('--- FirebaseDbServiceImpl removeLike success');
-      return Result.ok('');
+      return Result.ok(null);
     } on Exception catch (e) {
       debugPrint('--- FirebaseDbServiceImpl removeLike $e');
       return Result.error(e);
     }
+
+
   }
 
   @override
   Future<Result<void>> addComment({required String postId, required String commentText}) async {
     try {
-      //final user = await DbProvider.db.getClient(FirebaseUtils.currentUserId);
-
       await _commentsRef.add({
         'postId': postId,
         'userInfo': _usersRef.doc(FirebaseUtils.currentUserId),
@@ -267,7 +218,7 @@ class FirebaseDbServiceImpl implements DbService {
         'createdAt': DateTime.now().millisecondsSinceEpoch,
       });
 
-      return Result.ok('');
+      return Result.ok(null);
     } on Exception catch(e) {
       return Result.error(e);
     }
@@ -325,22 +276,22 @@ class FirebaseDbServiceImpl implements DbService {
   @override
   Future<void> followUser({required String userId, required String userIdToFollow}) async {
     try {
-      await _followersRef
+      Future.wait([
+        _followersRef
           .doc(userIdToFollow)
           .collection(_userFollowersCollection)
           .doc(userId)
           .set({
-        'userInfo': _usersRef.doc(userId)
-      });
-
-      await _followingsRef
+            'userInfo': _usersRef.doc(userId)
+        }),
+        _followingsRef
           .doc(userId)
           .collection(_userFollowingsCollection)
           .doc(userIdToFollow)
           .set({
-        'userInfo': _usersRef.doc(userIdToFollow)
-      });
-
+          'userInfo': _usersRef.doc(userIdToFollow)
+        })
+      ]);
     } on Exception catch(e) {
       debugPrint('--- FirebaseDbServiceImpl followUser ${e.toString()}');
     }
@@ -349,55 +300,52 @@ class FirebaseDbServiceImpl implements DbService {
   @override
   Future<void> unfollowUser({required String userId, required String userIdToUnfollow}) async {
     try {
-      await _followersRef
-          .doc(userIdToUnfollow)
-          .collection(_userFollowersCollection)
-          .doc(userId)
-          .delete();
-
-      await _followingsRef
-          .doc(userId)
-          .collection(_userFollowingsCollection)
-          .doc(userIdToUnfollow)
-          .delete();
-    } on Exception catch(e) {
+      await Future.wait([
+        _followersRef
+            .doc(userIdToUnfollow)
+            .collection(_userFollowersCollection)
+            .doc(userId)
+            .delete(),
+        _followingsRef
+            .doc(userId)
+            .collection(_userFollowingsCollection)
+            .doc(userIdToUnfollow)
+            .delete(),
+      ]);
+    } catch (e) {
       debugPrint('--- FirebaseDbServiceImpl unfollowUser ${e.toString()}');
     }
   }
 
+  Future<List<UserEntity>> _getUserEntitiesFromQuery(QuerySnapshot querySnapshot) async {
+    List<UserEntity> users = [];
+    for (var docSnapshot in querySnapshot.docs) {
+      final data = docSnapshot.data() as dynamic;
+      var userRef = data['userInfo'] as DocumentReference;
+      final userDoc = await userRef.get();
+
+      if (userDoc.exists) {
+        var userData = userDoc.data() as dynamic;
+
+        users.add(UserEntity(
+          id: userData['id'],
+          username: userData['username'],
+          email: userData['email'],
+          bio: userData['bio'],
+          creationTimestamp: userData['creationTimestamp'],
+          photoUrl: userData['photoUrl'],
+        ));
+      }
+    }
+    return users;
+  }
+
   @override
   Future<Result<List<UserEntity>>> getFollowers({required String userId}) async {
-    List<UserEntity> followers = [];
     try {
-      await _followersRef
-          .doc(userId)
-          .collection(_userFollowersCollection)
-          .get()
-          .then((querySnapshot) async {
-            for (var docSnapshot in querySnapshot.docs) {
-              debugPrint('${docSnapshot.id} => ${docSnapshot.data()}');
-              var data = docSnapshot.data();
-              var userRef = data['userInfo'] as DocumentReference;
-
-              var userDoc = await userRef.get();
-              if(userDoc.exists) {
-
-                if(userDoc.data() == null) {
-                  return Result.ok([]);
-                }
-                var user = userDoc.data() as dynamic;
-
-                followers.add(UserEntity(
-                  id: user['id'],
-                  username: user['username'],
-                  email: user['email'],
-                  bio: user['bio'],
-                  creationTimestamp: user['creationTimestamp'],
-                  photoUrl: user['photoUrl'],
-                ));
-              }
-            }
-      });
+      final followersSnapshot = await _followersRef.doc(userId).collection(_userFollowersCollection).get();
+      if (followersSnapshot.docs.isEmpty) return Result.ok([]);
+      List<UserEntity> followers = await _getUserEntitiesFromQuery(followersSnapshot);
 
       return Result.ok(followers);
     } on Exception catch(e) {
@@ -407,36 +355,10 @@ class FirebaseDbServiceImpl implements DbService {
 
   @override
   Future<Result<List<UserEntity>>> getFollowings({required String userId}) async {
-    List<UserEntity> followings = [];
     try {
-      await _followingsRef
-          .doc(userId)
-          .collection(_userFollowingsCollection)
-          .get()
-          .then((querySnapshot) async {
-        for (var docSnapshot in querySnapshot.docs) {
-          debugPrint('${docSnapshot.id} => ${docSnapshot.data()}');
-          var data = docSnapshot.data();
-          var userRef = data['userInfo'] as DocumentReference;
-
-          var userDoc = await userRef.get();
-          if(userDoc.exists) {
-            if (userDoc.data() == null) {
-              return Result.ok([]);
-            }
-            var user = userDoc.data() as dynamic;
-
-            followings.add(UserEntity(
-              id: user['id'],
-              username: user['username'],
-              email: user['email'],
-              bio: user['bio'],
-              creationTimestamp: user['creationTimestamp'],
-              photoUrl: user['photoUrl'],
-            ));
-          }
-        }
-      });
+      final followingsSnapshot = await _followingsRef.doc(userId).collection(_userFollowingsCollection).get();
+      if (followingsSnapshot.docs.isEmpty) return Result.ok([]);
+      List<UserEntity> followings = await _getUserEntitiesFromQuery(followingsSnapshot);
 
       return Result.ok(followings);
     } on Exception catch(e) {
@@ -444,87 +366,69 @@ class FirebaseDbServiceImpl implements DbService {
     }
   }
 
+  Future<List<PostEntity>> _getPostEntitiesFromQuery(QuerySnapshot querySnapshot) async {
+    List<PostEntity> posts = [];
+    for (var docSnapshot in querySnapshot.docs) {
+      final data = docSnapshot.data() as dynamic;
+      var userRef = data['userInfo'] as DocumentReference;
+
+      final userDoc = await userRef.get();
+      if (userDoc.exists) {
+        var userData = userDoc.data() as dynamic;
+        posts.add(PostEntity(
+          userEntity: UserEntity(
+            id: userData['id'],
+            username: userData['username'],
+            email: userData['email'],
+            bio: userData['bio'],
+            creationTimestamp: userData['creationTimestamp'],
+            photoUrl: userData['photoUrl'],
+          ),
+          userId: data['userId'],
+          imageUrl: data['imageUrl'],
+          description: data['description'],
+          creationTimestamp: data['creationTimestamp'],
+        ));
+      }
+    }
+    return posts;
+  }
+
   @override
   Future<Result<List<PostEntity>>> getNewPosts({required String userId}) async {
-    List<PostEntity> posts = [];
-    List<String> followingUserIds = [];
     try {
-      var followingsSnapshot = await _followingsRef
+      final followingsSnapshot = await _followingsRef
           .doc(userId)
           .collection(_userFollowingsCollection)
           .get();
-      debugPrint('--- FirebaseDbServiceImpl getNewPosts ${followingsSnapshot.docs.length}');
 
-      for (var doc in followingsSnapshot.docs) {
-        followingUserIds.add(doc.id);
-      }
+      if (followingsSnapshot.docs.isEmpty) return Result.ok([]);
 
-      if(followingUserIds.isEmpty) { return Result.ok([]); }
+      List<String> followingUserIds = followingsSnapshot.docs.map((doc) => doc.id).toList();
+      final querySnapshot = await _postsRef.where('userId', whereIn: followingUserIds).get();
+      List<PostEntity> posts = await _getPostEntitiesFromQuery(querySnapshot);
 
-      debugPrint('--- FirebaseDbServiceImpl getNewPosts ${followingUserIds.length}');
-
-      await _postsRef.where('userId', whereIn: followingUserIds)
-          .get().then(
-              (querySnapshot) async {
-            for (var docSnapshot in querySnapshot.docs) {
-              debugPrint('${docSnapshot.id} => ${docSnapshot.data()}');
-              var data = docSnapshot.data();
-
-              var userRef = data['userInfo'] as DocumentReference;
-              var userDoc = await userRef.get();
-
-              if(userDoc.exists) {
-                if(userDoc.data() == null) {
-                  return Result.ok([]);
-                }
-                var user = userDoc.data() as dynamic;
-
-                posts.add(PostEntity(
-                    userEntity: UserEntity(
-                      id: user['id'],
-                      username: user['username'],
-                      email: user['email'],
-                      bio: user['bio'],
-                      creationTimestamp: user['creationTimestamp'],
-                      photoUrl: user['photoUrl'],
-                    ),
-                    userId: data['userId'],
-                    imageUrl: data['imageUrl'],
-                    description: data['description'],
-                    creationTimestamp: data['creationTimestamp']
-                ));
-             }
-            }
-          }
-      );
       return Result.ok(posts);
-    } on Exception catch(e) {
-      debugPrint('--- FirebaseDbServiceImpl getNewPosts error $e');
+    } on Exception catch (e) {
+      // debugPrint('--- FirebaseDbServiceImpl getNewPosts error $e');
       return Result.error(e);
     }
   }
 
   @override
   Future<Result<bool>> isFollowedByCurrentUser({required String profileOwnerUserId}) async {
-    bool isFollowed = false;
     try {
-      await _followingsRef
+      final querySnapshot = await _followingsRef
           .doc(FirebaseUtils.currentUserId)
           .collection(_userFollowingsCollection)
-          .get()
-          .then((querySnapshot) async {
-            for (var docSnapshot in querySnapshot.docs) {
-              if(docSnapshot.id == profileOwnerUserId) {
-                isFollowed = true;
-                break;
-              }
-            }
-          });
+          .get();
 
-      debugPrint('--- FirebaseDbServiceImpl isFollowedByCurrentUser $isFollowed');
+      bool isFollowed = querySnapshot.docs.any((docSnapshot) => docSnapshot.id == profileOwnerUserId);
+      //   debugPrint('--- FirebaseDbServiceImpl isFollowedByCurrentUser $isFollowed');
       return Result.ok(isFollowed);
-    } on Exception catch(e) {
+    } on Exception catch (e) {
       return Result.error(e);
     }
+
   }
 }
