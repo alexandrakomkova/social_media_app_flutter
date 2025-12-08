@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:social_media_app/domain/model/post_entity.dart';
 import 'package:social_media_app/presentation/pages/post/bloc/comments/comments_bloc.dart';
 import 'package:social_media_app/presentation/pages/post/bloc/post/post_bloc.dart';
+import 'package:social_media_app/presentation/widget/profile_avatar.dart';
 
 class PostCard extends StatelessWidget {
   final PostEntity postEntity;
@@ -33,6 +34,26 @@ class PostCard extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          ProfileAvatar(
+                              radius: 20.0,
+                              userEntity: state.postEntity.userEntity,
+                          ),
+                          const SizedBox(width: 10.0,),
+                          Text(
+                            state.postEntity.userEntity.username,
+                            style: TextStyle(
+                              fontSize: 16.0
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
                     // post image
                     SizedBox(
                       child: CachedNetworkImage(
