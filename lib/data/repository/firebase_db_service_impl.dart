@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:social_media_app/data/model/user_model.dart';
 import 'package:social_media_app/domain/model/comment_entity.dart';
@@ -17,6 +18,7 @@ import 'package:social_media_app/utils/result.dart';
 class FirebaseDbServiceImpl implements DbService {
   final firestore = FirebaseFirestore.instance;
   late final _usersRef = firestore.collection('users');
+  late final _userTokenCollection = 'userToken';
   late final _postsRef = firestore.collection('posts');
   late final _likesRef = firestore.collection('likes');
   late final _commentsRef = firestore.collection('comments');
@@ -29,6 +31,7 @@ class FirebaseDbServiceImpl implements DbService {
 
   @override
   Future<void> createUser(User user, UserModel userModel) async {
+
     await _usersRef.doc(user.uid).set({
       'id': user.uid,
       'username': userModel.username,
@@ -37,6 +40,26 @@ class FirebaseDbServiceImpl implements DbService {
       'bio': '',
       'photoUrl': '',
     });
+
+    _saveFcmToken(user);
+  }
+
+  Future<void> _saveFcmToken(User user) async {
+    final String? fcmToken = await FirebaseMessaging.instance.getToken();
+
+    // Save it to Firestore
+    if (fcmToken != null) {
+      var tokens = _usersRef
+          .doc(user.uid)
+          .collection(_userTokenCollection)
+          .doc(fcmToken);
+
+      await tokens.set({
+        'token': fcmToken,
+        'createdAt': FieldValue.serverTimestamp(),
+        'platform': Platform.operatingSystem
+      });
+    }
   }
 
   @override

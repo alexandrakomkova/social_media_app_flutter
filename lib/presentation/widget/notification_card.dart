@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:social_media_app/domain/model/notification_entity.dart';
-import 'package:social_media_app/presentation/pages/post/post_page.dart';
 import 'package:social_media_app/presentation/pages/profile/profile_page.dart';
 
 class NotificationCard extends StatelessWidget {
