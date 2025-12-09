@@ -2,8 +2,9 @@ import * as functions from "firebase-functions/v1";
 import * as admin from "firebase-admin";
 
 admin.initializeApp();
+const db = admin.firestore();
 
-export const sendCommentNotification = functions.firestore
+export const sendNotificationOnComment = functions.firestore
   .document("comments/{commentId}")
   .onCreate(async (commentSnapshot: admin.firestore.QueryDocumentSnapshot) => {
     const comment = commentSnapshot.data();
@@ -12,7 +13,15 @@ export const sendCommentNotification = functions.firestore
       return null;
     }
 
-    const userRef = comment.userInfo as admin.firestore.DocumentReference;
+    const postSnapshot = await db.collection("posts").doc(comment.postId).get();
+    const post = postSnapshot.data();
+
+    if (!post) {
+      console.error("Post data not found");
+      return null;
+    }
+
+    const userRef = post.userInfo as admin.firestore.DocumentReference;
 
     const userDoc = await userRef.get();
 
@@ -22,9 +31,10 @@ export const sendCommentNotification = functions.firestore
       const commentText = comment.commentText;
 
       // getting fcmToken
-      const tokensSnapshot = await userRef.collection("tokens").get();
+      const tokensSnapshot = await userRef.collection("userToken").get();
 
       if (tokensSnapshot.empty) {
+        console.log("Token is empty");
         return;
       }
 
@@ -32,6 +42,7 @@ export const sendCommentNotification = functions.firestore
 
       tokensSnapshot.forEach(async (tokenDoc) => {
         const fcmToken = tokenDoc.id;
+        console.log(`fcmToken ${fcmToken}`);
 
         const payload: admin.messaging.Message = {
           notification: {
@@ -40,6 +51,7 @@ export const sendCommentNotification = functions.firestore
           },
           token: fcmToken,
         };
+        console.log(`payload: ${payload}`);
         const promise = admin.messaging().send(payload).catch((error) => {
           console.log("Notification sending error:", error);
         });

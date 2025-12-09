@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:social_media_app/data/repository/auth/auth_firebase_service_impl.dart';
 import 'package:social_media_app/data/repository/auth/auth_repository_impl.dart';
 import 'package:social_media_app/data/repository/firebase_db_service_impl.dart';
@@ -10,11 +12,62 @@ import 'package:social_media_app/data/repository/notification_repository_impl.da
 import 'package:social_media_app/data/repository/post_repository_impl.dart';
 import 'package:social_media_app/data/repository/profile_repository_impl.dart';
 import 'package:social_media_app/data/repository/search_repository_impl.dart';
+import 'package:social_media_app/main.dart';
 import 'package:social_media_app/presentation/pages/auth/sign_in_page.dart';
 import 'package:social_media_app/presentation/pages/main_screen/main_page.dart';
 
-class App extends StatelessWidget {
+class App extends StatefulWidget {
   const App({super.key});
+
+  @override
+  State<App> createState() => _AppState();
+}
+
+void requestPermission() async {
+  FirebaseMessaging messaging = FirebaseMessaging.instance;
+
+  NotificationSettings settings = await messaging.requestPermission(
+    alert: true,
+    badge: true,
+    sound: true,
+  );
+
+  debugPrint('User granted permission: ${settings.authorizationStatus}');
+}
+
+class _AppState extends State<App> {
+  @override
+  void initState() {
+    super.initState();
+
+    requestPermission();
+
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      RemoteNotification? notification = message.notification;
+      AndroidNotification? android = message.notification?.android;
+
+      if (notification != null && android != null) {
+        flutterLocalNotificationsPlugin.show(
+          notification.hashCode,
+          notification.title,
+          notification.body,
+          NotificationDetails(
+            android: AndroidNotificationDetails(
+              'channel_id',
+              'channel_name',
+              channelDescription: 'channel_description',
+              importance: Importance.max,
+              priority: Priority.high,
+            ),
+          ),
+        );
+      }
+    });
+
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      debugPrint('User tapped on notification: ${message.notification?.body}');
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
