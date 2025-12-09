@@ -51,7 +51,7 @@ class _NotificationsView extends StatelessWidget {
       body: Padding(
           padding: const EdgeInsets.all(8.0),
         child: BlocBuilder<NotificationBloc, NotificationState>(
-            builder: (context, state) {
+            builder: (_, state) {
               return switch(state.status) {
                 NotificationStatus.idle => SizedBox(),
                 NotificationStatus.processing => Center(child: CircularProgressIndicator(),),

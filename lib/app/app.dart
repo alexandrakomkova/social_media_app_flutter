@@ -29,13 +29,13 @@ class App extends StatelessWidget {
             )
         ),
         RepositoryProvider(create:
-            (context) => HomeRepositoryImpl(
-                dbService: context.read<FirebaseDbServiceImpl>()
+            (homeContext) => HomeRepositoryImpl(
+                dbService: homeContext.read<FirebaseDbServiceImpl>()
             )
         ),
         RepositoryProvider(create:
-            (context) => NotificationRepositoryImpl(
-              dbService: context.read<FirebaseDbServiceImpl>()
+            (notificationContext) => NotificationRepositoryImpl(
+              dbService: notificationContext.read<FirebaseDbServiceImpl>()
             )
         ),
         RepositoryProvider(create:

@@ -58,14 +58,14 @@ class _HomeView extends StatelessWidget {
                                     child: MultiBlocProvider(
                                       providers: [
                                         BlocProvider<PostBloc>(
-                                          create: (context) => PostBloc.getLikesCount(
+                                          create: (postContext) => PostBloc.getLikesCount(
                                             postEntity: post,
-                                            postRepository: context.read<PostRepositoryImpl>(),
+                                            postRepository: postContext.read<PostRepositoryImpl>(),
                                           ),
                                         ),
                                         BlocProvider<CommentsBloc>(
-                                          create: (context) => CommentsBloc.getComments(
-                                            commentRepository: context.read<PostRepositoryImpl>(),
+                                          create: (commentsContext) => CommentsBloc.getComments(
+                                            commentRepository: commentsContext.read<PostRepositoryImpl>(),
                                             postId: post.id.toString(),
                                             postOwnerId: post.userId,
                                           ),
