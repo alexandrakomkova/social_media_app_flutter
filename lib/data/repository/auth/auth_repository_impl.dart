@@ -21,19 +21,21 @@ class AuthRepositoryImpl implements AuthRepository {
         _dbService = firebaseDbService;
 
   @override
-  Future<void> signUp(UserModel userModel) async {
+  Future<Result<void>> signUp(UserModel userModel) async {
     //debugPrint('AuthRepositoryImpl signUp ${userModel.username}');
     final res =  await _authFirebaseService.signUp(userModel);
 
-    if(res is Ok<User>) {
-      //debugPrint('AuthRepositoryImpl signUp res is Ok');
-      await _dbService.createUser(res.value, userModel);
+    switch(res) {
+      case Ok<User>():
+        await _dbService.createUser(res.value, userModel);
+        return Result.ok(null);
+      case Error<User>():
+        return Result.error(res.error);
     }
   }
 
   @override
-  Future<void> signIn(UserModel user) async {
-    //debugPrint('AuthRepositoryImpl signIn ${user.email} ${user.password}');
+  Future<Result<void>> signIn(UserModel user) async {
     final userId = await _authFirebaseService.signIn(user);
     late UserEntity userEntity;
 
@@ -46,15 +48,17 @@ class AuthRepositoryImpl implements AuthRepository {
           email: user.email,
           creationTimestamp: user.creationTimestamp,
         );
+        await DbProvider.db.newUser(userEntity);
+        return Result.ok(null);
       case Error<String>():
         debugPrint('AuthRepositoryImpl signIn error ${userId.error}');
         userEntity = UserEntity(
           email: user.email,
           creationTimestamp: user.creationTimestamp,
         );
+        await DbProvider.db.newUser(userEntity);
+        return Result.error(userId.error);
     }
-    await DbProvider.db.newUser(userEntity);
-
   }
 
   @override

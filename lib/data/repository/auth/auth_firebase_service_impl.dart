@@ -9,24 +9,13 @@ class AuthFirebaseServiceImpl implements AuthFirebaseService {
   @override
   Future<Result<String>> signIn(UserModel user) async {
     try {
-      //debugPrint('---------${user.email} ${user.password}');
       final res = await _firebaseAuth.signInWithEmailAndPassword(
           email: user.email,
           password: user.password,
       );
 
-      //debugPrint('AuthFirebaseServiceImpl signIn success');
-
       return res.user == null ? Result.error(Exception()) : Result.ok(res.user!.uid);
     } on FirebaseAuthException catch (e) {
-      String message = '';
-
-      if(e.code == 'invalid-email') {
-        message = 'Not user found for that email';
-      } else if (e.code == 'invalid-credential') {
-        message = 'Wrong password provided for that user';
-      } else { message = e.code; }
-      //debugPrint('AuthFirebaseServiceImpl signIn fail: $message');
       return Result.error(e);
     }
   }
@@ -34,8 +23,6 @@ class AuthFirebaseServiceImpl implements AuthFirebaseService {
   @override
   Future<Result<User>> signUp(UserModel user) async {
     try {
-      // debugPrint('AuthFirebaseServiceImpl signUp ${user.username}');
-
       final res = await _firebaseAuth.createUserWithEmailAndPassword(
         email: user.email,
         password: user.password,
@@ -45,7 +32,6 @@ class AuthFirebaseServiceImpl implements AuthFirebaseService {
       } else {
         return Result.error(Exception('Cannot create user'));
       }
-
     } on Exception catch(e) {
       return Result.error(e);
     }

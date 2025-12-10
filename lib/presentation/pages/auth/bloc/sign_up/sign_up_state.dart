@@ -41,5 +41,6 @@ sealed class SignUpState with _$SignUpState{
     @Default('') String password,
     @Default('') String repeatPassword,
     @Default(SignUpStatus.failed) SignUpStatus status,
+    @Default('') String errorMessage,
   }) = SignUpState$Failed;
 }

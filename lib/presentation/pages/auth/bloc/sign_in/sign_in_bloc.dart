@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:social_media_app/data/model/user_model.dart';
@@ -36,18 +37,39 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
 
     try {
       debugPrint('${state.email}, ${state.password}');
-      await _authRepository.signIn(UserModel(
+      final res = await _authRepository.signIn(UserModel(
         email: state.email,
         password: state.password,
       ));
-      emit(SignInState.success(
-        email: state.email,
-        password: state.password,
-      ));
+
+      res.fold(
+        (onError) {
+          final String errorMessage = onError.error is FirebaseAuthException
+              ? (onError.error as FirebaseAuthException).message ?? ''
+              : 'An unexpected error occurred';
+
+          emit(SignInState.failed(
+            email: state.email,
+            password: state.password,
+            errorMessage: errorMessage,
+          ));
+        },
+        (onOk) {
+          emit(SignInState.success(
+            email: state.email,
+            password: state.password,
+          ));
+        }
+      );
     } catch(e) {
+      final String errorMessage = e is FirebaseAuthException
+          ? e.message ?? 'Unknown error'
+          : 'An unexpected error occurred';
+
       emit(SignInState.failed(
         email: state.email,
         password: state.password,
+        errorMessage: errorMessage,
       ));
     }
   }
