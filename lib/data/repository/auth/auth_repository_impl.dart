@@ -52,11 +52,11 @@ class AuthRepositoryImpl implements AuthRepository {
         return Result.ok(null);
       case Error<String>():
         debugPrint('AuthRepositoryImpl signIn error ${userId.error}');
-        userEntity = UserEntity(
-          email: user.email,
-          creationTimestamp: user.creationTimestamp,
-        );
-        await DbProvider.db.newUser(userEntity);
+        // userEntity = UserEntity(
+        //   email: user.email,
+        //   creationTimestamp: user.creationTimestamp,
+        // );
+        // await DbProvider.db.newUser(userEntity);
         return Result.error(userId.error);
     }
   }
