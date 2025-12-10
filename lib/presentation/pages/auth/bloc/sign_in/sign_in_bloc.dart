@@ -23,15 +23,15 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     });
   }
 
-  _emailChanged(event, Emitter<SignInState> emit) {
+  Future<void> _emailChanged(_EmailChanged event, Emitter<SignInState> emit) async {
     emit(state.copyWith(email: event.email));
   }
 
-  _passwordChanged(event, Emitter<SignInState> emit) {
+  Future<void> _passwordChanged(_PasswordChanged event, Emitter<SignInState> emit) async {
     emit(state.copyWith(password: event.password));
   }
 
-  _signIn(Emitter<SignInState> emit) async {
+  Future<void> _signIn(Emitter<SignInState> emit) async {
     emit(SignInState.processing(email: state.email, password: state.password));
 
     try {
@@ -40,11 +40,15 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
         email: state.email,
         password: state.password,
       ));
-      emit(SignInState.success());
+      emit(SignInState.success(
+        email: state.email,
+        password: state.password,
+      ));
     } catch(e) {
-      emit(SignInState.failed());
+      emit(SignInState.failed(
+        email: state.email,
+        password: state.password,
+      ));
     }
   }
-  
-  
 }
