@@ -4,19 +4,19 @@ import * as admin from "firebase-admin";
 admin.initializeApp();
 const db = admin.firestore();
 
-export const sendNotificationOnFollow = functions.firestore
+export const sendNotificationOnUnfollow = functions.firestore
   .document("followers/{userId}/userFollowers/{followedId}")
-  .onCreate(async (
+  .onDelete(async (
     followerSnapshot: admin.firestore.QueryDocumentSnapshot,
     context: functions.EventContext
   ) => {
-    // userId of profile who started following
+    // userId of profile who want to stop following
     const userId = context.params.userId;
-    // userId of profile which is followed now by another user
+    // userId of profile which was followed by userId
     const followedId = context.params.followedId;
 
-    // to get username of person who followed
-    const userSnapshot = await db.collection("users").doc(userId).get();
+    // to get username of person who stop following
+    const userSnapshot = await db.collection("users").doc(followedId).get();
     const user = userSnapshot.data();
 
     if (!user) {
@@ -27,7 +27,67 @@ export const sendNotificationOnFollow = functions.firestore
 
     const tokensSnapshot = await db
       .collection("users")
-      .doc(followedId)
+      .doc(userId)
+      .collection("userToken")
+      .get();
+
+    if (tokensSnapshot.empty) {
+      console.log("Token is empty");
+      return null;
+    }
+
+    const promises: Promise<any>[] = [];
+
+    tokensSnapshot.forEach(async (tokenDoc) => {
+      const fcmToken = tokenDoc.id;
+      console.log(`fcmToken ${fcmToken}`);
+
+      const payload: admin.messaging.Message = {
+        notification: {
+          title: "Unfollow",
+          body: `${username} stopped following you`,
+        },
+        token: fcmToken,
+      };
+
+      console.log(`payload: ${payload["notification"]}`);
+      const promise = admin.messaging().send(payload).catch((error) => {
+        console.log("Notification sending error:", error);
+      });
+
+      promises.push(promise);
+
+      // sending push notification
+      await Promise.all(promises);
+    });
+
+    return null;
+  });
+
+export const sendNotificationOnFollow = functions.firestore
+  .document("followers/{userId}/userFollowers/{followedId}")
+  .onCreate(async (
+    followerSnapshot: admin.firestore.QueryDocumentSnapshot,
+    context: functions.EventContext
+  ) => {
+    // userId of profile who started following
+    const userId = context.params.userId;
+    // userId of profile which is followed now by userId
+    const followedId = context.params.followedId;
+
+    // to get username of person who started following
+    const userSnapshot = await db.collection("users").doc(followedId).get();
+    const user = userSnapshot.data();
+
+    if (!user) {
+      console.error("User data not found");
+      return null;
+    }
+    const username = user.username;
+
+    const tokensSnapshot = await db
+      .collection("users")
+      .doc(userId)
       .collection("userToken")
       .get();
 
