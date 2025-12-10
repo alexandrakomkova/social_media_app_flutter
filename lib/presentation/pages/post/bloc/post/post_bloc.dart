@@ -28,11 +28,10 @@ class PostBloc extends Bloc<PostEvent, PostState> {
   factory PostBloc.getLikesCount({
     required PostEntity postEntity,
     required PostRepository postRepository,
-  }) =>
-      PostBloc(
-        postEntity: postEntity,
-        postRepository: postRepository
-      )..add(PostEvent.getLikesInfo());
+  }) => PostBloc(
+    postEntity: postEntity,
+    postRepository: postRepository
+  )..add(PostEvent.getLikesInfo());
 
   Future<void> _getLikesInfo(Emitter<PostState> emit) async {
     emit(PostState.processing(
@@ -43,13 +42,13 @@ class PostBloc extends Bloc<PostEvent, PostState> {
       final res = await _postRepository.getLikesInfo(postId: state.postEntity.id.toString());
 
       emit(PostState.success(
-          postEntity: state.postEntity,
+        postEntity: state.postEntity,
         likesCount: res['likesCount'] ?? 0,
         isLiked: res['isLiked'] == 1 ? true : false
       ));
     } catch(e) {
       emit(PostState.failed(
-          postEntity: state.postEntity,
+        postEntity: state.postEntity,
       ));
     }
   }
@@ -59,15 +58,15 @@ class PostBloc extends Bloc<PostEvent, PostState> {
       await _postRepository.addLike(postId: state.postEntity.id.toString(), postOwnerId: state.postEntity.userId);
 
       emit(PostState.success(
-          postEntity: state.postEntity,
+        postEntity: state.postEntity,
         isLiked: true,
-          likesCount: state.likesCount + 1
+        likesCount: state.likesCount + 1
       ));
     } catch(e) {
       emit(PostState.failed(
-          postEntity: state.postEntity,
+        postEntity: state.postEntity,
         isLiked: state.isLiked,
-          likesCount: state.likesCount
+        likesCount: state.likesCount
       ));
     }
   }
@@ -76,15 +75,15 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     try {
       await _postRepository.removeLike(postId: state.postEntity.id.toString());
       emit(PostState.success(
-          postEntity: state.postEntity,
-          isLiked: false,
-          likesCount: state.likesCount - 1
+        postEntity: state.postEntity,
+        isLiked: false,
+        likesCount: state.likesCount - 1
       ));
     } catch (e) {
       emit(PostState.failed(
-          postEntity: state.postEntity,
-          isLiked: state.isLiked,
-          likesCount: state.likesCount
+        postEntity: state.postEntity,
+        isLiked: state.isLiked,
+        likesCount: state.likesCount
       ));
     }
   }
