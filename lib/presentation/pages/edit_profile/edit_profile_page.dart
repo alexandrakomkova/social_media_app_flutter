@@ -108,7 +108,7 @@ class _EditProfileViewState extends State<_EditProfileView> {
                     BlocBuilder<EditProfileBloc, EditProfileState>(
                         builder: (editProfileContext, state) {
                           return CustomTextFormField(
-                            textFieldKey: UniqueKey(),
+                            textFieldKey: const Key('editProfilePage_username_textField'),
                             initialValue: state.username,
                             hintText: 'Username',
                             onChanged: (value) {
@@ -123,7 +123,7 @@ class _EditProfileViewState extends State<_EditProfileView> {
                     BlocBuilder<EditProfileBloc, EditProfileState>(
                       builder: (editProfileContext, state) {
                         return CustomTextFormField(
-                          textFieldKey: UniqueKey(),
+                          textFieldKey: const Key('editProfilePage_bio_textField'),
                           initialValue: state.bio,
                           hintText: 'Bio',
                           onChanged: (value) {
@@ -149,19 +149,18 @@ void _showCloseEditProfileAlertDialog(BuildContext context) {
   showDialog(
     context: context,
     builder: (_) =>
-        CustomAlertDialog(
-          dialogTitle: 'Discard changes',
-          dialogContent: 'Your changes will be discarded.',
-          rightButtonTitle: 'Ok',
-          onRightPressed: () {
-            Navigator.pop(context);
-            Navigator.pop(context);
-
-          },
-          leftButtonTitle: 'Cancel',
-          onLeftPressed: () {
-            Navigator.pop(context);
-          },
-        ),
+      CustomAlertDialog(
+        dialogTitle: 'Discard changes',
+        dialogContent: 'Your changes will be discarded.',
+        rightButtonTitle: 'Ok',
+        onRightPressed: () {
+          Navigator.pop(context);
+          Navigator.pop(context);
+        },
+        leftButtonTitle: 'Cancel',
+        onLeftPressed: () {
+          Navigator.pop(context);
+        },
+      ),
   );
 }
