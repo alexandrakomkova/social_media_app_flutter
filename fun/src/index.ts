@@ -21,21 +21,29 @@ export const sendNotificationOnComment = functions.firestore
       return null;
     }
 
-    const userRef = post.userInfo as admin.firestore.DocumentReference;
+    const postOwnerRef = post.userInfo as admin.firestore.DocumentReference;
+    const cOwnerRef = comment.userInfo as admin.firestore.DocumentReference;
 
-    const userDoc = await userRef.get();
+    // to get post owner fcmToken
+    const userPostOwnerDoc = await postOwnerRef.get();
+    // to get comment owner username
+    const userCommentOwnerDoc = await cOwnerRef.get();
 
-    if (userDoc.exists) {
-      // notification text
-      const username = userDoc.data()?.username;
+    if (userPostOwnerDoc.exists) {
+      // const postOwnerUsername = userPostOwnerDoc.data()?.username;
       const commentText = comment.commentText;
 
       // getting fcmToken
-      const tokensSnapshot = await userRef.collection("userToken").get();
+      const tokensSnapshot = await postOwnerRef.collection("userToken").get();
 
       if (tokensSnapshot.empty) {
         console.log("Token is empty");
         return;
+      }
+
+      let username = "";
+      if (userCommentOwnerDoc.exists) {
+        username = userCommentOwnerDoc.data()?.username;
       }
 
       const promises: Promise<any>[] = [];
@@ -51,7 +59,7 @@ export const sendNotificationOnComment = functions.firestore
           },
           token: fcmToken,
         };
-        console.log(`payload: ${payload}`);
+        console.log(`payload: ${payload["notification"]}`);
         const promise = admin.messaging().send(payload).catch((error) => {
           console.log("Notification sending error:", error);
         });

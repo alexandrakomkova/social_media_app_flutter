@@ -46,6 +46,8 @@ class _AppState extends State<App> {
       RemoteNotification? notification = message.notification;
       AndroidNotification? android = message.notification?.android;
 
+      debugPrint('--- _AppState initState notification $message');
+
       if (notification != null && android != null) {
         flutterLocalNotificationsPlugin.show(
           notification.hashCode,
@@ -53,9 +55,9 @@ class _AppState extends State<App> {
           notification.body,
           NotificationDetails(
             android: AndroidNotificationDetails(
-              'channel_id',
-              'channel_name',
-              channelDescription: 'channel_description',
+              'fireground_channel_id',
+              'Foreground Notifications',
+              channelDescription: 'Channel for foreground notifications',
               importance: Importance.max,
               priority: Priority.high,
             ),
