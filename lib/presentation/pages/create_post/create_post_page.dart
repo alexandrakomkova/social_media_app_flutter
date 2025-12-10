@@ -146,12 +146,8 @@ class _CreatePostView extends StatelessWidget {
             dialogContent: 'Your changes will be discarded.',
             rightButtonTitle: 'Ok',
             onRightPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => MainPage(),
-                ),
-              );
+              Navigator.pop(context);
+              Navigator.pop(context);
             },
             leftButtonTitle: 'Cancel',
             onLeftPressed: () {
