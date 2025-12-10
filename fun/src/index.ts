@@ -4,6 +4,66 @@ import * as admin from "firebase-admin";
 admin.initializeApp();
 const db = admin.firestore();
 
+export const sendNotificationOnFollow = functions.firestore
+  .document("followers/{userId}/userFollowers/{followedId}")
+  .onCreate(async (
+    followerSnapshot: admin.firestore.QueryDocumentSnapshot,
+    context: functions.EventContext
+  ) => {
+    // userId of profile who started following
+    const userId = context.params.userId;
+    // userId of profile which is followed now by another user
+    const followedId = context.params.followedId;
+
+    // to get username of person who followed
+    const userSnapshot = await db.collection("users").doc(userId).get();
+    const user = userSnapshot.data();
+
+    if (!user) {
+      console.error("User data not found");
+      return null;
+    }
+    const username = user.username;
+
+    const tokensSnapshot = await db
+      .collection("users")
+      .doc(followedId)
+      .collection("userToken")
+      .get();
+
+    if (tokensSnapshot.empty) {
+      console.log("Token is empty");
+      return null;
+    }
+
+    const promises: Promise<any>[] = [];
+
+    tokensSnapshot.forEach(async (tokenDoc) => {
+      const fcmToken = tokenDoc.id;
+      console.log(`fcmToken ${fcmToken}`);
+
+      const payload: admin.messaging.Message = {
+        notification: {
+          title: "New follower!",
+          body: `${username} started following you`,
+        },
+        token: fcmToken,
+      };
+
+      console.log(`payload: ${payload["notification"]}`);
+      const promise = admin.messaging().send(payload).catch((error) => {
+        console.log("Notification sending error:", error);
+      });
+
+      promises.push(promise);
+
+      // sending push notification
+      await Promise.all(promises);
+    });
+
+    return null;
+  });
+
 export const sendNotificationOnLike = functions.firestore
   .document("likes/{likeId}")
   .onCreate(async (likeSnapshot: admin.firestore.QueryDocumentSnapshot) => {
