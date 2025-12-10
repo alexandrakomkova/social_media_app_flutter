@@ -8,4 +8,5 @@ abstract class PostEvent with _$PostEvent {
   const factory PostEvent.addLike() = _AddLike;
   const factory PostEvent.removeLike() = _RemoveLike;
   const factory PostEvent.toggleLike(bool isLiked) = _ToggleLike;
+
 }

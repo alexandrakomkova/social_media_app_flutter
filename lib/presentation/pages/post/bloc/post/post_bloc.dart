@@ -56,7 +56,7 @@ class PostBloc extends Bloc<PostEvent, PostState> {
 
   Future<void> _addLike(Emitter<PostState> emit) async{
     try {
-      await _postRepository.addLike(postId: state.postEntity.id.toString());
+      await _postRepository.addLike(postId: state.postEntity.id.toString(), postOwnerId: state.postEntity.userId);
 
       emit(PostState.success(
           postEntity: state.postEntity,

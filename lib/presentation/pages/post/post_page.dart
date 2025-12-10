@@ -21,15 +21,16 @@ class PostPage extends StatelessWidget {
     return MultiBlocProvider(
         providers: [
           BlocProvider<PostBloc>(
-            create: (context) => PostBloc.getLikesCount(
+            create: (postContext) => PostBloc.getLikesCount(
               postEntity: postEntity,
-              postRepository: context.read<PostRepositoryImpl>()
+              postRepository: postContext.read<PostRepositoryImpl>()
             )
           ),
           BlocProvider<CommentsBloc>(
-              create: (context) => CommentsBloc.getComments(
-                commentRepository: context.read<PostRepositoryImpl>(),
+              create: (commentsContext) => CommentsBloc.getComments(
+                commentRepository: commentsContext.read<PostRepositoryImpl>(),
                 postId: postEntity.id.toString(),
+                postOwnerId: postEntity.userId,
               )
           ),
         ],
@@ -61,7 +62,7 @@ class _PostView extends StatelessWidget {
                       PostCard(postEntity: context.read<PostBloc>().state.postEntity,),
 
                       BlocBuilder<CommentsBloc, CommentsState>(
-                        builder: (context, state) {
+                        builder: (_, state) {
                           return Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Text(
