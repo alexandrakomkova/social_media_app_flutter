@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:social_media_app/presentation/pages/edit_profile/edit_profile_page.dart';
+import 'package:social_media_app/theme/theme.dart';
 import 'package:social_media_app/theme/theme_provider.dart';
 
 class SettingsPage extends StatelessWidget {
@@ -33,10 +34,7 @@ class _SettingsView extends StatelessWidget {
             ListTile(
               title: Text(
                 'Edit profile',
-                style: TextStyle(
-                    fontSize: 18.0,
-                    fontWeight: FontWeight.w600
-                ),
+                style: SocialMediaTheme.settingListTileTextStyle,
               ),
               trailing: Icon(Icons.edit),
               onTap: () {
@@ -50,15 +48,12 @@ class _SettingsView extends StatelessWidget {
             ListTile(
               title: Text(
                 'Dark mode',
-                style: TextStyle(
-                    fontSize: 18.0,
-                    fontWeight: FontWeight.w600
-                ),
+                style: SocialMediaTheme.settingListTileTextStyle,
               ),
               trailing: Consumer<ThemeProvider>(
                 builder: (context, themeProvider, child) => Switch(
-                  onChanged: (val) {
-                    themeProvider.toggleTheme(!themeProvider.isDarkMode);
+                  onChanged: (value) {
+                    themeProvider.toggleTheme(value);
                   },
                   value: themeProvider.isDarkMode,
                 ),

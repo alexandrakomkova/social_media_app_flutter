@@ -41,6 +41,11 @@ abstract class SocialMediaTheme {
     fontWeight: FontWeight.w600,
   );
 
+  static TextStyle settingListTileTextStyle = TextStyle(
+    fontSize: 18.0,
+    fontWeight: FontWeight.w600
+  );
+
   static ThemeData darkTheme = ThemeData(
     colorScheme: ColorScheme.fromSeed(
         brightness: Brightness.dark,
