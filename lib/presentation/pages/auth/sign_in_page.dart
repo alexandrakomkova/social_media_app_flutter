@@ -110,7 +110,9 @@ class _SignInViewState extends State<_SignInView> {
                         const SizedBox(height: 30.0),
                         ElevatedButton(
                           onPressed: () async {
-                            context.read<SignInBloc>().add(const SignInEvent.signIn());
+                            if (_formKey.currentState?.validate() ?? false) {
+                              context.read<SignInBloc>().add(const SignInEvent.signIn());
+                            }
                           },
                           child: Text(
                             'Sign in',

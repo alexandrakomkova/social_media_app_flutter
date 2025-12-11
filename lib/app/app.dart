@@ -15,6 +15,7 @@ import 'package:social_media_app/data/repository/search_repository_impl.dart';
 import 'package:social_media_app/main.dart';
 import 'package:social_media_app/presentation/pages/auth/sign_in_page.dart';
 import 'package:social_media_app/presentation/pages/main_screen/main_page.dart';
+import 'package:social_media_app/utils/theme.dart';
 
 class App extends StatefulWidget {
   const App({super.key});
@@ -112,7 +113,8 @@ class _AppState extends State<App> {
           )
         ),
       ],
-      child: const _AppView(),
+      child: const _AppView(
+      ),
     );
   }
 }
@@ -124,10 +126,9 @@ class _AppView extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      // theme: AppTheme.light,
-      // darkTheme: AppTheme.dark,
+      theme: SocialMediaTheme.lightTheme,
+      darkTheme: SocialMediaTheme.darkTheme,
       themeMode: ThemeMode.system,
-      //home: MainPage(),
       home: StreamBuilder(
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: ((BuildContext context, snapshot) {

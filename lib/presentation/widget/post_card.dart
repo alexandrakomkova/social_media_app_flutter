@@ -48,7 +48,8 @@ class PostCard extends StatelessWidget {
                           Text(
                             state.postEntity.userEntity.username,
                             style: TextStyle(
-                              fontSize: 16.0
+                              fontSize: 16.0,
+                              // color: Theme.of(context).colorScheme.primary
                             ),
                           ),
                         ],

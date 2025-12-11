@@ -4,6 +4,7 @@ import 'package:social_media_app/data/repository/notification_repository_impl.da
 
 import 'package:social_media_app/presentation/pages/notifications/bloc/notification_bloc.dart';
 import 'package:social_media_app/presentation/widget/notification_card.dart';
+import 'package:social_media_app/utils/theme.dart';
 
 class NotificationsPage extends StatelessWidget {
   const NotificationsPage({super.key});
@@ -36,13 +37,10 @@ class _NotificationsView extends StatelessWidget {
                 context.read<NotificationBloc>().add(NotificationEvent.deleteAll());
               },
               child: Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(10.0),
                 child: Text(
                   'Delete All',
-                  style: TextStyle(
-                    fontSize: 15.0,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: SocialMediaTheme.appBarActionsTextStyle,
                 ),
               ),
             )
@@ -58,7 +56,7 @@ class _NotificationsView extends StatelessWidget {
                 NotificationStatus.failed => Center(child: Text('something went wrong'),),
                 NotificationStatus.success =>
                   state.notifications.isEmpty
-                ? Center(child: Text('there are no any new notifications'),)
+                ? Center(child: Text('No new notifications'),)
                 : Column(
                   children: [
                     Expanded(
