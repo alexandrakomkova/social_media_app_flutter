@@ -66,8 +66,6 @@ class PostRepositoryImpl implements PostRepository, CommentRepository {
         debugPrint('--- PostRepositoryImpl addComment ${res.error}');
         return;
     }
-
-
   }
 
   @override

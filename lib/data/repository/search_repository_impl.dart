@@ -22,5 +22,4 @@ class SearchRepositoryImpl implements SearchRepository {
         return [];
     }
   }
-
 }

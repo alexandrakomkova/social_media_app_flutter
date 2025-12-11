@@ -33,5 +33,4 @@ class NotificationRepositoryImpl implements NotificationRepository {
         return;
     }
   }
-
 }

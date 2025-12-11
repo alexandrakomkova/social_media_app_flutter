@@ -16,17 +16,17 @@ class ImageServiceImpl implements ImageService {
       );
 
       CroppedFile? croppedFile = await ImageCropper().cropImage(
-          sourcePath: pickedFile!.path,
-          uiSettings: [
-            AndroidUiSettings(
-              toolbarTitle: 'Crop Image',
-              initAspectRatio: CropAspectRatioPreset.original,
-              lockAspectRatio: false,
-            ),
-            IOSUiSettings(
-              minimumAspectRatio: 1.0,
-            ),
-          ],
+        sourcePath: pickedFile!.path,
+        uiSettings: [
+          AndroidUiSettings(
+            toolbarTitle: 'Crop Image',
+            initAspectRatio: CropAspectRatioPreset.original,
+            lockAspectRatio: false,
+          ),
+          IOSUiSettings(
+            minimumAspectRatio: 1.0,
+          ),
+        ],
       );
 
       return File(croppedFile!.path);
@@ -35,5 +35,4 @@ class ImageServiceImpl implements ImageService {
       return null;
     }
   }
-
 }

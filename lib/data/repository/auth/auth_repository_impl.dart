@@ -27,7 +27,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
     switch(res) {
       case Ok<User>():
-        await _dbService.createUser(res.value, userModel);
+        await _dbService.createUser(user: res.value, userModel: userModel);
         return Result.ok(null);
       case Error<User>():
         return Result.error(res.error);
@@ -41,7 +41,6 @@ class AuthRepositoryImpl implements AuthRepository {
 
     switch(userId) {
       case Ok<String>():
-
         debugPrint('AuthRepositoryImpl signIn ${userId.value}');
         userEntity = UserEntity(
           id: userId.value,
@@ -52,11 +51,6 @@ class AuthRepositoryImpl implements AuthRepository {
         return Result.ok(null);
       case Error<String>():
         debugPrint('AuthRepositoryImpl signIn error ${userId.error}');
-        // userEntity = UserEntity(
-        //   email: user.email,
-        //   creationTimestamp: user.creationTimestamp,
-        // );
-        // await DbProvider.db.newUser(userEntity);
         return Result.error(userId.error);
     }
   }
@@ -77,6 +71,5 @@ class AuthRepositoryImpl implements AuthRepository {
       case Error<String>():
         return res.error.toString();
     }
-
   }
 }

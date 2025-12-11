@@ -31,7 +31,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
   @override
   Future<UserEntity?> getUserInfo({required String userId}) async {
     //debugPrint('id: $id userId: ${FirebaseAuth.instance.currentUser?.uid}');
-    final res = await _dbService.getUserById(userId);
+    final res = await _dbService.getUserById(id: userId);
 
     switch (res) {
       case Ok<UserEntity>():
@@ -52,7 +52,11 @@ class ProfileRepositoryImpl implements ProfileRepository {
     required String bio,
   }) async {
     debugPrint('--- ProfileRepositoryImpl updateUserInfo');
-    final res = await _dbService.updateUserInfo(imageUrl, username, bio);
+    final res = await _dbService.updateUserInfo(
+        imageUrl: imageUrl,
+        username: username,
+        bio: bio,
+    );
     switch (res) {
       case Ok<void>():
         debugPrint('--- success');

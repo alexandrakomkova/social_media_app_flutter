@@ -30,7 +30,10 @@ class FirebaseDbServiceImpl implements DbService {
   late final _userNotificationCollection = 'userNotification';
 
   @override
-  Future<void> createUser(User user, UserModel userModel) async {
+  Future<void> createUser({
+    required User user,
+    required UserModel userModel,
+  }) async {
 
     await _usersRef.doc(user.uid).set({
       'id': user.uid,
@@ -41,16 +44,16 @@ class FirebaseDbServiceImpl implements DbService {
       'photoUrl': '',
     });
 
-    _saveFcmToken(user);
+    _saveFcmToken(userId: user.uid);
   }
 
-  Future<void> _saveFcmToken(User user) async {
+  Future<void> _saveFcmToken({required String userId}) async {
     final String? fcmToken = await FirebaseMessaging.instance.getToken();
 
     // Save it to Firestore
     if (fcmToken != null) {
       var tokens = _usersRef
-          .doc(user.uid)
+          .doc(userId)
           .collection(_userTokenCollection)
           .doc(fcmToken);
 
@@ -63,7 +66,7 @@ class FirebaseDbServiceImpl implements DbService {
   }
 
   @override
-  Future<Result<UserEntity>> getUserById(String? id) async {
+  Future<Result<UserEntity>> getUserById({required String id}) async {
     try {
       final docSnap = await _usersRef
           .doc(id)
