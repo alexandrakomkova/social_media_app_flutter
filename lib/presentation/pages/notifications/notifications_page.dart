@@ -4,7 +4,7 @@ import 'package:social_media_app/data/repository/notification_repository_impl.da
 
 import 'package:social_media_app/presentation/pages/notifications/bloc/notification_bloc.dart';
 import 'package:social_media_app/presentation/widget/notification_card.dart';
-import 'package:social_media_app/utils/theme.dart';
+import 'package:social_media_app/theme/theme.dart';
 
 class NotificationsPage extends StatelessWidget {
   const NotificationsPage({super.key});

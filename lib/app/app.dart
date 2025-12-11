@@ -3,6 +3,8 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:logging/logging.dart';
+import 'package:provider/provider.dart';
 import 'package:social_media_app/data/repository/auth/auth_firebase_service_impl.dart';
 import 'package:social_media_app/data/repository/auth/auth_repository_impl.dart';
 import 'package:social_media_app/data/repository/firebase_db_service_impl.dart';
@@ -15,8 +17,10 @@ import 'package:social_media_app/data/repository/search_repository_impl.dart';
 import 'package:social_media_app/main.dart';
 import 'package:social_media_app/presentation/pages/auth/sign_in_page.dart';
 import 'package:social_media_app/presentation/pages/main_screen/main_page.dart';
-import 'package:social_media_app/utils/theme.dart';
+import 'package:social_media_app/theme/theme.dart';
+import 'package:social_media_app/theme/theme_provider.dart';
 
+final _log = Logger('App widget');
 class App extends StatefulWidget {
   const App({super.key});
 
@@ -33,7 +37,7 @@ void requestPermission() async {
     sound: true,
   );
 
-  debugPrint('User granted permission: ${settings.authorizationStatus}');
+  _log.info('User granted permission: ${settings.authorizationStatus}');
 }
 
 class _AppState extends State<App> {
@@ -46,8 +50,6 @@ class _AppState extends State<App> {
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       RemoteNotification? notification = message.notification;
       AndroidNotification? android = message.notification?.android;
-
-      debugPrint('--- _AppState initState notification $message');
 
       if (notification != null && android != null) {
         flutterLocalNotificationsPlugin.show(
@@ -68,7 +70,7 @@ class _AppState extends State<App> {
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      debugPrint('User tapped on notification: ${message.notification?.body}');
+      _log.info('User tapped on notification: ${message.notification?.body}');
     });
   }
 
@@ -112,6 +114,9 @@ class _AppState extends State<App> {
               dbService: postContext.read<FirebaseDbServiceImpl>()
           )
         ),
+        ChangeNotifierProvider(
+            create: (_) => ThemeProvider(),
+        ),
       ],
       child: const _AppView(
       ),
@@ -124,21 +129,26 @@ class _AppView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: SocialMediaTheme.lightTheme,
-      darkTheme: SocialMediaTheme.darkTheme,
-      themeMode: ThemeMode.system,
-      home: StreamBuilder(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: ((BuildContext context, snapshot) {
-          if (snapshot.hasData) {
-            return MainPage();
-          } else {
-            return SignInPage();
-          }
-        }),
-      ),
+    return Consumer<ThemeProvider>(
+      builder: (context, ThemeProvider themeProvider, Widget? child) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          //theme: SocialMediaTheme.lightTheme,
+          theme: themeProvider.isDarkMode ? SocialMediaTheme.darkTheme : SocialMediaTheme.lightTheme,
+          //darkTheme: SocialMediaTheme.darkTheme,
+          //themeMode: ThemeMode.system,
+          home: StreamBuilder(
+            stream: FirebaseAuth.instance.authStateChanges(),
+            builder: ((BuildContext context, snapshot) {
+              if (snapshot.hasData) {
+                return MainPage();
+              } else {
+                return SignInPage();
+              }
+            }),
+          ),
+        );
+      }
     );
   }
 }

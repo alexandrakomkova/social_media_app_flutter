@@ -40,7 +40,9 @@ Future<void> main() async {
 
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-  runApp(const App());
+  runApp(
+    const App()
+  );
 }
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =

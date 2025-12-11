@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:social_media_app/presentation/pages/edit_profile/edit_profile_page.dart';
+import 'package:social_media_app/theme/theme.dart';
+import 'package:social_media_app/theme/theme_provider.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -19,9 +22,6 @@ class _SettingsView extends StatelessWidget {
       appBar: AppBar(
         title:  Text(
             'Settings',
-            style: TextStyle(
-              fontSize: 20.0,
-            ),
         ),
         centerTitle: true,
       ),
@@ -31,22 +31,40 @@ class _SettingsView extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            TextButton(
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => EditProfilePage(),
-                    ),
-                  );
-                },
-                child: Text(
-                  'Edit profile',
-                  style: TextStyle(
+            ListTile(
+              title: Text(
+                'Edit profile',
+                style: TextStyle(
                     fontSize: 18.0,
                     fontWeight: FontWeight.w600
-                  ),
                 ),
+              ),
+              trailing: Icon(Icons.edit),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => EditProfilePage(),
+                  ),
+                );
+              },
             ),
+            ListTile(
+              title: Text(
+                'Dark mode',
+                style: TextStyle(
+                    fontSize: 18.0,
+                    fontWeight: FontWeight.w600
+                ),
+              ),
+              trailing: Consumer<ThemeProvider>(
+                builder: (context, themeProvider, child) => Switch(
+                  onChanged: (val) {
+                    themeProvider.toggleTheme(!themeProvider.isDarkMode);
+                  },
+                  value: themeProvider.isDarkMode,
+                ),
+              ),
+            )
           ],
         ),
       ),
