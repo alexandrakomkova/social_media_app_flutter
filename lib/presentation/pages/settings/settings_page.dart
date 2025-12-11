@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:social_media_app/presentation/pages/edit_profile/edit_profile_page.dart';
-import 'package:social_media_app/theme/theme.dart';
 import 'package:social_media_app/theme/theme_provider.dart';
 
 class SettingsPage extends StatelessWidget {
