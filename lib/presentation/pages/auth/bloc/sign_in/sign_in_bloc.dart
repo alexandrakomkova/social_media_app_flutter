@@ -36,7 +36,6 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     emit(SignInState.processing(email: state.email, password: state.password));
 
     try {
-      debugPrint('${state.email}, ${state.password}');
       final res = await _authRepository.signIn(UserModel(
         email: state.email,
         password: state.password,
@@ -44,7 +43,6 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
 
       res.fold(
         (onError) {
-          debugPrint('--- ${onError.error.toString()}');
           final String errorMessage = onError.error is FirebaseAuthException
               ? (onError.error as FirebaseAuthException).message ?? ''
               : 'An unexpected error occurred';
@@ -67,7 +65,6 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
           ? e.message ?? 'Unknown error'
           : 'An unexpected error occurred';
 
-      debugPrint('---! ${e.toString()}');
       emit(SignInState.failed(
         email: state.email,
         password: state.password,

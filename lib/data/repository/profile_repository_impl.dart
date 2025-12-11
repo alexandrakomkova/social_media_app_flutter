@@ -1,5 +1,4 @@
-
-import 'package:flutter/foundation.dart';
+import 'package:logging/logging.dart';
 import 'package:social_media_app/data/db_provider.dart';
 import 'package:social_media_app/domain/model/post_entity.dart';
 import 'package:social_media_app/domain/model/user_entity.dart';
@@ -8,6 +7,7 @@ import 'package:social_media_app/domain/repository/profile_repository.dart';
 import 'package:social_media_app/utils/firebase_utils.dart';
 import 'package:social_media_app/utils/result.dart';
 
+final _log = Logger('ProfileRepositoryImpl');
 class ProfileRepositoryImpl implements ProfileRepository {
   final DbService _dbService;
 
@@ -23,23 +23,22 @@ class ProfileRepositoryImpl implements ProfileRepository {
       case Ok<List<PostEntity>>():
         return res.value;
       case Error<List<PostEntity>>():
-        debugPrint(res.error.toString());
+        _log.warning('getUserPosts error: ${res.error}');
         return [];
     }
   }
 
   @override
   Future<UserEntity?> getUserInfo({required String userId}) async {
-    //debugPrint('id: $id userId: ${FirebaseAuth.instance.currentUser?.uid}');
     final res = await _dbService.getUserById(id: userId);
 
     switch (res) {
       case Ok<UserEntity>():
-      debugPrint('--- ${res.value}');
+        _log.info('getUserInfo success userInfo: ${res.value}');
         await DbProvider.db.updateUser(res.value);
         return res.value;
       case Error<UserEntity>():
-      //debugPrint('--- exception');
+        _log.warning('getUserInfo error: ${res.error}');
         return null;
     }
 
@@ -51,7 +50,6 @@ class ProfileRepositoryImpl implements ProfileRepository {
     required String username,
     required String bio,
   }) async {
-    debugPrint('--- ProfileRepositoryImpl updateUserInfo');
     final res = await _dbService.updateUserInfo(
         imageUrl: imageUrl,
         username: username,
@@ -59,7 +57,6 @@ class ProfileRepositoryImpl implements ProfileRepository {
     );
     switch (res) {
       case Ok<void>():
-        debugPrint('--- success');
         var user = await DbProvider.db.getClient(FirebaseUtils.currentUserId);
 
         await DbProvider.db.updateUser(user.copyWith(
@@ -67,9 +64,10 @@ class ProfileRepositoryImpl implements ProfileRepository {
           bio: bio,
           photoUrl: imageUrl
         ));
+        _log.info('updateUserInfo success');
         return;
       case Error<void>():
-        debugPrint('--- exception');
+        _log.warning('updateUserInfo error: ${res.error}');
         return;
     }
   }
@@ -90,9 +88,10 @@ class ProfileRepositoryImpl implements ProfileRepository {
 
     switch(res) {
       case Ok<List<UserEntity>>():
+        _log.info('getFollowers success followerList length ${res.value.length}');
         return res.value;
       case Error<List<UserEntity>>():
-        debugPrint(res.error.toString());
+        _log.warning('getFollowers error: ${res.error}');
         return [];
     }
   }
@@ -105,7 +104,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
       case Ok<List<UserEntity>>():
         return res.value;
       case Error<List<UserEntity>>():
-        debugPrint(res.error.toString());
+        _log.warning('getFollowings error: ${res.error}');
         return [];
     }
   }
@@ -116,9 +115,10 @@ class ProfileRepositoryImpl implements ProfileRepository {
 
     switch(res) {
     case Ok<bool>():
+      _log.info('isFollowedByCurrentUser ${res.value}');
       return res.value;
     case Error<bool>():
-      debugPrint(res.error.toString());
+      _log.warning('isFollowedByCurrentUser error: ${res.error}');
       return false;
     }
   }

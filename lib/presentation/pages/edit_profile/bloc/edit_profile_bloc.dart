@@ -43,7 +43,6 @@ class EditProfileBloc extends Bloc<EditProfileEvent, EditProfileState> {
 
   Future<void> _usernameChanged(_UsernameChanged event, Emitter<EditProfileState> emit) async {
     emit(state.copyWith(username: event.username));
-    debugPrint('--- ${state.username}');
   }
 
   Future<void> _bioChanged(_BioChanged event, Emitter<EditProfileState> emit) async {
@@ -80,7 +79,6 @@ class EditProfileBloc extends Bloc<EditProfileEvent, EditProfileState> {
       bio: state.bio,
     ));
     try {
-      debugPrint(" --- _saveProfile ${state.username} ${state.bio}");
       await _profileRepository.updateUserInfo(
           imageUrl: state.imageUrl,
           username: state.username,
@@ -106,7 +104,6 @@ class EditProfileBloc extends Bloc<EditProfileEvent, EditProfileState> {
       bio: state.bio,
       imageUrl: state.imageUrl
     ));
-    debugPrint(" ---${state.username} ${state.bio}");
     try {
       final user = await DbProvider.db.getClient(FirebaseUtils.currentUserId);
 
@@ -115,7 +112,6 @@ class EditProfileBloc extends Bloc<EditProfileEvent, EditProfileState> {
         bio: user.bio,
         imageUrl: user.photoUrl
       ));
-      debugPrint("--- ${state.username} ${state.bio}");
     } catch (e) {
       emit(EditProfileState.failed());
     }

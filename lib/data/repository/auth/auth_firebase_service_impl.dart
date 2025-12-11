@@ -38,11 +38,11 @@ class AuthFirebaseServiceImpl implements AuthFirebaseService {
   }
 
   @override
-  Future<Result<String>> signOut() async {
+  Future<Result<void>> signOut() async {
     try {
       await _firebaseAuth.signOut();
 
-      return Result.ok('You successfully logout');
+      return Result.ok(null);
     } on FirebaseAuthException catch(e) {
       return Result.error(e);
     }

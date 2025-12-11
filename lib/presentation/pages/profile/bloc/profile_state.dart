@@ -45,5 +45,6 @@ sealed class ProfileState with _$ProfileState{
     @Default([]) List<UserEntity> followers,
     @Default([]) List<UserEntity> followings,
     @Default(false) bool isFollowed,
+    @Default('') String errorMessage,
   }) = ProfileState$Failed;
 }

@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
+import 'package:logging/logging.dart';
 import 'package:social_media_app/data/db_provider.dart';
 import 'package:social_media_app/data/model/user_model.dart';
 import 'package:social_media_app/domain/model/user_entity.dart';
@@ -10,6 +10,7 @@ import 'package:social_media_app/domain/repository/db_service.dart';
 import 'package:social_media_app/utils/firebase_utils.dart';
 import 'package:social_media_app/utils/result.dart';
 
+final _log = Logger('AuthRepositoryImpl');
 class AuthRepositoryImpl implements AuthRepository {
   final AuthFirebaseService _authFirebaseService;
   final DbService _dbService;
@@ -22,7 +23,6 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Result<void>> signUp(UserModel userModel) async {
-    //debugPrint('AuthRepositoryImpl signUp ${userModel.username}');
     final res =  await _authFirebaseService.signUp(userModel);
 
     switch(res) {
@@ -30,6 +30,7 @@ class AuthRepositoryImpl implements AuthRepository {
         await _dbService.createUser(user: res.value, userModel: userModel);
         return Result.ok(null);
       case Error<User>():
+        _log.warning('signUp error: ${res.error}');
         return Result.error(res.error);
     }
   }
@@ -41,16 +42,16 @@ class AuthRepositoryImpl implements AuthRepository {
 
     switch(userId) {
       case Ok<String>():
-        debugPrint('AuthRepositoryImpl signIn ${userId.value}');
         userEntity = UserEntity(
           id: userId.value,
           email: user.email,
           creationTimestamp: user.creationTimestamp,
         );
         await DbProvider.db.newUser(userEntity);
+        _log.info('signIn success userId: ${userId.value}');
         return Result.ok(null);
       case Error<String>():
-        debugPrint('AuthRepositoryImpl signIn error ${userId.error}');
+        _log.warning('signUp error: ${userId.error}');
         return Result.error(userId.error);
     }
   }
@@ -62,14 +63,16 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<String> signOut() async {
+  Future<Result<void>> signOut() async {
     final res = await _authFirebaseService.signOut();
     switch (res) {
-      case Ok<String>():
+      case Ok<void>():
         await DbProvider.db.deleteUser(FirebaseUtils.currentUserId);
-        return res.value;
-      case Error<String>():
-        return res.error.toString();
+        _log.info('signOut success');
+        return Result.ok(null);
+      case Error<void>():
+        _log.warning('signOut error: ${res.error}');
+        return Result.error(res.error);
     }
   }
 }

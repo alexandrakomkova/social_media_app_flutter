@@ -37,7 +37,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         posts: posts,
       ));
     } catch(e) {
-      debugPrint('--- $e');
       emit(HomeState.failed());
     }
   }

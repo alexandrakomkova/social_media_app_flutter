@@ -45,170 +45,180 @@ class _ProfileView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: BlocBuilder<ProfileBloc, ProfileState>(
-              builder: (context, state) {
-                return Text(
-                    state.user?.username ?? '',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ),
-                );
-              }),
-          actions: userId == FirebaseUtils.currentUserId
-            ? [
-                IconButton(
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => SettingsPage(),
-                      ),
-                    );
-                  },
-                  icon: Icon(Icons.settings),
-                ),
-                IconButton(
-                  onPressed: () {
-                    _showLogoutAlertDialog(context);
-                  },
-                  icon: Icon(Icons.logout),
-                ),
-              ]
-            : null,
-        ),
-        body: BlocBuilder<ProfileBloc, ProfileState>(
-          builder: (profileContext, state) {
-            return switch(state.status) {
-              ProfileStatus.idle => SizedBox(),
-              ProfileStatus.processing => Center( child: CircularProgressIndicator()),
-              ProfileStatus.failed => Center( child: Text('something went wrong')),
-              ProfileStatus.success => Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  children: [
-                    // profile head
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      //mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            ProfileAvatar(
-                              radius: 50.0,
-                              userEntity: state.user ?? UserEntity(),
-                            ),
-                          ],
+    return BlocListener<ProfileBloc, ProfileState>(
+        listener: (context, state) {
+          if (state is ProfileState$Failed) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.errorMessage)),
+            );
+          }
+        },
+        listenWhen: (previous, current) => previous.status != current.status,
+        child: Scaffold(
+          appBar: AppBar(
+            title: BlocBuilder<ProfileBloc, ProfileState>(
+                builder: (context, state) {
+                  return Text(
+                      state.user?.username ?? '',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  );
+                }),
+            actions: userId == FirebaseUtils.currentUserId
+              ? [
+                  IconButton(
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => SettingsPage(),
                         ),
-                        SizedBox(width: 20.0,),
-                        Expanded(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      );
+                    },
+                    icon: Icon(Icons.settings),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      _showLogoutAlertDialog(context);
+                    },
+                    icon: Icon(Icons.logout),
+                  ),
+                ]
+              : null,
+          ),
+          body: BlocBuilder<ProfileBloc, ProfileState>(
+            builder: (profileContext, state) {
+              return switch(state.status) {
+                ProfileStatus.idle => SizedBox(),
+                ProfileStatus.processing => Center( child: CircularProgressIndicator()),
+                ProfileStatus.failed => Center( child: Text('something went wrong')),
+                ProfileStatus.success => Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    children: [
+                      // profile head
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        //mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
                             children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                children: [
-                                  ProfileInfoCard(
-                                    value: state.posts.length.toString(),
-                                    valueLabel: 'posts',
-                                  ),
-                                  ProfileInfoCard(
-                                    value: state.followers.length.toString(),
-                                    valueLabel: 'followers',
-                                    onTap: () {
-                                      showBottomSheetCreationVariants(
-                                          context: context,
-                                          bottomSheetTitle: 'Followers',
-                                          users: state.followers
-                                      );
-                                    },
-                                  ),
-                                  ProfileInfoCard(
-                                    value: state.followings.length.toString(),
-                                    valueLabel: 'following',
-                                    onTap: () {
-                                      showBottomSheetCreationVariants(
-                                          context: context,
-                                          bottomSheetTitle: 'Following',
-                                          users: state.followings
-                                      );
-                                    },
-                                  ),
-                                ],
+                              ProfileAvatar(
+                                radius: 50.0,
+                                userEntity: state.user ?? UserEntity(),
                               ),
-                              SizedBox(height: 10.0,),
-
-                              if(userId != FirebaseUtils.currentUserId)
+                            ],
+                          ),
+                          SizedBox(width: 20.0,),
+                          Expanded(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                                   children: [
-                                    BlocBuilder<ProfileBloc, ProfileState>(
-                                      builder: (context, state) {
-                                        return _followButton(
+                                    ProfileInfoCard(
+                                      value: state.posts.length.toString(),
+                                      valueLabel: 'posts',
+                                    ),
+                                    ProfileInfoCard(
+                                      value: state.followers.length.toString(),
+                                      valueLabel: 'followers',
+                                      onTap: () {
+                                        showBottomSheetCreationVariants(
                                             context: context,
-                                            buttonText: state.isFollowed ? 'Unfollow' : 'Follow',
-                                            onPressed: () {
-                                              state.isFollowed
-                                                  ? context.read<ProfileBloc>().add(ProfileEvent.unfollowUser(userIdToUnfollow: userId))
-                                                  : context.read<ProfileBloc>().add(ProfileEvent.followUser(userIdToFollow: userId));
-                                            }
+                                            bottomSheetTitle: 'Followers',
+                                            users: state.followers
+                                        );
+                                      },
+                                    ),
+                                    ProfileInfoCard(
+                                      value: state.followings.length.toString(),
+                                      valueLabel: 'following',
+                                      onTap: () {
+                                        showBottomSheetCreationVariants(
+                                            context: context,
+                                            bottomSheetTitle: 'Following',
+                                            users: state.followings
                                         );
                                       },
                                     ),
                                   ],
                                 ),
-                            ],
-                          ),
-                        )
-                      ],
-                    ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.5,
-                          child: Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: Text(
-                              state.user?.bio ?? '',
-                              style: TextStyle(
-                                  fontSize: 16
+                                SizedBox(height: 10.0,),
+
+                                if(userId != FirebaseUtils.currentUserId)
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      BlocBuilder<ProfileBloc, ProfileState>(
+                                        builder: (context, state) {
+                                          return _followButton(
+                                              context: context,
+                                              buttonText: state.isFollowed ? 'Unfollow' : 'Follow',
+                                              onPressed: () {
+                                                state.isFollowed
+                                                    ? context.read<ProfileBloc>().add(ProfileEvent.unfollowUser(userIdToUnfollow: userId))
+                                                    : context.read<ProfileBloc>().add(ProfileEvent.followUser(userIdToFollow: userId));
+                                              }
+                                          );
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.5,
+                            child: Padding(
+                              padding: const EdgeInsets.all(10.0),
+                              child: Text(
+                                state.user?.bio ?? '',
+                                style: TextStyle(
+                                    fontSize: 16
+                                ),
+                                overflow: TextOverflow.ellipsis,
                               ),
-                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                        ),
-                      ],
-                    ),
+                        ],
+                      ),
 
-                    SizedBox(height: 10.0,),
+                      SizedBox(height: 10.0,),
 
-                    // 'all posts' title
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Text(
-                            'All posts',
-                            style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600
+                      // 'all posts' title
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                            child: Text(
+                              'All posts',
+                              style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w600
+                              ),
                             ),
-                          ),
-                        )
-                      ],
-                    ),
+                          )
+                        ],
+                      ),
 
-                    SizedBox(height: 10.0,),
-                    // pics grid
-                    _postGrid(context, state.posts),
-                  ],
+                      SizedBox(height: 10.0,),
+                      // pics grid
+                      _postGrid(context, state.posts),
+                    ],
+                  ),
                 ),
-              ),
-            };
-          },
+              };
+            },
+          )
         )
     );
   }

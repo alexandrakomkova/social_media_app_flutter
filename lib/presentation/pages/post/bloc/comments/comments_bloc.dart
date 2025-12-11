@@ -43,8 +43,6 @@ class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
 
     ));
 
-    debugPrint('--- getComments');
-
     try {
       final res = await _commentRepository.getComments(postId: state.postId);
 

@@ -2,8 +2,10 @@ import 'dart:io';
 
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:logging/logging.dart';
 import 'package:social_media_app/domain/repository/image_service.dart';
 
+final _log = Logger('ImageServiceImpl');
 class ImageServiceImpl implements ImageService {
   final _picker = ImagePicker();
 
@@ -31,7 +33,7 @@ class ImageServiceImpl implements ImageService {
 
       return File(croppedFile!.path);
     } catch(e) {
-      //debugPrint('--- ${e.toString()}');
+      _log.warning('pickImage error: $e');
       return null;
     }
   }

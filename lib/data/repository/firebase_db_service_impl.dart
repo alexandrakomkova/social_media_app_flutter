@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
+import 'package:logging/logging.dart';
 import 'package:social_media_app/data/model/user_model.dart';
 import 'package:social_media_app/domain/model/comment_entity.dart';
 import 'package:social_media_app/domain/model/notification_entity.dart';
@@ -15,6 +15,7 @@ import 'package:social_media_app/utils/firebase_utils.dart';
 import 'package:social_media_app/utils/image_loader.dart';
 import 'package:social_media_app/utils/result.dart';
 
+final _log = Logger('FirebaseDbServiceImpl');
 class FirebaseDbServiceImpl implements DbService {
   final firestore = FirebaseFirestore.instance;
   late final _usersRef = firestore.collection('users');
@@ -50,7 +51,6 @@ class FirebaseDbServiceImpl implements DbService {
   Future<void> _saveFcmToken({required String userId}) async {
     final String? fcmToken = await FirebaseMessaging.instance.getToken();
 
-    // Save it to Firestore
     if (fcmToken != null) {
       var tokens = _usersRef
           .doc(userId)
@@ -80,6 +80,7 @@ class FirebaseDbServiceImpl implements DbService {
 
       return Result.ok(userEntity ?? UserEntity());
     } on Exception catch(e) {
+      _log.warning('getUserById error: $e');
       return Result.error(e);
     }
   }
@@ -107,6 +108,7 @@ class FirebaseDbServiceImpl implements DbService {
 
       return Result.ok(foundUsers);
     } on Exception catch (e) {
+      _log.warning('searchUserByUsername error: $e');
       return Result.error(e);
     }
   }
@@ -126,11 +128,11 @@ class FirebaseDbServiceImpl implements DbService {
         'userId': FirebaseUtils.currentUserId,
       });
 
-      //debugPrint('loaded ${imageUrl}');
+      _log.info('createPost success image loaded: $imageUrl');
 
       return Result.ok(null);
     } on Exception catch(e) {
-      //debugPrint('--- FirebaseDbServiceImpl createPost ${e.toString()}');
+      _log.warning('createPost error: $e');
       return Result.error(e);
     }
   }
@@ -144,6 +146,7 @@ class FirebaseDbServiceImpl implements DbService {
       List<PostEntity> posts = await _getPostEntitiesFromQuery(querySnapshot);
       return Result.ok(posts);
     } on Exception catch (e) {
+      _log.warning('getUserPosts error: $e');
       return Result.error(e);
     }
   }
@@ -154,24 +157,22 @@ class FirebaseDbServiceImpl implements DbService {
     required String username,
     required String bio,
   })  async {
-    //debugPrint('--- FirebaseDbServiceImpl updateUserInfo');
     try {
       final int creationTimestamp = DateTime.now().millisecondsSinceEpoch;
 
       String url = await _getImageUrl(imageUrl, creationTimestamp.toString());
+      _log.info('_getImageUrl $url');
 
-        //debugPrint('--- FirebaseDbServiceImpl updateUserInfo $url');
+      await _usersRef.doc(FirebaseUtils.currentUserId).update({
+        'username': username,
+        'bio': bio,
+        'photoUrl': url,
+      });
+      _log.info('updateUserInfo success');
 
-        await _usersRef.doc(FirebaseUtils.currentUserId).update({
-          'username': username,
-          'bio': bio,
-          'photoUrl': url,
-        });
-        //debugPrint('--- FirebaseDbServiceImpl updateUserInfo success');
-
-        return Result.ok(null);
+      return Result.ok(null);
     } on Exception catch(e) {
-      //debugPrint('--- FirebaseDbServiceImpl updateUserInfo ${e.toString()}');
+      _log.warning('updateUserInfo error: $e');
       return Result.error(e);
     }
   }
@@ -195,14 +196,20 @@ class FirebaseDbServiceImpl implements DbService {
       int likesCount = querySnapshot.docs.length;
       int isLiked = querySnapshot.docs.any((doc) => doc['userId'] == FirebaseUtils.currentUserId) ? 1 : 0;
 
+      _log.info('getLikesInfo success {likeCount: $likesCount, isLiked: $isLiked}');
+
       return Result.ok({'likesCount': likesCount, 'isLiked': isLiked});
     } on Exception catch (e) {
+      _log.warning('getLikesInfo error: $e');
       return Result.error(e);
     }
   }
 
   @override
-  Future<Result<void>> addLike({required String postId, required String postOwnerId}) async {
+  Future<Result<void>> addLike({
+    required String postId,
+    required String postOwnerId,
+  }) async {
     try {
       await _likesRef.add({
         'userId': FirebaseUtils.currentUserId,
@@ -216,10 +223,10 @@ class FirebaseDbServiceImpl implements DbService {
         type: NotificationType.like,
       );
 
-      //debugPrint('--- FirebaseDbServiceImpl addLike success');
+      _log.info('addLike success');
       return Result.ok(null);
     } on Exception catch (e) {
-      //debugPrint('--- FirebaseDbServiceImpl addLike $e');
+      _log.warning('addLike error: $e');
       return Result.error(e);
     }
   }
@@ -236,10 +243,10 @@ class FirebaseDbServiceImpl implements DbService {
         await docSnapshot.reference.delete();
       }
 
-      debugPrint('--- FirebaseDbServiceImpl removeLike success');
+      _log.info('removeLike success');
       return Result.ok(null);
     } on Exception catch (e) {
-      debugPrint('--- FirebaseDbServiceImpl removeLike $e');
+      _log.warning('removeLike error: $e');
       return Result.error(e);
     }
 
@@ -266,8 +273,10 @@ class FirebaseDbServiceImpl implements DbService {
           type: NotificationType.comment,
       );
 
+      _log.info('addComment success');
       return Result.ok(null);
     } on Exception catch(e) {
+      _log.warning('addComment error: $e');
       return Result.error(e);
     }
   }
@@ -275,7 +284,7 @@ class FirebaseDbServiceImpl implements DbService {
   @override
   Future<Result<List<CommentEntity>>> getComments({
     required String postId,
-}) async {
+  }) async {
     List<CommentEntity> comments = [];
     try {
       await _commentsRef
@@ -284,7 +293,7 @@ class FirebaseDbServiceImpl implements DbService {
           .get()
           .then((querySnapshot) async {
         for (var docSnapshot in querySnapshot.docs) {
-          debugPrint('${docSnapshot.id} => ${docSnapshot.data()}');
+          // _log.info('${docSnapshot.id} => ${docSnapshot.data()}');
           var data = docSnapshot.data();
 
           var userRef = data['userInfo'] as DocumentReference;
@@ -312,11 +321,13 @@ class FirebaseDbServiceImpl implements DbService {
             ));
           }
         }
-      }
-      );
+      });
+
+      _log.info('getComments success commentsList length: ${comments.length}');
 
       return Result.ok(comments);
     } on Exception catch(e) {
+      _log.warning('getComments error: $e');
       return Result.error(e);
     }
   }
@@ -342,13 +353,12 @@ class FirebaseDbServiceImpl implements DbService {
       ]);
 
       await addNotification(
-        postId: '',
         ownerId: userIdToFollow,
         type: NotificationType.follow,
       );
 
     } on Exception catch(e) {
-      debugPrint('--- FirebaseDbServiceImpl followUser ${e.toString()}');
+      _log.warning('followUser error: $e');
     }
   }
 
@@ -374,7 +384,7 @@ class FirebaseDbServiceImpl implements DbService {
         type: NotificationType.unfollow,
       );
     } catch (e) {
-      debugPrint('--- FirebaseDbServiceImpl unfollowUser ${e.toString()}');
+      _log.warning('unfollowUser error: $e');
     }
   }
 
@@ -408,8 +418,10 @@ class FirebaseDbServiceImpl implements DbService {
       if (followersSnapshot.docs.isEmpty) return Result.ok([]);
       List<UserEntity> followers = await _getUserEntitiesFromQuery(followersSnapshot);
 
+      _log.info('getFollowers success followerList length: ${followers.length}');
       return Result.ok(followers);
     } on Exception catch(e) {
+      _log.warning('getFollowers error: $e');
       return Result.error(e);
     }
   }
@@ -421,8 +433,10 @@ class FirebaseDbServiceImpl implements DbService {
       if (followingsSnapshot.docs.isEmpty) return Result.ok([]);
       List<UserEntity> followings = await _getUserEntitiesFromQuery(followingsSnapshot);
 
+      _log.info('getFollowings success followingsList length: ${followings.length}');
       return Result.ok(followings);
     } on Exception catch(e) {
+      _log.warning('getFollowings error: $e');
       return Result.error(e);
     }
   }
@@ -469,9 +483,10 @@ class FirebaseDbServiceImpl implements DbService {
       final querySnapshot = await _postsRef.where('userId', whereIn: followingUserIds).get();
       List<PostEntity> posts = await _getPostEntitiesFromQuery(querySnapshot);
 
+      _log.info('getNewPosts success postList length: ${posts.length}');
       return Result.ok(posts);
     } on Exception catch (e) {
-      // debugPrint('--- FirebaseDbServiceImpl getNewPosts error $e');
+      _log.warning('getNewPosts error: $e');
       return Result.error(e);
     }
   }
@@ -485,9 +500,10 @@ class FirebaseDbServiceImpl implements DbService {
           .get();
 
       bool isFollowed = querySnapshot.docs.any((docSnapshot) => docSnapshot.id == profileOwnerUserId);
-      //   debugPrint('--- FirebaseDbServiceImpl isFollowedByCurrentUser $isFollowed');
+      _log.info('isFollowedByCurrentUser success isFollowed: $isFollowed');
       return Result.ok(isFollowed);
     } on Exception catch (e) {
+      _log.warning('isFollowedByCurrentUser error: $e');
       return Result.error(e);
     }
 
@@ -512,7 +528,7 @@ class FirebaseDbServiceImpl implements DbService {
           if(userDoc.exists) {
             final userData = userDoc.data() as dynamic;
 
-            debugPrint('${userDoc.id} => $userData');
+            //_log.info('${userDoc.id} => $userData');
 
             notifications.add(NotificationEntity(
                 userEntity: UserEntity(
@@ -530,8 +546,10 @@ class FirebaseDbServiceImpl implements DbService {
           }
       }
 
+      _log.info('getNotifications success notificationList length: ${notifications.length}');
       return Result.ok(notifications);
     } on Exception catch(e) {
+      _log.warning('getNotifications error: $e');
       return Result.error(e);
     }
   }
@@ -543,7 +561,6 @@ class FirebaseDbServiceImpl implements DbService {
     required NotificationType type,
   }) async {
     try {
-      debugPrint('--- FirebaseDbServiceImpl addNotification $ownerId $postId');
       await _notificationsRef
         .doc(ownerId)
         .collection(_userNotificationCollection)
@@ -554,10 +571,10 @@ class FirebaseDbServiceImpl implements DbService {
           'creationTimestamp': DateTime.now().millisecondsSinceEpoch
         });
 
-      debugPrint('--- FirebaseDbServiceImpl addNotification success');
+      _log.info('addNotification success');
       return Result.ok(null);
     } on Exception catch(e) {
-      debugPrint('--- FirebaseDbServiceImpl addNotification $e');
+      _log.warning('addNotification error: $e');
       return Result.error(e);
     }
   }
@@ -574,11 +591,10 @@ class FirebaseDbServiceImpl implements DbService {
         await doc.reference.delete();
       }
 
-      //debugPrint('--- FirebaseDbServiceImpl deleteAllNotifications success $userId');
-
+      _log.info('deleteAllNotifications success');
       return Result.ok(null);
     } on Exception catch(e) {
-      debugPrint('--- FirebaseDbServiceImpl deleteAllNotifications $e');
+      _log.warning('deleteAllNotifications error: $e');
       return Result.error(e);
     }
   }
