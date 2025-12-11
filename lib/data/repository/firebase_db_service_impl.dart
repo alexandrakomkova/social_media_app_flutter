@@ -149,10 +149,13 @@ class FirebaseDbServiceImpl implements DbService {
   }
 
   @override
-  Future<Result<void>> updateUserInfo(String imageUrl, String username, String bio)  async {
+  Future<Result<void>> updateUserInfo({
+    required String imageUrl,
+    required String username,
+    required String bio,
+  })  async {
     //debugPrint('--- FirebaseDbServiceImpl updateUserInfo');
     try {
-
       final int creationTimestamp = DateTime.now().millisecondsSinceEpoch;
 
       String url = await _getImageUrl(imageUrl, creationTimestamp.toString());
