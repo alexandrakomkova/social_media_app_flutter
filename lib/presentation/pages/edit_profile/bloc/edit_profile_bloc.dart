@@ -12,13 +12,13 @@ part 'edit_profile_state.dart';
 part 'edit_profile_bloc.freezed.dart';
 
 class EditProfileBloc extends Bloc<EditProfileEvent, EditProfileState> {
-  final ImageService _imageService;
+  //final ImageService _imageService;
   final ProfileRepository _profileRepository;
 
   EditProfileBloc({
     required ImageService imageService,
     required ProfileRepository profileRepository,
-  }) : _imageService = imageService,
+  }) : // _imageService = imageService,
       _profileRepository = profileRepository,
         super(EditProfileState.idle()) {
     on<EditProfileEvent>((event, emit) async {
@@ -57,7 +57,7 @@ class EditProfileBloc extends Bloc<EditProfileEvent, EditProfileState> {
     ));
 
     try {
-      final res = await _imageService.pickImage(isCamera: event.isCamera);
+      final res = null ;//await _imageService.pickImage(isCamera: event.isCamera);
 
       emit(EditProfileState.success(
         imageUrl: res?.path ?? '',

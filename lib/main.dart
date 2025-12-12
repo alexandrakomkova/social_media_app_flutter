@@ -29,9 +29,13 @@ Future<void> main() async {
   const AndroidInitializationSettings initializationSettingsAndroid =
   AndroidInitializationSettings('@mipmap/ic_launcher');
 
+  const DarwinInitializationSettings darwinInitializationSettings =
+      DarwinInitializationSettings();
+
   final InitializationSettings initializationSettings =
   InitializationSettings(
     android: initializationSettingsAndroid,
+    iOS: darwinInitializationSettings,
   );
 
   await flutterLocalNotificationsPlugin.initialize(
