@@ -1,6 +1,8 @@
 import 'package:bloc/bloc.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:social_media_app/domain/model/notification_entity.dart';
+import 'package:social_media_app/domain/model/post_entity.dart';
 import 'package:social_media_app/domain/repository/notification_repository.dart';
 import 'package:social_media_app/utils/firebase_utils.dart';
 
@@ -17,8 +19,9 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
         super(NotificationState.idle()) {
     on<NotificationEvent>((events, emit) async {
       await events.map(
-          getNotifications: (_) => _getNotifications(emit),
+        getNotifications: (_) => _getNotifications(emit),
         deleteAll: (_) => _deleteAll(emit),
+        getUserPost: (event) => _getUserPost(event, emit),
       );
     });
   }
@@ -54,5 +57,51 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     } catch(e) {
       emit(NotificationState.failed());
     }
+  }
+
+  Future<void> _getUserPost(
+    _GetUserPost event,
+    Emitter<NotificationState> emit
+  ) async {
+    emit(NotificationState.postLoading(
+      notifications: state.notifications
+    ));
+
+    try {
+      final res = await _notificationRepository.getUserPost(postId: event.postId);
+
+      res.fold(
+          (onError) {
+            final String errorMessage = onError.error is FirebaseAuthException
+                ? (onError.error as FirebaseAuthException).message ?? ''
+                : 'An unexpected error occurred';
+
+            emit(NotificationState.failed(
+                errorMessage: errorMessage
+            ));
+          },
+          (onOk) {
+            final post = onOk.value;
+            if(post == null) {
+              emit(NotificationState.failed(
+                  errorMessage: 'No post found',
+                notifications: state.notifications
+              ));
+            } else {
+              emit(NotificationState.postLoaded(
+                notifications: state.notifications,
+                postEntity: post,
+              ));
+            }
+
+          }
+      );
+
+    } catch(e) {
+      emit(NotificationState.failed(
+        errorMessage: e.toString()
+      ));
+    }
+
   }
 }

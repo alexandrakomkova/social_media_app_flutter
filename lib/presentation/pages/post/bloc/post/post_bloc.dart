@@ -11,6 +11,7 @@ class PostBloc extends Bloc<PostEvent, PostState> {
   final PostRepository _postRepository;
 
   PostBloc({
+    String? postId,
     required PostEntity postEntity,
     required PostRepository postRepository,
   }) : _postRepository = postRepository,
@@ -26,12 +27,23 @@ class PostBloc extends Bloc<PostEvent, PostState> {
   }
 
   factory PostBloc.getLikesCount({
+    String? postId,
     required PostEntity postEntity,
     required PostRepository postRepository,
-  }) => PostBloc(
-    postEntity: postEntity,
-    postRepository: postRepository
-  )..add(PostEvent.getLikesInfo());
+  }) {
+    if(postId == null) {
+      return PostBloc(
+          postEntity: postEntity,
+          postRepository: postRepository
+      )..add(PostEvent.getLikesInfo());
+    } else {
+      // get postEntity then get likes info
+      return PostBloc(
+          postEntity: postEntity,
+          postRepository: postRepository
+      )..add(PostEvent.getLikesInfo());
+    }
+  }
 
   Future<void> _getLikesInfo(Emitter<PostState> emit) async {
     emit(PostState.processing(

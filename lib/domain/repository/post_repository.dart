@@ -1,4 +1,3 @@
-
 abstract class PostRepository {
   Future<Map<String, int>> getLikesInfo({required String postId});
   Future<void> addLike({

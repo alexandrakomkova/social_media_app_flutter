@@ -85,5 +85,4 @@ class PostRepositoryImpl implements PostRepository, CommentRepository {
         return [];
     }
   }
-
 }

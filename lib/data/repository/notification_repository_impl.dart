@@ -1,5 +1,6 @@
 import 'package:logging/logging.dart';
 import 'package:social_media_app/domain/model/notification_entity.dart';
+import 'package:social_media_app/domain/model/post_entity.dart';
 import 'package:social_media_app/domain/repository/db_service.dart';
 import 'package:social_media_app/domain/repository/notification_repository.dart';
 import 'package:social_media_app/utils/result.dart';
@@ -36,6 +37,22 @@ class NotificationRepositoryImpl implements NotificationRepository {
       case Error<void>():
         _log.warning('deleteAll error: ${res.error}');
         return;
+    }
+  }
+
+  @override
+  Future<Result<PostEntity?>> getUserPost({required String postId}) async {
+    final res = await _dbService.getUserPost(postId: postId);
+    switch(res) {
+      case Ok<PostEntity?>():
+        if(res.value == null) {
+          return Result.error(Exception('No post found'));
+        } else {
+          return Result.ok(res.value);
+        }
+      case Error<PostEntity?>():
+        _log.warning('deleteAll error: ${res.error}');
+        return Result.error(res.error);
     }
   }
 }

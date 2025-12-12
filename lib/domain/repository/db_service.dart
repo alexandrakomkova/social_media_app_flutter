@@ -28,6 +28,7 @@ abstract class DbService {
     required String description,
   });
   Future<Result<List<PostEntity>>> getUserPosts({required String userId});
+  Future<Result<PostEntity?>> getUserPost({required String postId});
 
   // likes
   Future<Result<Map<String, int>>> getLikesInfo({required String postId});

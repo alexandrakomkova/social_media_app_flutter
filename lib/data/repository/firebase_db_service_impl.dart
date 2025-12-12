@@ -598,6 +598,43 @@ class FirebaseDbServiceImpl implements DbService {
       return Result.error(e);
     }
   }
+
+  @override
+  Future<Result<PostEntity?>> getUserPost({required String postId}) async {
+    try {
+      final postSnapshot = await _postsRef.doc(postId).get();
+      if(!postSnapshot.exists) {
+        return Result.error(Exception('No post found'));
+      }
+
+      final postData = postSnapshot.data() as dynamic;
+      var userRef = postData['userInfo'] as DocumentReference;
+
+      final userDoc = await userRef.get();
+      if(userDoc.exists) {
+        final userData = userDoc.data() as dynamic;
+        final postEntity = PostEntity(
+          imageUrl: postData['imageUrl'],
+          creationTimestamp: postData['creationTimestamp'],
+          description: postData['description'],
+          userId: userData['id'],
+          userEntity: UserEntity(
+            email: userData['email'],
+            username: userData['username'],
+            bio: userData['bio'],
+            creationTimestamp: userData['creationTimestamp'],
+            photoUrl: userData['photoUrl'],
+          )
+        );
+
+        return Result.ok(postEntity);
+      }
+      return Result.ok(null);
+    } on Exception catch(e) {
+      _log.warning('getUserPost error: $e');
+      return Result.error(e);
+    }
+  }
 }
 
 extension on String {

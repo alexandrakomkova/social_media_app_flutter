@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:social_media_app/data/repository/notification_repository_impl.dart';
 
 import 'package:social_media_app/presentation/pages/notifications/bloc/notification_bloc.dart';
+import 'package:social_media_app/presentation/pages/post/post_page.dart';
 import 'package:social_media_app/presentation/widget/notification_card.dart';
 import 'package:social_media_app/theme/theme.dart';
 
@@ -27,7 +28,24 @@ class _NotificationsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return BlocListener<NotificationBloc, NotificationState>(
+        listener: (context, state) {
+          if (state is NotificationState$PostLoaded) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                // check the nullability in NotificationBloc _getUserPost event
+                builder: (_) => PostPage(postEntity: state.postEntity!),
+              ),
+            );
+          }
+          if (state is NotificationState$Failed) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.errorMessage)),
+            );
+          }
+        },
+      child: Scaffold(
         appBar: AppBar(
           title: Text('Notifications'),
           centerTitle: true,
@@ -46,33 +64,70 @@ class _NotificationsView extends StatelessWidget {
             )
           ],
         ),
-      body: Padding(
+        body: Padding(
           padding: const EdgeInsets.all(8.0),
-        child: BlocBuilder<NotificationBloc, NotificationState>(
-            builder: (_, state) {
-              return switch(state.status) {
-                NotificationStatus.idle => SizedBox(),
-                NotificationStatus.processing => Center(child: CircularProgressIndicator(),),
-                NotificationStatus.failed => Center(child: Text('something went wrong'),),
-                NotificationStatus.success =>
-                  state.notifications.isEmpty
-                ? Center(child: Text('No new notifications'),)
-                : Column(
-                  children: [
-                    Expanded(
-                        child: ListView.builder(
-                          itemCount: state.notifications.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            final notification = state.notifications[index];
+          child: BlocBuilder<NotificationBloc, NotificationState>(
+              builder: (_, state) {
+                if(state.status == NotificationStatus.idle) {
+                  return SizedBox();
+                }
 
-                            return NotificationCard(notificationEntity: notification);
-                          }
+                if(state.status == NotificationStatus.processing) {
+                  return Center(child: CircularProgressIndicator(),);
+                }
+
+
+                  return state.notifications.isEmpty
+                      ? Center(child: Text('No new notifications'),)
+                      : Column(
+                    children: [
+                      Expanded(
+                        child: ListView.builder(
+                            itemCount: state.notifications.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              final notification = state.notifications[index];
+
+                              return NotificationCard(
+                                  notificationEntity: notification,
+                                  onNotificationTap: () {
+                                    context.read<NotificationBloc>().add(NotificationEvent.getUserPost(notification.postId));
+                                  }
+                              );
+                            }
                         ),
-                    ),
-                  ],
-                ),
-              };
-            }
+                      ),
+                    ],
+                  );
+
+                // return switch(state.status) {
+                //   NotificationStatus.idle => SizedBox(),
+                //   NotificationStatus.processing => Center(child: CircularProgressIndicator(),),
+                //   NotificationStatus.failed => Center(child: Text('something went wrong'),),
+                //   NotificationStatus.success =>
+                //   state.notifications.isEmpty
+                //       ? Center(child: Text('No new notifications'),)
+                //       : Column(
+                //     children: [
+                //       Expanded(
+                //         child: ListView.builder(
+                //             itemCount: state.notifications.length,
+                //             itemBuilder: (BuildContext context, int index) {
+                //               final notification = state.notifications[index];
+                //
+                //               return NotificationCard(
+                //                 notificationEntity: notification,
+                //                 onNotificationTap: () {
+                //                     context.read<NotificationBloc>().add(NotificationEvent.getUserPost(notification.postId));
+                //                 }
+                //               );
+                //             }
+                //         ),
+                //       ),
+                //     ],
+                //   ),
+                // };
+              }
+          ),
         ),
       ),
     );
