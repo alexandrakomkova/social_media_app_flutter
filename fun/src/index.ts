@@ -47,6 +47,10 @@ export const sendNotificationOnUnfollow = functions.firestore
           title: "Unfollow",
           body: `${username} stopped following you`,
         },
+        data: {
+          userId: user.id,
+          type: "unfollow",
+        },
         token: fcmToken,
       };
 
@@ -107,6 +111,10 @@ export const sendNotificationOnFollow = functions.firestore
           title: "New follower!",
           body: `${username} started following you`,
         },
+        data: {
+          userId: user.id,
+          type: "follow",
+        },
         token: fcmToken,
       };
 
@@ -145,45 +153,72 @@ export const sendNotificationOnLike = functions.firestore
     // get post owner token to send notification
     const tokensSnapshot = await postOwnerRef.collection("userToken").get();
 
-    if (tokensSnapshot.empty) {
-      console.log("Token is empty");
-      return null;
-    }
+    const userDoc = await postOwnerRef.get();
+    if (userDoc.exists) {
+      const userData = userDoc.data();
 
-    // to get username of person who liked post
-    const userSnapshot = await db.collection("users").doc(like.userId).get();
-    const user = userSnapshot.data();
+      if (!userData) {
+        console.error("User data not found");
+        return null;
+      }
 
-    if (!user) {
-      console.error("User data not found");
-      return null;
-    }
-    const username = user.username;
+      if (tokensSnapshot.empty) {
+        console.log("Token is empty");
+        return null;
+      }
 
-    const promises: Promise<any>[] = [];
+      // to get username of person who liked post
+      const userSnapshot = await db.collection("users").doc(like.userId).get();
+      const user = userSnapshot.data();
 
-    tokensSnapshot.forEach(async (tokenDoc) => {
-      const fcmToken = tokenDoc.id;
-      console.log(`fcmToken ${fcmToken}`);
+      if (!user) {
+        console.error("User data not found");
+        return null;
+      }
+      const username = user.username;
 
-      const payload: admin.messaging.Message = {
-        notification: {
-          title: "New like!",
-          body: `${username} liked your post`,
-        },
-        token: fcmToken,
-      };
+      const promises: Promise<any>[] = [];
 
-      console.log(`payload: ${payload["notification"]}`);
-      const promise = admin.messaging().send(payload).catch((error) => {
-        console.log("Notification sending error:", error);
+      tokensSnapshot.forEach(async (tokenDoc) => {
+        const fcmToken = tokenDoc.id;
+        console.log(`fcmToken ${fcmToken}`);
+
+        const payload: admin.messaging.Message = {
+          notification: {
+            title: "New like!",
+            body: `${username} liked your post`,
+          },
+          data: {
+            postEntity: JSON.stringify({
+              creationTimestamp: post.creationTimestamp,
+              description: post.description,
+              imageUrl: post.imageUrl,
+              userId: post.userId,
+              userEntity: {
+                bio: userData.bio,
+                id: userData.id,
+                photoUrl: userData.photoUrl,
+                username: userData.username,
+                creationTime: userData.creationTime,
+                email: userData.email,
+              },
+            }),
+            type: "like",
+          },
+          token: fcmToken,
+        };
+
+        console.log(`payload: ${payload["notification"]}`);
+        const promise = admin.messaging().send(payload).catch((error) => {
+          console.log("Notification sending error:", error);
+        });
+
+        promises.push(promise);
+
+        // sending push notification
+        await Promise.all(promises);
       });
-
-      promises.push(promise);
-
-      // sending push notification
-      await Promise.all(promises);
-    });
+    }
     return null;
   });
 
@@ -216,6 +251,7 @@ export const sendNotificationOnComment = functions.firestore
     if (userPostOwnerDoc.exists) {
       // const postOwnerUsername = userPostOwnerDoc.data()?.username;
       const commentText = comment.commentText;
+      // --- const user = userPostOwnerDoc
 
       // getting fcmToken
       const tokensSnapshot = await postOwnerRef.collection("userToken").get();
@@ -223,6 +259,13 @@ export const sendNotificationOnComment = functions.firestore
       if (tokensSnapshot.empty) {
         console.log("Token is empty");
         return;
+      }
+
+      const userData = userPostOwnerDoc.data();
+
+      if (!userData) {
+        console.error("User data not found");
+        return null;
       }
 
       let username = "";
@@ -240,6 +283,23 @@ export const sendNotificationOnComment = functions.firestore
           notification: {
             title: "New comment!",
             body: `${username} leave a comment to your post: "${commentText}"`,
+          },
+          data: {
+            postEntity: JSON.stringify({
+              creationTimestamp: post.creationTimestamp,
+              description: post.description,
+              imageUrl: post.imageUrl,
+              userId: post.userId,
+              userEntity: {
+                bio: userData.bio,
+                id: userData.id,
+                photoUrl: userData.photoUrl,
+                username: userData.username,
+                creationTime: userData.creationTime,
+                email: userData.email,
+              },
+            }),
+            type: "comment",
           },
           token: fcmToken,
         };

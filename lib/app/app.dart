@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -14,9 +16,13 @@ import 'package:social_media_app/data/repository/notification_repository_impl.da
 import 'package:social_media_app/data/repository/post_repository_impl.dart';
 import 'package:social_media_app/data/repository/profile_repository_impl.dart';
 import 'package:social_media_app/data/repository/search_repository_impl.dart';
+import 'package:social_media_app/domain/model/post_entity.dart';
+import 'package:social_media_app/domain/model/user_entity.dart';
 import 'package:social_media_app/main.dart';
 import 'package:social_media_app/presentation/pages/auth/sign_in_page.dart';
 import 'package:social_media_app/presentation/pages/main_screen/main_page.dart';
+import 'package:social_media_app/presentation/pages/post/post_page.dart';
+import 'package:social_media_app/presentation/pages/profile/profile_page.dart';
 import 'package:social_media_app/theme/theme.dart';
 import 'package:social_media_app/theme/theme_provider.dart';
 
@@ -38,6 +44,39 @@ void requestPermission() async {
   );
 
   _log.info('User granted permission: ${settings.authorizationStatus}');
+}
+
+void handleMessageData(Map<String, dynamic> data) {
+  final type = data['type'];
+  if (type == 'follow' || type == 'unfollow' && data['userId'] != null) {
+    final userId = data['userId'];
+    navigatorKey.currentState?.push(
+      MaterialPageRoute(builder: (_) => ProfilePage(userId: userId)),
+    );
+    _log.info('$userId');
+  } else if (type == 'comment' || type == 'like' && data['postEntity'] != null) {
+    final postData = data['postEntity'];
+    _log.info('${postData.toString()}');
+    final userData = jsonDecode(postData['userEntity']);
+
+    final postEntity = PostEntity(
+      imageUrl: postData['imageUrl'],
+      description: postData['description'],
+      creationTimestamp: int.parse(postData['creationTimestamp']),
+      userEntity: UserEntity(
+        bio: userData['bio'],
+        id: userData['id'],
+        email: userData['email'],
+        photoUrl: userData['photoUrl'],
+        username: userData['username'],
+        creationTimestamp:  int.parse(userData['creationTime'])
+      )
+    );
+    _log.info('${postData['description']} ${userData['id']}');
+    navigatorKey.currentState?.push(
+      MaterialPageRoute(builder: (_) => PostPage(postEntity: postEntity,)),
+    );
+  }
 }
 
 class _AppState extends State<App> {
@@ -65,12 +104,20 @@ class _AppState extends State<App> {
               priority: Priority.high,
             ),
           ),
+          payload: jsonEncode(message.data),
         );
       }
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      _log.info('User tapped on notification: ${message.notification?.body}');
+      // _log.info('User tapped on notification: ${message.notification?.body}');
+      handleMessageData(message.data);
+    });
+
+    FirebaseMessaging.instance.getInitialMessage().then((message) {
+      if (message != null) {
+        handleMessageData(message.data);
+      }
     });
   }
 
@@ -132,11 +179,9 @@ class _AppView extends StatelessWidget {
     return Consumer<ThemeProvider>(
       builder: (context, ThemeProvider themeProvider, Widget? child) {
         return MaterialApp(
+          navigatorKey: navigatorKey,
           debugShowCheckedModeBanner: false,
-          //theme: SocialMediaTheme.lightTheme,
           theme: themeProvider.isDarkMode ? SocialMediaTheme.darkTheme : SocialMediaTheme.lightTheme,
-          //darkTheme: SocialMediaTheme.darkTheme,
-          //themeMode: ThemeMode.system,
           home: StreamBuilder(
             stream: FirebaseAuth.instance.authStateChanges(),
             builder: ((BuildContext context, snapshot) {

@@ -515,6 +515,7 @@ class FirebaseDbServiceImpl implements DbService {
       final notificationsSnapshot = await _notificationsRef
           .doc(userId)
           .collection(_userNotificationCollection)
+          .orderBy('creationTimestamp', descending: true)
           .get();
 
       if (notificationsSnapshot.docs.isEmpty) return Result.ok([]);
