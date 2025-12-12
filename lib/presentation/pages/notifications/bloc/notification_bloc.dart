@@ -42,7 +42,7 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
         notifications: notifications,
       ));
     } catch(e) {
-      emit(NotificationState.failed());
+      emit(NotificationState.failed(errorMessage: e.toString()));
     }
   }
 
@@ -55,7 +55,7 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
         notifications: [],
       ));
     } catch(e) {
-      emit(NotificationState.failed());
+      emit(NotificationState.failed(errorMessage: e.toString()));
     }
   }
 
