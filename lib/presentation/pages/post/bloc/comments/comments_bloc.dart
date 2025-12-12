@@ -31,9 +31,9 @@ class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
     required String postId,
     required String postOwnerId,
   }) => CommentsBloc(
-      commentRepository: commentRepository,
-      postId: postId,
-      postOwnerId: postOwnerId,
+    commentRepository: commentRepository,
+    postId: postId,
+    postOwnerId: postOwnerId,
   )..add(CommentsEvent.getComments());
 
   Future<void> _getComments(Emitter<CommentsState> emit) async {
@@ -42,8 +42,6 @@ class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
       postOwnerId: state.postOwnerId,
 
     ));
-
-    debugPrint('--- getComments');
 
     try {
       final res = await _commentRepository.getComments(postId: state.postId);
@@ -65,13 +63,13 @@ class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
   Future<void> _addComment(Emitter<CommentsState> emit) async {
     try {
       await _commentRepository.addComment(
-          postId: state.postId,
-          commentText: state.commentText,
+        postId: state.postId,
+        commentText: state.commentText,
         postOwnerId: state.postOwnerId,
       );
 
       emit(CommentsState.success(
-          postId: state.postId,
+        postId: state.postId,
         comments: state.comments,
         postOwnerId: state.postOwnerId,
       ));

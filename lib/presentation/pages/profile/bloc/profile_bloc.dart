@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:social_media_app/domain/model/post_entity.dart';
@@ -48,11 +49,26 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     emit(ProfileState.processing());
 
     try {
-      await _authRepository.signOut();
+      final res = await _authRepository.signOut();
 
-      emit(ProfileState.success());
+      res.fold(
+        (onError){
+          final String errorMessage = onError.error is FirebaseAuthException
+              ? (onError.error as FirebaseAuthException).message ?? ''
+              : 'An unexpected error occurred';
+          emit(ProfileState.failed(
+            errorMessage: errorMessage
+          ));
+        },
+        (onOk){
+          emit(ProfileState.success());
+        }
+      );
     } catch(e) {
-      emit(ProfileState.failed());
+      final String errorMessage = e is FirebaseAuthException
+          ? e.message ?? ''
+          : 'An unexpected error occurred';
+      emit(ProfileState.failed(errorMessage: errorMessage));
     }
   }
 

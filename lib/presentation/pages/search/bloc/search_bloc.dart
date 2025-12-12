@@ -12,7 +12,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
   final SearchRepository _searchRepository;
   SearchBloc({
     required SearchRepository searchRepository,
-}) : _searchRepository = searchRepository ,super(const SearchState.idle()) {
+}) : _searchRepository = searchRepository,
+     super(const SearchState.idle()) {
     on<SearchEvent>((events, emit) async {
       await events.map(
         queryChanged: (event) => _queryChanged(event, emit),

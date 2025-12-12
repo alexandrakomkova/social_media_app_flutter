@@ -72,7 +72,7 @@ class _CreatePostView extends StatelessWidget {
                   .size
                   .width * 0.5,
               decoration: BoxDecoration(
-                color: Colors.grey[300],
+                color: Theme.of(context).colorScheme.secondaryContainer,
                 borderRadius: BorderRadius.all(
                   Radius.circular(5.0),
                 ),
@@ -90,8 +90,7 @@ class _CreatePostView extends StatelessWidget {
                         child: Text(
                           'Upload a Photo',
                           style: TextStyle(
-                            color:
-                            Theme.of(context).colorScheme.secondary,
+                            //color: Theme.of(context).colorScheme.secondary,
                           ),
                         ),
                       );
@@ -146,12 +145,8 @@ class _CreatePostView extends StatelessWidget {
             dialogContent: 'Your changes will be discarded.',
             rightButtonTitle: 'Ok',
             onRightPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => MainPage(),
-                ),
-              );
+              Navigator.pop(context);
+              Navigator.pop(context);
             },
             leftButtonTitle: 'Cancel',
             onLeftPressed: () {

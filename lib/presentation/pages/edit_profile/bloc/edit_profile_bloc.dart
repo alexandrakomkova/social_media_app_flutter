@@ -41,16 +41,15 @@ class EditProfileBloc extends Bloc<EditProfileEvent, EditProfileState> {
       profileRepository: profileRepository
   )..add(EditProfileEvent.getUserInfo());
 
-  _usernameChanged(_UsernameChanged event, Emitter<EditProfileState> emit) {
+  Future<void> _usernameChanged(_UsernameChanged event, Emitter<EditProfileState> emit) async {
     emit(state.copyWith(username: event.username));
-    debugPrint('--- ${state.username}');
   }
 
-  _bioChanged(_BioChanged event, Emitter<EditProfileState> emit) {
+  Future<void> _bioChanged(_BioChanged event, Emitter<EditProfileState> emit) async {
     emit(state.copyWith(bio: event.bio));
   }
 
-  _selectImage(_SelectImage event, Emitter<EditProfileState> emit) async {
+  Future<void> _selectImage(_SelectImage event, Emitter<EditProfileState> emit) async {
     emit(EditProfileState.processing(
       imageUrl: state.imageUrl,
       username: state.username,
@@ -73,14 +72,13 @@ class EditProfileBloc extends Bloc<EditProfileEvent, EditProfileState> {
     }
   }
 
-  _saveProfile(Emitter<EditProfileState> emit) async {
+  Future<void> _saveProfile(Emitter<EditProfileState> emit) async {
     emit(EditProfileState.processing(
       imageUrl: state.imageUrl,
       username: state.username,
       bio: state.bio,
     ));
     try {
-      debugPrint(" --- _saveProfile ${state.username} ${state.bio}");
       await _profileRepository.updateUserInfo(
           imageUrl: state.imageUrl,
           username: state.username,
@@ -100,13 +98,12 @@ class EditProfileBloc extends Bloc<EditProfileEvent, EditProfileState> {
     }
   }
 
-  _getUserInfo(Emitter<EditProfileState> emit) async {
+  Future<void> _getUserInfo(Emitter<EditProfileState> emit) async {
     emit(EditProfileState.processing(
       username: state.username,
       bio: state.bio,
       imageUrl: state.imageUrl
     ));
-    debugPrint(" ---${state.username} ${state.bio}");
     try {
       final user = await DbProvider.db.getClient(FirebaseUtils.currentUserId);
 
@@ -115,13 +112,12 @@ class EditProfileBloc extends Bloc<EditProfileEvent, EditProfileState> {
         bio: user.bio,
         imageUrl: user.photoUrl
       ));
-      debugPrint("--- ${state.username} ${state.bio}");
     } catch (e) {
       emit(EditProfileState.failed());
     }
   }
 
-  _deleteImage(Emitter<EditProfileState> emit) {
+  Future<void> _deleteImage(Emitter<EditProfileState> emit) async {
     emit(state.copyWith(imageUrl: ''));
   }
 }

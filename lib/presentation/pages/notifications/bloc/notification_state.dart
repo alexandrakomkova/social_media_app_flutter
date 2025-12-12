@@ -5,6 +5,8 @@ enum NotificationStatus {
   processing,
   success,
   failed,
+  postLoading,
+  postLoaded
 }
 
 @freezed
@@ -29,5 +31,17 @@ sealed class NotificationState with _$NotificationState {
   const factory NotificationState.failed({
     @Default(NotificationStatus.failed) NotificationStatus status,
     @Default([]) List<NotificationEntity> notifications,
+    @Default('') String errorMessage,
   }) = NotificationState$Failed;
+
+  const factory NotificationState.postLoading({
+    @Default(NotificationStatus.postLoading) NotificationStatus status,
+    @Default([]) List<NotificationEntity> notifications,
+  }) = NotificationState$PostLoading;
+
+  const factory NotificationState.postLoaded({
+    @Default(NotificationStatus.postLoaded) NotificationStatus status,
+    @Default([]) List<NotificationEntity> notifications,
+    @Default(null) PostEntity? postEntity,
+  }) = NotificationState$PostLoaded;
 }

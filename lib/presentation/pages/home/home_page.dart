@@ -31,6 +31,7 @@ class _HomeView extends StatelessWidget {
         title: Text('New posts'),
         centerTitle: true,
       ),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: BlocBuilder<HomeBloc, HomeState>(
@@ -47,7 +48,14 @@ class _HomeView extends StatelessWidget {
                       Expanded(
                           child:
                           state.posts.isEmpty
-                          ? Center(child: Text('No posts'),)
+                          ? Center(
+                              child: Text(
+                                  'No posts',
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.primary
+                                ),
+                              ),
+                          )
                           : ListView.builder(
                               itemCount: state.posts.length,
                               itemBuilder: (context, index) {

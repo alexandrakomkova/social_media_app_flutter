@@ -32,5 +32,6 @@ sealed class SignInState with _$SignInState {
     @Default('') String email,
     @Default('') String password,
     @Default(SignInStatus.failed) SignInStatus status,
+    @Default('') String errorMessage,
   }) = SignInState$Failed;
 }

@@ -1,10 +1,12 @@
 import 'package:flutter/cupertino.dart';
+import 'package:logging/logging.dart';
 import 'package:social_media_app/domain/model/comment_entity.dart';
 import 'package:social_media_app/domain/repository/post_repository.dart';
 import 'package:social_media_app/domain/repository/comment_repository.dart';
 import 'package:social_media_app/domain/repository/db_service.dart';
 import 'package:social_media_app/utils/result.dart';
 
+final _log = Logger('PostRepositoryImpl');
 class PostRepositoryImpl implements PostRepository, CommentRepository {
   final DbService _dbService;
 
@@ -20,6 +22,7 @@ class PostRepositoryImpl implements PostRepository, CommentRepository {
       case Ok<Map<String, int>>():
         return res.value;
       case Error<Map<String, int>>():
+        _log.warning("${_log.name} getLikesInfo error: ${res.error}");
         return {'likesCount': 0, 'isLiked': 0};
     }
   }
@@ -66,8 +69,6 @@ class PostRepositoryImpl implements PostRepository, CommentRepository {
         debugPrint('--- PostRepositoryImpl addComment ${res.error}');
         return;
     }
-
-
   }
 
   @override
@@ -84,5 +85,4 @@ class PostRepositoryImpl implements PostRepository, CommentRepository {
         return [];
     }
   }
-
 }
