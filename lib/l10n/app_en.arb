@@ -1,0 +1,257 @@
+{
+"@@locale": "en",
+  "signInPageLabel": "Sign In",
+  "@signInPageLabel": {
+    "description": "This text shown on Sign In screen as screen title/button text"
+  },
+  "emailHintText": "Email",
+  "@emailHintText": {
+    "description": "This text shown as hint text for email text field"
+  },
+  "passwordHintText": "Password",
+  "@passwordHintText": {
+    "description": "This text shown as hint text for password text field"
+  },
+  "usernameHintText": "Username",
+  "@usernameHintText": {
+    "description": "This text shown as hint text for username text field"
+  },
+  "repeatPasswordHintText": "Repeat password",
+  "@repeatPasswordHintText": {
+    "description": "This text shown as hint text for repeat password text field"
+  },
+  "bioHintText": "Bio",
+  "@bioHintText": {
+    "description": "This text shown as hint text for bio text field"
+  },
+  "dontHaveAccountTextButton": "Don't have an account? Sign up now!",
+  "@dontHaveAccountTextButton": {
+    "description": "This text shown on text button that navigates to Sign Up screen"
+  },
+  "signUpPageLabel": "Sign Up",
+  "@signUpPageLabel": {
+    "description": "This text shown on Sign Up screen as screen title"
+  },
+  "signUpButton": "Sign Up",
+  "@signUpButton": {
+    "description": "This text shown on Sign Up screen as button text"
+  },
+  "signInButton": "Sign In",
+  "@signInButton": {
+    "description": "This text shown on Sign In screen as button text"
+  },
+  "alreadyHaveAccountTextButton": "Already have an account? Sign in now!",
+  "@alreadyHaveAccountTextButton": {
+    "description": "This text shown on text button that navigates to Sign In screen"
+  },
+  "createPostPageAppBarTitle": "New post",
+  "@createPostPageAppBarTitle": {
+    "description": "This text shown on Create Post screen as appbar title"
+  },
+  "postButton": "Post",
+  "@postButton": {
+    "description": "This text shown on Post button"
+  },
+  "uploadPhotoText": "Upload a photo",
+  "@uploadPhotoText": {
+    "description": "This text shown on Create Post screen for in image area if no photo provided"
+  },
+  "postDescriptionHintText": "Post description",
+  "@postDescriptionHintText": {
+    "description": "This text shown as hint text for post description text field"
+  },
+  "okButton": "Ok",
+  "@okButton": {
+    "description": "This text shown on Ok button"
+  },
+  "cancelButton": "Cancel",
+  "@cancelButton": {
+    "description": "This text shown on Cancel button"
+  },
+  "discardChangesDialogTitle": "Discard changes",
+  "@discardChangesDialogTitle": {
+    "description": "This text shown as title for Discard changes dialog"
+  },
+  "discardChangesDialogText": "Your changes will be discarded",
+  "@discardChangesDialogText": {
+    "description": "This text shown as text for Discard changes dialog"
+  },
+  "editProfilePageAppBarTitle": "Edit profile",
+  "@editProfilePageAppBarTitle": {
+    "description": "This text shown on Edit Profile screen as appbar title"
+  },
+  "saveButton": "Save",
+  "@saveButton": {
+    "description": "This text shown on Save button"
+  },
+  "deleteProfileAvatarTextButton": "Delete profile image",
+  "@deleteProfileAvatarTextButton": {
+    "description": "This text shown on text button that delete profile avatar"
+  },
+  "homePageLabel": "Home",
+  "@homePageLabel": {
+    "description": "This text shown on Home screen as screen title"
+  },
+  "homePageNoNews": "No posts",
+  "@homePageNoNews": {
+    "description": "This text shown on Home screen when no news found"
+  },
+  "notificationsPageLabel": "Notifications",
+  "@notificationsPageLabel": {
+    "description": "This text shown on Notifications screen as screen title"
+  },
+  "deleteAllButton": "Delete all",
+  "@deleteAllButton": {
+    "description": "This text shown on Delete all button"
+  },
+  "notificationPageNoNotifications": "No new notifications",
+  "@notificationPageNoNotifications": {
+    "description": "This text shown on Notification screen when no notifications found"
+  },
+  "addCommentHintText": "Add comment..",
+  "@addCommentHintText": {
+    "description": "This text shown on Post screen as Add comment hint text"
+  },
+  "commentsCount": "{count} comments",
+  "@commentsCount": {
+    "description": "How many comments leaved to the post",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
+  "errorLoadingCommentText": "Error loading comments",
+  "@errorLoadingCommentText": {
+    "description": "This text shown on Post screen when error on loading comments occurred"
+  },
+  "bottomSheetFollowersTitle": "Followers",
+  "@bottomSheetFollowersTitle": {
+    "description": "This text shown on bottom sheet with followers list in Profile screen"
+  },
+  "bottomSheetFollowingsTitle": "Followings",
+  "@bottomSheetFollowingsTitle": {
+    "description": "This text shown on bottom sheet with followings list in Profile screen"
+  },
+  "profileInfoCardFollowersCount": "followers",
+  "@profileInfoCardFollowersCount": {
+    "description": "This text shown on profile info card for followers count in Profile screen"
+  },
+  "profileInfoCardFollowingsCount": "followings",
+  "@profileInfoCardFollowingsCount": {
+    "description": "This text shown on profile info card for followings count in Profile screen"
+  },
+  "profileInfoCardPostsCount": "posts",
+  "@profileInfoCardPostsCount": {
+    "description": "This text shown on profile info card for posts count in Profile screen"
+  },
+  "followButton": "Follow",
+  "@followButton": {
+    "description": "This text shown on Follow button in Profile screen"
+  },
+  "unfollowButton": "Unfollow",
+  "@unfollowButton": {
+    "description": "This text shown on Unfollow button in Profile screen"
+  },
+  "allPostsTitle": "All posts",
+  "@allPostsTitle": {
+    "description": "This text shown on Profile screen before user's posts"
+  },
+  "logoutDialogTitle": "Logout",
+  "@logoutDialogTitle": {
+    "description": "This text shown as title for Logout dialog"
+  },
+  "logoutDialogText": "Are you sure you want to logout?",
+  "@logoutDialogText": {
+    "description": "This text shown as text for logout dialog"
+  },
+  "continueButton": "Continue",
+  "@continueButton": {
+    "description": "This text shown on Continue button"
+  },
+  "searchHintText": "Search",
+  "@searchHintText": {
+    "description": "This text shown on Search bar as hint text"
+  },
+  "settingsPageLabel": "Settings",
+  "@settingsPageLabel": {
+    "description": "This text shown on Settings screen as screen title"
+  },
+  "editProfileLabel": "Edit profile",
+  "@editProfileLabel": {
+    "description": "This text shown on Settings screen as settings option for Edit Profile"
+  },
+  "darkModeLabel": "Dark mode",
+  "@darkModeLabel": {
+    "description": "This text shown on Settings screen as settings option for Dark Mode"
+  },
+  "languageLabel": "Language",
+  "@languageLabel": {
+    "description": "This text shown on Settings screen as settings option for Language"
+  },
+  "bottomSheetCreateTitle": "Create",
+  "@bottomSheetCreateTitle": {
+    "description": "This text shown as title on bottom sheet for creation options in Add screen"
+  },
+  "bottomSheetCreateOptionPost": "Post",
+  "@bottomSheetCreateOptionPost": {
+    "description": "This text shown on bottom sheet for post creation options in Add screen"
+  },
+  "bottomSheetImageSourceTitle": "Select image source",
+  "@bottomSheetImageSourceTitle": {
+    "description": "This text shown as title on bottom sheet for selecting image source"
+  },
+  "bottomSheetImageSourceOptionCamera": "Camera",
+  "@bottomSheetImageSourceOptionCamera": {
+    "description": "This text shown on bottom sheet for camera options in selecting image source"
+  },
+  "bottomSheetImageSourceOptionGallery": "Gallery",
+  "@bottomSheetImageSourceOptionGallery": {
+    "description": "This text shown on bottom sheet for gallery options in selecting image source"
+  },
+  "unableToLoadImageText": "Unable to load Image",
+  "@unableToLoadImageText": {
+    "description": "This text shown on post when app was unable to load image"
+  },
+  "notificationOnCommentText": "User {username} commented your post",
+  "@notificationOnCommentText": {
+    "description": "Who has commented the user's post",
+    "placeholders": {
+      "username": {
+        "type": "String",
+        "example": "qwerty"
+      }
+    }
+  },
+  "notificationOnLikeText": "User {username} liked your post",
+  "@notificationOnLikeText": {
+    "description": "Who has liked the user's post",
+    "placeholders": {
+      "username": {
+        "type": "String",
+        "example": "qwerty"
+      }
+    }
+  },
+  "notificationOnFollowText": "User {username} started following you",
+  "@notificationOnFollowText": {
+    "description": "Who started following the current user",
+    "placeholders": {
+      "username": {
+        "type": "String",
+        "example": "qwerty"
+      }
+    }
+  },
+  "notificationOnUnfollowText": "User {username} started following you",
+  "@notificationOnUnfollowText": {
+    "description": "Who stopped following the current user",
+    "placeholders": {
+      "username": {
+        "type": "String",
+        "example": "qwerty"
+      }
+    }
+  }
+}

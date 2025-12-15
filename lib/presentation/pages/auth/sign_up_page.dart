@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:social_media_app/data/repository/auth/auth_repository_impl.dart';
+import 'package:social_media_app/l10n/l10n.dart';
 import 'package:social_media_app/utils/validator.dart';
 import 'package:social_media_app/presentation/pages/auth/bloc/sign_up/sign_up_bloc.dart';
 import 'package:social_media_app/presentation/pages/auth/sign_in_page.dart';
@@ -33,6 +34,8 @@ class _SignUpViewState extends State<_SignUpView> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return BlocListener<SignUpBloc, SignUpState>(
       listener: (context, state) {
         if (state is SignUpState$Failed) {
@@ -61,7 +64,7 @@ class _SignUpViewState extends State<_SignUpView> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Sign Up',
+                    l10n.signUpPageLabel,
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -79,7 +82,7 @@ class _SignUpViewState extends State<_SignUpView> {
                               textFieldKey: const Key(
                                   'signUpForm_username_textFormField'),
                               initialValue: state.username,
-                              hintText: 'Username',
+                              hintText: l10n.usernameHintText,
                               validator: (value) => Validator.validateUsername(value),
                               onChanged: (value) =>
                                   signUpContext.read<SignUpBloc>().add(
@@ -95,7 +98,7 @@ class _SignUpViewState extends State<_SignUpView> {
                               textFieldKey: const Key(
                                   'signUpForm_email_textFormField'),
                               initialValue: state.email,
-                              hintText: 'Email',
+                              hintText: l10n.emailHintText,
                               validator: (value) => Validator.validateEmail(value),
                               onChanged: (value) =>
                                   signUpContext.read<SignUpBloc>().add(
@@ -111,7 +114,7 @@ class _SignUpViewState extends State<_SignUpView> {
                               textFieldKey: const Key(
                                   'signUpForm_password_textFormField'),
                               initialValue: state.password,
-                              hintText: 'Password',
+                              hintText: l10n.passwordHintText,
                               obscureText: true,
                               validator: (value) => Validator.validatePassword(value),
                               onChanged: (value) =>
@@ -127,7 +130,7 @@ class _SignUpViewState extends State<_SignUpView> {
                               textFieldKey: const Key(
                                   'signUpForm_repeatPassword_textFormField'),
                               initialValue: state.repeatPassword,
-                              hintText: 'Repeat password',
+                              hintText: l10n.repeatPasswordHintText,
                               obscureText: true,
                               validator: (value) => Validator.validateRepeatPassword(state.password, value),
                               onChanged: (value) =>
@@ -143,7 +146,7 @@ class _SignUpViewState extends State<_SignUpView> {
                             }
                           },
                           child: Text(
-                            'Sign up',
+                            l10n.signUpButton,
                           ),
                         ),
                         const SizedBox(height: 10.0),
@@ -156,7 +159,7 @@ class _SignUpViewState extends State<_SignUpView> {
                             );
                           },
                           child: Text(
-                            'Already have an account? Sign in now!',
+                            l10n.alreadyHaveAccountTextButton,
                           ),
                         )
                       ],
@@ -167,8 +170,8 @@ class _SignUpViewState extends State<_SignUpView> {
             ),
           ),
         ),
-    ),
-);
+      ),
+    );
   }
 }
 

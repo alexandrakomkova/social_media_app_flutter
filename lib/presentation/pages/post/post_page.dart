@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:social_media_app/data/repository/post_repository_impl.dart';
 import 'package:social_media_app/domain/model/post_entity.dart';
 import 'package:social_media_app/domain/model/user_entity.dart';
+import 'package:social_media_app/l10n/l10n.dart';
 import 'package:social_media_app/presentation/pages/post/bloc/comments/comments_bloc.dart';
 import 'package:social_media_app/presentation/pages/post/bloc/post/post_bloc.dart';
 import 'package:social_media_app/presentation/widget/post_card.dart';
@@ -42,6 +43,7 @@ class PostPage extends StatelessWidget {
 class _PostView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: AppBar(),
@@ -65,8 +67,7 @@ class _PostView extends StatelessWidget {
                         builder: (_, state) {
                           return Padding(
                             padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              '${state.comments.length} comments',
+                            child: Text(l10n.commentsCount(state.comments.length),
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 16.0,
@@ -85,7 +86,7 @@ class _PostView extends StatelessWidget {
                             case CommentsStatus.processing:
                               return Center(child: CircularProgressIndicator(),);
                             case CommentsStatus.failed:
-                              return Center(child: Text('Error loading comments'),);
+                              return Center(child: Text(l10n.errorLoadingCommentText),);
                             case CommentsStatus.success:
                               return ListView.builder(
                                 physics: NeverScrollableScrollPhysics(),
@@ -141,10 +142,10 @@ class _PostView extends StatelessWidget {
                                 child: TextFormField(
                                   key: const Key('comment_textFormField'),
                                   initialValue: state.commentText,
-                                  decoration: const InputDecoration(
-                                    hintText: 'Add a comment...',
-                                    border: OutlineInputBorder(),
-                                    contentPadding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
+                                  decoration: InputDecoration(
+                                    hintText: l10n.addCommentHintText,
+                                    border: const OutlineInputBorder(),
+                                    contentPadding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
                                   ),
                                   onChanged: (value) {
                                     context.read<CommentsBloc>().add(

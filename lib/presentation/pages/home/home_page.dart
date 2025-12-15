@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:social_media_app/data/repository/home_repository_impl.dart';
 import 'package:social_media_app/data/repository/post_repository_impl.dart';
+import 'package:social_media_app/l10n/l10n.dart';
 
 import 'package:social_media_app/presentation/pages/home/bloc/home_bloc.dart';
 import 'package:social_media_app/presentation/pages/post/bloc/comments/comments_bloc.dart';
@@ -28,7 +29,7 @@ class _HomeView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('New posts'),
+        title: Text(context.l10n.homePageLabel),
         centerTitle: true,
       ),
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -36,6 +37,7 @@ class _HomeView extends StatelessWidget {
         padding: const EdgeInsets.all(8.0),
         child: BlocBuilder<HomeBloc, HomeState>(
             builder: (context, state) {
+
               return switch(state.status) {
                 HomeStatus.idle => SizedBox(),
                 HomeStatus.processing => Center(child: CircularProgressIndicator(),),
@@ -50,7 +52,7 @@ class _HomeView extends StatelessWidget {
                           state.posts.isEmpty
                           ? Center(
                               child: Text(
-                                  'No posts',
+                                context.l10n.homePageNoNews,
                                 style: TextStyle(
                                   color: Theme.of(context).colorScheme.primary
                                 ),

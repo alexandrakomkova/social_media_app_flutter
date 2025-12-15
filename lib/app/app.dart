@@ -16,6 +16,8 @@ import 'package:social_media_app/data/repository/notification_repository_impl.da
 import 'package:social_media_app/data/repository/post_repository_impl.dart';
 import 'package:social_media_app/data/repository/profile_repository_impl.dart';
 import 'package:social_media_app/data/repository/search_repository_impl.dart';
+import 'package:social_media_app/l10n/app_localizations.dart';
+import 'package:social_media_app/l10n/language_provider.dart';
 import 'package:social_media_app/main.dart';
 import 'package:social_media_app/presentation/pages/auth/sign_in_page.dart';
 import 'package:social_media_app/presentation/pages/main_screen/main_page.dart';
@@ -90,6 +92,12 @@ class _AppState extends State<App> {
   Widget build(BuildContext context) {
     return MultiRepositoryProvider(
       providers: [
+        ChangeNotifierProvider(
+          create: (_) => ThemeProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => LanguageProvider(Locale('en'))
+        ),
         RepositoryProvider(create: (_) => AuthFirebaseServiceImpl()),
         RepositoryProvider(create: (_) => FirebaseDbServiceImpl()),
         RepositoryProvider(create:
@@ -126,9 +134,6 @@ class _AppState extends State<App> {
               dbService: postContext.read<FirebaseDbServiceImpl>()
           )
         ),
-        ChangeNotifierProvider(
-            create: (_) => ThemeProvider(),
-        ),
       ],
       child: const _AppView(
       ),
@@ -142,21 +147,39 @@ class _AppView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer<ThemeProvider>(
-      builder: (context, ThemeProvider themeProvider, Widget? child) {
-        return MaterialApp(
-          navigatorKey: navigatorKey,
-          debugShowCheckedModeBanner: false,
-          theme: themeProvider.isDarkMode ? SocialMediaTheme.darkTheme : SocialMediaTheme.lightTheme,
-          home: StreamBuilder(
-            stream: FirebaseAuth.instance.authStateChanges(),
-            builder: ((BuildContext context, snapshot) {
-              if (snapshot.hasData) {
-                return MainPage();
-              } else {
-                return SignInPage();
-              }
-            }),
-          ),
+      builder: (
+          context,
+          ThemeProvider themeProvider,
+          Widget? child,
+      ) {
+        return Consumer<LanguageProvider>(
+          builder: (
+            context,
+            LanguageProvider languageProvider,
+            Widget? child,
+          ) {
+            return MaterialApp(
+              navigatorKey: navigatorKey,
+              debugShowCheckedModeBanner: false,
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              locale: languageProvider.locale,
+              supportedLocales: [
+                Locale('en'),
+                Locale('ru'),
+              ],
+              theme: themeProvider.isDarkMode ? SocialMediaTheme.darkTheme : SocialMediaTheme.lightTheme,
+              home: StreamBuilder(
+                stream: FirebaseAuth.instance.authStateChanges(),
+                builder: ((BuildContext context, snapshot) {
+                  if (snapshot.hasData) {
+                    return MainPage();
+                  } else {
+                    return SignInPage();
+                  }
+                }),
+              ),
+            );
+          }
         );
       }
     );

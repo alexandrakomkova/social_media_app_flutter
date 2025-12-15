@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:social_media_app/data/repository/notification_repository_impl.dart';
+import 'package:social_media_app/l10n/l10n.dart';
 
 import 'package:social_media_app/presentation/pages/notifications/bloc/notification_bloc.dart';
 import 'package:social_media_app/presentation/pages/post/post_page.dart';
@@ -28,6 +29,8 @@ class _NotificationsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return BlocListener<NotificationBloc, NotificationState>(
         listener: (context, state) {
           if (state is NotificationState$PostLoaded) {
@@ -47,7 +50,7 @@ class _NotificationsView extends StatelessWidget {
         },
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Notifications'),
+          title: Text(l10n.notificationsPageLabel),
           centerTitle: true,
           actions: [
             GestureDetector(
@@ -57,7 +60,7 @@ class _NotificationsView extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: Text(
-                  'Delete All',
+                  l10n.deleteAllButton,
                   style: SocialMediaTheme.appBarActionsTextStyle,
                 ),
               ),
@@ -77,7 +80,7 @@ class _NotificationsView extends StatelessWidget {
                 }
 
                 return state.notifications.isEmpty
-                  ? Center(child: Text('No new notifications'),)
+                  ? Center(child: Text(l10n.notificationPageNoNotifications),)
                   : Column(
                       children: [
                         Expanded(

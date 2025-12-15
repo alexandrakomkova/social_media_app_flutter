@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:social_media_app/domain/model/notification_entity.dart';
+import 'package:social_media_app/l10n/l10n.dart';
 import 'package:social_media_app/presentation/pages/profile/profile_page.dart';
 
 class NotificationCard extends StatelessWidget {
@@ -49,7 +50,7 @@ Widget _likeListTile({
 }) {
   return ListTile(
     leading: Icon(notificationEntity.type.icon),
-    title: Text('User ${notificationEntity.userEntity.username} liked your post'),
+    title: Text(context.l10n.notificationOnLikeText(notificationEntity.userEntity.username)),
     subtitle: Text(notificationEntity.formattedCreationTimestamp),
     onTap: onTap,
   );
@@ -62,7 +63,7 @@ Widget _commentListTile({
 }) {
   return ListTile(
     leading: Icon(notificationEntity.type.icon),
-    title: Text('User ${notificationEntity.userEntity.username} commented your post'),
+    title: Text(context.l10n.notificationOnCommentText(notificationEntity.userEntity.username)),
     subtitle: Text(notificationEntity.formattedCreationTimestamp),
     onTap: onTap,
   );
@@ -74,7 +75,7 @@ Widget _followListTile({
 }) {
   return ListTile(
     leading: Icon(notificationEntity.type.icon),
-    title: Text('User ${notificationEntity.userEntity.username} started following you'),
+    title: Text(context.l10n.notificationOnFollowText(notificationEntity.userEntity.username)),
     subtitle: Text(notificationEntity.formattedCreationTimestamp),
     onTap: () {
       Navigator.of(context).push(
@@ -92,7 +93,7 @@ Widget _unfollowListTile({
 }) {
   return ListTile(
     leading: Icon(notificationEntity.type.icon),
-    title: Text('User ${notificationEntity.userEntity.username} stopped following you'),
+    title: Text(context.l10n.notificationOnUnfollowText(notificationEntity.userEntity.username)),
     subtitle: Text(notificationEntity.formattedCreationTimestamp),
     onTap: () {
       Navigator.of(context).push(

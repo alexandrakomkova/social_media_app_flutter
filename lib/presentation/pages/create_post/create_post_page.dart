@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:social_media_app/data/repository/firebase_db_service_impl.dart';
 import 'package:social_media_app/data/repository/image_service_impl.dart';
+import 'package:social_media_app/l10n/l10n.dart';
 import 'package:social_media_app/presentation/pages/main_screen/main_page.dart';
 import 'package:social_media_app/presentation/pages/create_post/bloc/create_post_bloc.dart';
 import 'package:social_media_app/presentation/widget/choose_image_source.dart';
@@ -28,12 +29,13 @@ class _CreatePostView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       appBar: CustomAppBar(
-          appBarTitle: 'New post',
+          appBarTitle: l10n.createPostPageAppBarTitle,
           leadingIcon: Icons.close,
           onLeadingIconPressed: () => _showCloseCreatePostAlertDialog(context),
-          actionTitle: 'Post',
+          actionTitle: l10n.postButton,
           onActionTap: () {
             context.read<CreatePostBloc>().add(CreatePostEvent.createPost());
             Navigator.push(
@@ -84,11 +86,11 @@ class _CreatePostView extends StatelessWidget {
                 ),
               ),
               child: BlocBuilder<CreatePostBloc, CreatePostState>(
-                  builder: (context, state) {
+                  builder: (createPostContext, state) {
                     if(state.imageFile == null) {
                       return Center(
                         child: Text(
-                          'Upload a Photo',
+                          createPostContext.l10n.uploadPhotoText,
                           style: TextStyle(
                             //color: Theme.of(context).colorScheme.secondary,
                           ),
@@ -97,8 +99,8 @@ class _CreatePostView extends StatelessWidget {
                     } else {
                       return Image.file(
                         state.imageFile!,
-                        width: MediaQuery.of(context).size.width * 0.5,
-                        height: MediaQuery.of(context).size.width  * 0.5,
+                        width: MediaQuery.of(createPostContext).size.width * 0.5,
+                        height: MediaQuery.of(createPostContext).size.width  * 0.5,
                         fit: BoxFit.cover,
                       );
                     }
@@ -114,7 +116,7 @@ class _CreatePostView extends StatelessWidget {
               return TextFormField(
                 initialValue: state.postDescription,
                 decoration: InputDecoration(
-                  hintText: 'Post Description',
+                  hintText: createPostContext.l10n.postDescriptionHintText,
                   hintStyle: TextStyle(
                     fontSize: 15.0,
                     fontWeight: FontWeight.w600,
@@ -138,17 +140,19 @@ class _CreatePostView extends StatelessWidget {
   }
 
   void _showCloseCreatePostAlertDialog(BuildContext context) {
+    final l10n = context.l10n;
+
     showDialog(
         context: context,
         builder: (_) => CustomAlertDialog(
-            dialogTitle: 'Discard changes',
-            dialogContent: 'Your changes will be discarded.',
-            rightButtonTitle: 'Ok',
+            dialogTitle: l10n.discardChangesDialogTitle,
+            dialogContent: l10n.discardChangesDialogText,
+            rightButtonTitle: l10n.okButton,
             onRightPressed: () {
               Navigator.pop(context);
               Navigator.pop(context);
             },
-            leftButtonTitle: 'Cancel',
+            leftButtonTitle: l10n.cancelButton,
             onLeftPressed: () {
               Navigator.pop(context);
             },

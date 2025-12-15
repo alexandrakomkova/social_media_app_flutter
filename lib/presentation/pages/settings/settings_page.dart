@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:social_media_app/l10n/l10n.dart';
+import 'package:social_media_app/l10n/language_provider.dart';
 import 'package:social_media_app/presentation/pages/edit_profile/edit_profile_page.dart';
 import 'package:social_media_app/theme/theme.dart';
 import 'package:social_media_app/theme/theme_provider.dart';
@@ -18,10 +20,12 @@ class _SettingsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return Scaffold(
       appBar: AppBar(
         title:  Text(
-            'Settings',
+            l10n.settingsPageLabel,
         ),
         centerTitle: true,
       ),
@@ -33,7 +37,7 @@ class _SettingsView extends StatelessWidget {
           children: [
             ListTile(
               title: Text(
-                'Edit profile',
+                l10n.editProfileLabel,
                 style: SocialMediaTheme.settingListTileTextStyle,
               ),
               trailing: Icon(Icons.edit),
@@ -47,7 +51,7 @@ class _SettingsView extends StatelessWidget {
             ),
             ListTile(
               title: Text(
-                'Dark mode',
+                l10n.darkModeLabel,
                 style: SocialMediaTheme.settingListTileTextStyle,
               ),
               trailing: Consumer<ThemeProvider>(
@@ -58,7 +62,55 @@ class _SettingsView extends StatelessWidget {
                   value: themeProvider.isDarkMode,
                 ),
               ),
-            )
+            ),
+            // Text(
+            //     'Language',
+            //   style: SocialMediaTheme.settingListTileTextStyle,
+            // ),
+            // Expanded(
+            //   child: Consumer<LanguageProvider>(
+            //     builder: (context, languageProvider, child) =>
+            //       ListView(
+            //         children: [
+            //           ListTile(
+            //             title: Text('English'),
+            //             onTap: () {
+            //               languageProvider.setLocale(Locale('en'));
+            //             },
+            //             selected: languageProvider.locale.languageCode == 'en',
+            //           ),
+            //           ListTile(
+            //             title: Text('Русский'),
+            //             onTap: () {
+            //               languageProvider.setLocale(Locale('ru'));
+            //             },
+            //             selected: languageProvider.locale.languageCode == 'ru',
+            //           ),
+            //         ],
+            //       ),
+            //   )
+            // )
+
+            ListTile(
+              title: Text(
+                'Language',
+                style: SocialMediaTheme.settingListTileTextStyle,
+              ),
+              trailing: Consumer<LanguageProvider>(
+                builder: (context, languageProvider, child) =>
+                  DropdownButton(
+                    value: languageProvider.locale,
+                    icon: const Icon(Icons.keyboard_arrow_down),
+                    items: ['en', 'ru'].map((String items) {
+                      return DropdownMenuItem(value: items, child: Text(items));
+                    }).toList(),
+
+                    onChanged: (newValue) {
+                      languageProvider.setLocale(Locale(newValue.toString()));
+                    }
+                  ),
+                ),
+              ),
           ],
         ),
       ),

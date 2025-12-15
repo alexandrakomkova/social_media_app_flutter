@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:social_media_app/domain/model/post_entity.dart';
+import 'package:social_media_app/l10n/l10n.dart';
 import 'package:social_media_app/presentation/pages/post/post_page.dart';
 
 class ProfilePostTile extends StatelessWidget {
@@ -13,6 +14,8 @@ class ProfilePostTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return GestureDetector(
       onTap: () {
         Navigator.of(context).push(
@@ -39,7 +42,7 @@ class ProfilePostTile extends StatelessWidget {
               placeholder: (context, url) => Center(child: CircularProgressIndicator(),),
               errorWidget: (context, url, error) => Center(
                 child: Text(
-                  'Unable to load Image',
+                  l10n.unableToLoadImageText,
                   style: TextStyle(fontSize: 10.0),
                 ),
               ),

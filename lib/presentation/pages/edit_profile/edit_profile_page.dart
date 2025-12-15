@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:social_media_app/data/repository/image_service_impl.dart';
 import 'package:social_media_app/data/repository/profile_repository_impl.dart';
 import 'package:social_media_app/domain/model/user_entity.dart';
+import 'package:social_media_app/l10n/l10n.dart';
 import 'package:social_media_app/presentation/widget/custom_appbar.dart';
 import 'package:social_media_app/presentation/widget/custom_text_form_field.dart';
 import 'package:social_media_app/presentation/widget/choose_image_source.dart';
@@ -40,13 +41,14 @@ class _EditProfileViewState extends State<_EditProfileView> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
 
     return Scaffold(
         appBar: CustomAppBar(
-          appBarTitle: 'Edit profile',
+          appBarTitle: l10n.editProfileLabel,
           leadingIcon: Icons.close,
           onLeadingIconPressed: () => _showCloseEditProfileAlertDialog(context),
-          actionTitle: 'Save',
+          actionTitle: l10n.saveButton,
           onActionTap: () {
             if (_formKey.currentState?.validate() ?? false) {
               context.read<EditProfileBloc>().add(EditProfileEvent.saveProfile());
@@ -91,7 +93,7 @@ class _EditProfileViewState extends State<_EditProfileView> {
                   context.read<EditProfileBloc>().add(EditProfileEvent.deleteImage());
                 },
                 child: Text(
-                  'Delete profile image',
+                  l10n.deleteProfileAvatarTextButton,
                   style: TextStyle(
                       fontSize: 18.0,
                       fontWeight: FontWeight.w600,
@@ -110,7 +112,7 @@ class _EditProfileViewState extends State<_EditProfileView> {
                           return CustomTextFormField(
                             textFieldKey: const Key('editProfilePage_username_textField'),
                             initialValue: state.username,
-                            hintText: 'Username',
+                            hintText: l10n.usernameHintText,
                             onChanged: (value) {
                               editProfileContext.read<EditProfileBloc>().add(EditProfileEvent.usernameChanged(value));
                             },
@@ -125,7 +127,7 @@ class _EditProfileViewState extends State<_EditProfileView> {
                         return CustomTextFormField(
                           textFieldKey: const Key('editProfilePage_bio_textField'),
                           initialValue: state.bio,
-                          hintText: 'Bio',
+                          hintText: l10n.bioHintText,
                           onChanged: (value) {
                             editProfileContext.read<EditProfileBloc>().add(EditProfileEvent.bioChanged(value));
                           },
@@ -146,18 +148,19 @@ class _EditProfileViewState extends State<_EditProfileView> {
 
 
 void _showCloseEditProfileAlertDialog(BuildContext context) {
+  final l10n = context.l10n;
   showDialog(
     context: context,
     builder: (_) =>
       CustomAlertDialog(
-        dialogTitle: 'Discard changes',
-        dialogContent: 'Your changes will be discarded.',
-        rightButtonTitle: 'Ok',
+        dialogTitle: l10n.discardChangesDialogTitle,
+        dialogContent: l10n.discardChangesDialogText,
+        rightButtonTitle: l10n.okButton,
         onRightPressed: () {
           Navigator.pop(context);
           Navigator.pop(context);
         },
-        leftButtonTitle: 'Cancel',
+        leftButtonTitle: l10n.cancelButton,
         onLeftPressed: () {
           Navigator.pop(context);
         },

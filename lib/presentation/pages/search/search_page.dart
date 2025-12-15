@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:social_media_app/data/repository/search_repository_impl.dart';
+import 'package:social_media_app/l10n/l10n.dart';
 import 'package:social_media_app/presentation/pages/profile/profile_page.dart';
 import 'package:social_media_app/presentation/widget/user_card.dart';
 import 'bloc/search_bloc.dart';
@@ -80,7 +81,7 @@ class _SearchBar extends StatelessWidget {
                           color: Colors.grey[700],
                         ),
                       ),
-                      hintText: 'Search',
+                      hintText: context.l10n.searchHintText,
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12.0)
                       ),

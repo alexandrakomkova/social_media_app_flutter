@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:social_media_app/data/repository/auth/auth_repository_impl.dart';
+import 'package:social_media_app/l10n/l10n.dart';
 import 'package:social_media_app/utils/validator.dart';
 import 'package:social_media_app/presentation/pages/auth/bloc/sign_in/sign_in_bloc.dart';
 import 'package:social_media_app/presentation/pages/main_screen/main_page.dart';
@@ -35,6 +36,8 @@ class _SignInViewState extends State<_SignInView> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return BlocListener<SignInBloc, SignInState>(
       listener: (context, state) {
         if (state is SignInState$Failed) {
@@ -64,7 +67,7 @@ class _SignInViewState extends State<_SignInView> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Sign In',
+                    l10n.signInPageLabel,
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -82,7 +85,7 @@ class _SignInViewState extends State<_SignInView> {
                               textFieldKey: const Key(
                                   'signInForm_email_textFormField'),
                               initialValue: state.email,
-                              hintText: 'Email',
+                              hintText: l10n.emailHintText,
                               validator: (value) => Validator.validateEmail(value),
                               onChanged: (value) =>
                                   signInContext.read<SignInBloc>().add(
@@ -97,7 +100,7 @@ class _SignInViewState extends State<_SignInView> {
                               textFieldKey: const Key(
                                   'signInForm_password_textFormField'),
                               initialValue: state.password,
-                              hintText: 'Password',
+                              hintText: l10n.passwordHintText,
                               obscureText: true,
                               validator: (value) => Validator.validatePassword(value),
                               onChanged: (value) =>
@@ -115,7 +118,7 @@ class _SignInViewState extends State<_SignInView> {
                             }
                           },
                           child: Text(
-                            'Sign in',
+                            l10n.signInButton,
                           ),
                         ),
                         const SizedBox(height: 10.0),
@@ -128,7 +131,7 @@ class _SignInViewState extends State<_SignInView> {
                             );
                           },
                           child: Text(
-                            'Don\'t have an account? Sign up now!',
+                            l10n.dontHaveAccountTextButton,
                           ),
                         )
                       ],

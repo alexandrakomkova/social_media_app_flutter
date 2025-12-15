@@ -4,6 +4,7 @@ import 'package:social_media_app/data/repository/auth/auth_repository_impl.dart'
 import 'package:social_media_app/data/repository/profile_repository_impl.dart';
 import 'package:social_media_app/domain/model/post_entity.dart';
 import 'package:social_media_app/domain/model/user_entity.dart';
+import 'package:social_media_app/l10n/l10n.dart';
 import 'package:social_media_app/presentation/pages/auth/sign_in_page.dart';
 import 'package:social_media_app/presentation/pages/profile/bloc/profile_bloc.dart';
 import 'package:social_media_app/presentation/pages/settings/settings_page.dart';
@@ -88,6 +89,8 @@ class _ProfileView extends StatelessWidget {
           ),
           body: BlocBuilder<ProfileBloc, ProfileState>(
             builder: (profileContext, state) {
+              final l10n = context.l10n;
+
               return switch(state.status) {
                 ProfileStatus.idle => SizedBox(),
                 ProfileStatus.processing => Center( child: CircularProgressIndicator()),
@@ -120,26 +123,26 @@ class _ProfileView extends StatelessWidget {
                                   children: [
                                     ProfileInfoCard(
                                       value: state.posts.length.toString(),
-                                      valueLabel: 'posts',
+                                      valueLabel: l10n.profileInfoCardPostsCount,
                                     ),
                                     ProfileInfoCard(
                                       value: state.followers.length.toString(),
-                                      valueLabel: 'followers',
+                                      valueLabel: l10n.profileInfoCardFollowersCount,
                                       onTap: () {
                                         showBottomSheetCreationVariants(
                                             context: context,
-                                            bottomSheetTitle: 'Followers',
+                                            bottomSheetTitle: l10n.bottomSheetFollowersTitle,
                                             users: state.followers
                                         );
                                       },
                                     ),
                                     ProfileInfoCard(
                                       value: state.followings.length.toString(),
-                                      valueLabel: 'following',
+                                      valueLabel: l10n.profileInfoCardFollowingsCount,
                                       onTap: () {
                                         showBottomSheetCreationVariants(
                                             context: context,
-                                            bottomSheetTitle: 'Following',
+                                            bottomSheetTitle: l10n.bottomSheetFollowingsTitle,
                                             users: state.followings
                                         );
                                       },
@@ -156,7 +159,7 @@ class _ProfileView extends StatelessWidget {
                                         builder: (context, state) {
                                           return _followButton(
                                               context: context,
-                                              buttonText: state.isFollowed ? 'Unfollow' : 'Follow',
+                                              buttonText: state.isFollowed ? l10n.unfollowButton : l10n.followButton,
                                               onPressed: () {
                                                 state.isFollowed
                                                     ? context.read<ProfileBloc>().add(ProfileEvent.unfollowUser(userIdToUnfollow: userId))
@@ -200,7 +203,7 @@ class _ProfileView extends StatelessWidget {
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 8.0),
                             child: Text(
-                              'All posts',
+                              l10n.allPostsTitle,
                               style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w600
@@ -224,12 +227,13 @@ class _ProfileView extends StatelessWidget {
   }
 
   void _showLogoutAlertDialog(BuildContext context) {
+    final l10n = context.l10n;
     showDialog(
       context: context,
       builder: (_) => CustomAlertDialog(
-        dialogTitle: 'Logout',
-        dialogContent: 'Are you sure you want to logout?',
-        rightButtonTitle: 'Continue',
+        dialogTitle: l10n.logoutDialogTitle,
+        dialogContent: l10n.logoutDialogText,
+        rightButtonTitle: l10n.continueButton,
         onRightPressed: () {
           context.read<ProfileBloc>().add(ProfileEvent.signOut());
           Navigator.pushAndRemoveUntil(
@@ -240,7 +244,7 @@ class _ProfileView extends StatelessWidget {
               (route) => false
           );
         },
-        leftButtonTitle: 'Cancel',
+        leftButtonTitle: l10n.continueButton,
         onLeftPressed: () {
           Navigator.pop(context);
         },

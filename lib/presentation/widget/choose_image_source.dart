@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:social_media_app/l10n/l10n.dart';
 
 import 'bottom_sheet_list_tile.dart';
 
@@ -7,6 +8,8 @@ void showBottomSheetToChooseImageSource({
   required void Function()? onCameraTap,
   required void Function()? onGalleryTap,
 }) {
+  final l10n = context.l10n;
+
   showModalBottomSheet(
     shape: const RoundedRectangleBorder(
       borderRadius:
@@ -24,7 +27,7 @@ void showBottomSheetToChooseImageSource({
               padding: EdgeInsets.symmetric(horizontal: 10.0),
               child: Center(
                 child: Text(
-                  'Select image source',
+                  l10n.bottomSheetImageSourceTitle,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
@@ -36,15 +39,14 @@ void showBottomSheetToChooseImageSource({
             Divider(),
             BottomSheetListTile(
               icon: Icons.camera_alt,
-              title: 'Camera',
+              title: l10n.bottomSheetImageSourceOptionCamera,
               onTap: onCameraTap,
             ),
             BottomSheetListTile(
               icon: Icons.image,
-              title: 'Gallery',
+              title: l10n.bottomSheetImageSourceOptionGallery,
               onTap: onGalleryTap,
             ),
-
           ],
         ),
       );

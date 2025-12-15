@@ -1,9 +1,12 @@
 
 import 'package:flutter/material.dart';
+import 'package:social_media_app/l10n/l10n.dart';
 import 'package:social_media_app/presentation/pages/create_post/create_post_page.dart';
 import 'package:social_media_app/presentation/widget/bottom_sheet_list_tile.dart';
 
 void showBottomSheetCreationVariants(BuildContext context) {
+  final l10n = context.l10n;
+
   showModalBottomSheet(
       shape: const RoundedRectangleBorder(
         borderRadius:
@@ -22,7 +25,7 @@ void showBottomSheetCreationVariants(BuildContext context) {
                 padding: const EdgeInsets.symmetric(horizontal: 10.0),
                 child: Center(
                   child: Text(
-                    'Create',
+                    l10n.bottomSheetCreateTitle,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
@@ -34,7 +37,7 @@ void showBottomSheetCreationVariants(BuildContext context) {
               Divider(),
               BottomSheetListTile(
                 icon: Icons.camera_alt,
-                title: 'Post',
+                title: l10n.bottomSheetCreateOptionPost,
                 onTap: () {
                   Navigator.pop(context);
                   Navigator.of(context).push(
