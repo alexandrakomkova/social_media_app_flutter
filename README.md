@@ -22,7 +22,7 @@ Features
 Key technologies
 ----------------
 * Flutter
-* bloc / flutter_bloc / hydrated_bloc
+* bloc / flutter_bloc
 * firestore database
 * cloud functions
 * firebase auth
