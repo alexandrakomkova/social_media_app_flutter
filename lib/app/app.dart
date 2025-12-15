@@ -16,17 +16,16 @@ import 'package:social_media_app/data/repository/notification_repository_impl.da
 import 'package:social_media_app/data/repository/post_repository_impl.dart';
 import 'package:social_media_app/data/repository/profile_repository_impl.dart';
 import 'package:social_media_app/data/repository/search_repository_impl.dart';
-import 'package:social_media_app/domain/model/post_entity.dart';
-import 'package:social_media_app/domain/model/user_entity.dart';
 import 'package:social_media_app/main.dart';
 import 'package:social_media_app/presentation/pages/auth/sign_in_page.dart';
 import 'package:social_media_app/presentation/pages/main_screen/main_page.dart';
-import 'package:social_media_app/presentation/pages/post/post_page.dart';
-import 'package:social_media_app/presentation/pages/profile/profile_page.dart';
 import 'package:social_media_app/theme/theme.dart';
 import 'package:social_media_app/theme/theme_provider.dart';
+import 'package:social_media_app/utils/notification_handler.dart';
 
 final _log = Logger('App widget');
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+final notificationHandler = NotificationHandler(_log, navigatorKey);
 class App extends StatefulWidget {
   const App({super.key});
 
@@ -44,42 +43,6 @@ void requestPermission() async {
   );
 
   _log.info('User granted permission: ${settings.authorizationStatus}');
-}
-
-void handleMessageData(Map<String, dynamic> data) {
-  try {
-    final type = data['type'];
-    if (type == 'follow' || type == 'unfollow' && data['userId'] != null) {
-      final userId = data['userId'];
-      navigatorKey.currentState?.push(
-        MaterialPageRoute(builder: (_) => ProfilePage(userId: userId)),
-      );
-      _log.info('$userId');
-    } else if (type == 'comment' || type == 'like' && data['postEntity'] != null) {
-      final postData = jsonDecode(data['postEntity']);
-      final userData = postData['userEntity'];
-
-      final postEntity = PostEntity(
-          imageUrl: postData['imageUrl'].toString(),
-          description: postData['description'].toString(),
-          creationTimestamp: int.parse(postData['creationTimestamp'].toString()),
-          userId: postData['userId'].toString(),
-          userEntity: UserEntity(
-              bio: userData['bio'].toString(),
-              id: userData['id'].toString(),
-              email: userData['email'].toString(),
-              photoUrl: userData['photoUrl'].toString(),
-              username: userData['username'].toString(),
-              creationTimestamp: int.parse(userData['creationTime'].toString())
-          )
-      );
-      navigatorKey.currentState?.push(
-        MaterialPageRoute(builder: (_) => PostPage(postEntity: postEntity,)),
-      );
-    }
-  } catch (e) {
-    _log.warning(e.toString());
-  }
 }
 
 class _AppState extends State<App> {
@@ -113,13 +76,12 @@ class _AppState extends State<App> {
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      // _log.info('User tapped on notification: ${message.notification?.body}');
-      handleMessageData(message.data);
+      notificationHandler.handleMessageData(message.data);
     });
 
     FirebaseMessaging.instance.getInitialMessage().then((message) {
       if (message != null) {
-        handleMessageData(message.data);
+        notificationHandler.handleMessageData(message.data);
       }
     });
   }

@@ -9,9 +9,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:logging/logging.dart';
 
 import 'package:social_media_app/app/app.dart';
-import 'package:social_media_app/firebase_options.dart';
-
-final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+import 'package:social_media_app/utils/firebase_service.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
 FlutterLocalNotificationsPlugin();
@@ -56,11 +54,6 @@ Future<void> main() async {
 
   await dotenv.load(fileName: ".env");
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  await FirebaseMessaging.instance.requestPermission();
-
   const AndroidInitializationSettings initializationSettingsAndroid =
   AndroidInitializationSettings('@mipmap/ic_launcher');
 
@@ -73,17 +66,17 @@ Future<void> main() async {
     iOS: darwinInitializationSettings,
   );
 
-  await flutterLocalNotificationsPlugin.initialize(
-    initializationSettings,
-    onDidReceiveNotificationResponse: (NotificationResponse response) {
-      if (response.payload != null) {
-        final data = jsonDecode(response.payload!);
-        handleMessageData(data);
-      }
-    },
+  await FirebaseService.initialize(
+      localNotifications: flutterLocalNotificationsPlugin,
+      onBackgroundMessage: _firebaseMessagingBackgroundHandler,
+      initializationSettings: initializationSettings,
+      onDidReceiveNotificationResponse: (NotificationResponse response) {
+        if (response.payload != null) {
+          final data = jsonDecode(response.payload!);
+          notificationHandler.handleMessageData(data);
+        }
+      },
   );
-
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   runApp(
     const App()
