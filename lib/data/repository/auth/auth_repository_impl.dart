@@ -7,7 +7,7 @@ import 'package:social_media_app/domain/model/user_entity.dart';
 import 'package:social_media_app/domain/repository/auth/auth_firebase_service.dart';
 import 'package:social_media_app/domain/repository/auth/auth_repository.dart';
 import 'package:social_media_app/domain/repository/db_service.dart';
-import 'package:social_media_app/utils/firebase_utils.dart';
+import 'package:social_media_app/utils/firebase_service.dart';
 import 'package:social_media_app/utils/result.dart';
 
 final _log = Logger('AuthRepositoryImpl');
@@ -67,7 +67,7 @@ class AuthRepositoryImpl implements AuthRepository {
     final res = await _authFirebaseService.signOut();
     switch (res) {
       case Ok<void>():
-        await DbProvider.db.deleteUser(FirebaseUtils.currentUserId);
+        await DbProvider.db.deleteUser(FirebaseService.currentUserId);
         _log.info('signOut success');
         return Result.ok(null);
       case Error<void>():

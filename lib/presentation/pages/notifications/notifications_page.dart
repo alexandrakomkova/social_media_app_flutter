@@ -76,13 +76,12 @@ class _NotificationsView extends StatelessWidget {
                   return Center(child: CircularProgressIndicator(),);
                 }
 
-
-                  return state.notifications.isEmpty
-                      ? Center(child: Text('No new notifications'),)
-                      : Column(
-                    children: [
-                      Expanded(
-                        child: ListView.builder(
+                return state.notifications.isEmpty
+                  ? Center(child: Text('No new notifications'),)
+                  : Column(
+                      children: [
+                        Expanded(
+                          child: ListView.builder(
                             itemCount: state.notifications.length,
                             itemBuilder: (BuildContext context, int index) {
                               final notification = state.notifications[index];
@@ -98,34 +97,6 @@ class _NotificationsView extends StatelessWidget {
                       ),
                     ],
                   );
-
-                // return switch(state.status) {
-                //   NotificationStatus.idle => SizedBox(),
-                //   NotificationStatus.processing => Center(child: CircularProgressIndicator(),),
-                //   NotificationStatus.failed => Center(child: Text('something went wrong'),),
-                //   NotificationStatus.success =>
-                //   state.notifications.isEmpty
-                //       ? Center(child: Text('No new notifications'),)
-                //       : Column(
-                //     children: [
-                //       Expanded(
-                //         child: ListView.builder(
-                //             itemCount: state.notifications.length,
-                //             itemBuilder: (BuildContext context, int index) {
-                //               final notification = state.notifications[index];
-                //
-                //               return NotificationCard(
-                //                 notificationEntity: notification,
-                //                 onNotificationTap: () {
-                //                     context.read<NotificationBloc>().add(NotificationEvent.getUserPost(notification.postId));
-                //                 }
-                //               );
-                //             }
-                //         ),
-                //       ),
-                //     ],
-                //   ),
-                // };
               }
           ),
         ),

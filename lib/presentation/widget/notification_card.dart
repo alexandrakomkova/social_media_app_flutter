@@ -15,9 +15,6 @@ class NotificationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // here should be bloc builder/listener/whatever
-    // call getUserPost if postId not empty
-    // use state.postEntity to navigate to postPage
     return switch(notificationEntity.type) {
       NotificationType.like => _likeListTile(
         context: context,

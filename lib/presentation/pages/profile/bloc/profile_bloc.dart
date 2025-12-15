@@ -7,7 +7,7 @@ import 'package:social_media_app/domain/model/post_entity.dart';
 import 'package:social_media_app/domain/model/user_entity.dart';
 import 'package:social_media_app/domain/repository/auth/auth_repository.dart';
 import 'package:social_media_app/domain/repository/profile_repository.dart';
-import 'package:social_media_app/utils/firebase_utils.dart';
+import 'package:social_media_app/utils/firebase_service.dart';
 
 part 'profile_event.dart';
 part 'profile_state.dart';
@@ -126,7 +126,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
 
   Future<void> _followUser(_FollowUser event, Emitter<ProfileState> emit) async {
     try {
-      await _profileRepository.followUser(userId: FirebaseUtils.currentUserId, userIdToFollow: event.userIdToFollow);
+      await _profileRepository.followUser(userId: FirebaseService.currentUserId, userIdToFollow: event.userIdToFollow);
       final List<UserEntity> followers = await _profileRepository.getFollowers(userId: event.userIdToFollow);
 
       emit(ProfileState.success(
@@ -149,7 +149,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
 
   Future<void> _unfollowUser(_UnfollowUser event, Emitter<ProfileState> emit) async {
     try {
-      await _profileRepository.unfollowUser(userId: FirebaseUtils.currentUserId, userIdToUnfollow: event.userIdToUnfollow);
+      await _profileRepository.unfollowUser(userId: FirebaseService.currentUserId, userIdToUnfollow: event.userIdToUnfollow);
       final List<UserEntity> followers = await _profileRepository.getFollowers(userId: event.userIdToUnfollow);
 
       emit(ProfileState.success(

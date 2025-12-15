@@ -5,20 +5,20 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:social_media_app/data/db_provider.dart';
 import 'package:social_media_app/domain/repository/image_service.dart';
 import 'package:social_media_app/domain/repository/profile_repository.dart';
-import 'package:social_media_app/utils/firebase_utils.dart';
+import 'package:social_media_app/utils/firebase_service.dart';
 
 part 'edit_profile_event.dart';
 part 'edit_profile_state.dart';
 part 'edit_profile_bloc.freezed.dart';
 
 class EditProfileBloc extends Bloc<EditProfileEvent, EditProfileState> {
-  //final ImageService _imageService;
+  final ImageService _imageService;
   final ProfileRepository _profileRepository;
 
   EditProfileBloc({
     required ImageService imageService,
     required ProfileRepository profileRepository,
-  }) : // _imageService = imageService,
+  }) : _imageService = imageService,
       _profileRepository = profileRepository,
         super(EditProfileState.idle()) {
     on<EditProfileEvent>((event, emit) async {
@@ -57,7 +57,7 @@ class EditProfileBloc extends Bloc<EditProfileEvent, EditProfileState> {
     ));
 
     try {
-      final res = null ;//await _imageService.pickImage(isCamera: event.isCamera);
+      final res = await _imageService.pickImage(isCamera: event.isCamera);
 
       emit(EditProfileState.success(
         imageUrl: res?.path ?? '',
@@ -105,7 +105,7 @@ class EditProfileBloc extends Bloc<EditProfileEvent, EditProfileState> {
       imageUrl: state.imageUrl
     ));
     try {
-      final user = await DbProvider.db.getClient(FirebaseUtils.currentUserId);
+      final user = await DbProvider.db.getClient(FirebaseService.currentUserId);
 
       emit(EditProfileState.success(
         username: user.username,

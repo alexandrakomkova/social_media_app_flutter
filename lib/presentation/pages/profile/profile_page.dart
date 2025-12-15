@@ -12,7 +12,7 @@ import 'package:social_media_app/presentation/widget/custom_alert_dialog.dart';
 import 'package:social_media_app/presentation/widget/profile_avatar.dart';
 import 'package:social_media_app/presentation/widget/profile_info_card.dart';
 import 'package:social_media_app/presentation/widget/profile_post_tile.dart';
-import 'package:social_media_app/utils/firebase_utils.dart';
+import 'package:social_media_app/utils/firebase_service.dart';
 
 class ProfilePage extends StatelessWidget {
   final String userId;
@@ -65,7 +65,7 @@ class _ProfileView extends StatelessWidget {
                     ),
                   );
                 }),
-            actions: userId == FirebaseUtils.currentUserId
+            actions: userId == FirebaseService.currentUserId
               ? [
                   IconButton(
                     onPressed: () {
@@ -148,7 +148,7 @@ class _ProfileView extends StatelessWidget {
                                 ),
                                 SizedBox(height: 10.0,),
 
-                                if(userId != FirebaseUtils.currentUserId)
+                                if(userId != FirebaseService.currentUserId)
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [

@@ -4,7 +4,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:social_media_app/domain/model/notification_entity.dart';
 import 'package:social_media_app/domain/model/post_entity.dart';
 import 'package:social_media_app/domain/repository/notification_repository.dart';
-import 'package:social_media_app/utils/firebase_utils.dart';
+import 'package:social_media_app/utils/firebase_service.dart';
 
 part 'notification_event.dart';
 part 'notification_state.dart';
@@ -36,7 +36,7 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     emit(NotificationState.processing());
 
     try {
-      final notifications = await _notificationRepository.getNotifications(userId: FirebaseUtils.currentUserId);
+      final notifications = await _notificationRepository.getNotifications(userId: FirebaseService.currentUserId);
 
       emit(NotificationState.success(
         notifications: notifications,
@@ -49,7 +49,7 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
   Future<void> _deleteAll(Emitter<NotificationState> emit) async {
     emit(NotificationState.processing());
     try {
-      await _notificationRepository.deleteAll(userId: FirebaseUtils.currentUserId);
+      await _notificationRepository.deleteAll(userId: FirebaseService.currentUserId);
 
       emit(NotificationState.success(
         notifications: [],

@@ -11,7 +11,7 @@ import 'package:social_media_app/domain/model/notification_entity.dart';
 import 'package:social_media_app/domain/model/post_entity.dart';
 import 'package:social_media_app/domain/model/user_entity.dart';
 import 'package:social_media_app/domain/repository/db_service.dart';
-import 'package:social_media_app/utils/firebase_utils.dart';
+import 'package:social_media_app/utils/firebase_service.dart';
 import 'package:social_media_app/utils/image_loader.dart';
 import 'package:social_media_app/utils/result.dart';
 
@@ -124,8 +124,8 @@ class FirebaseDbServiceImpl implements DbService {
         'creationTimestamp': creationTimestamp,
         'description': description,
         'imageUrl': imageUrl,
-        'userInfo': _usersRef.doc(FirebaseUtils.currentUserId),
-        'userId': FirebaseUtils.currentUserId,
+        'userInfo': _usersRef.doc(FirebaseService.currentUserId),
+        'userId': FirebaseService.currentUserId,
       });
 
       _log.info('createPost success image loaded: $imageUrl');
@@ -163,7 +163,7 @@ class FirebaseDbServiceImpl implements DbService {
       String url = await _getImageUrl(imageUrl, creationTimestamp.toString());
       _log.info('_getImageUrl $url');
 
-      await _usersRef.doc(FirebaseUtils.currentUserId).update({
+      await _usersRef.doc(FirebaseService.currentUserId).update({
         'username': username,
         'bio': bio,
         'photoUrl': url,
@@ -194,7 +194,7 @@ class FirebaseDbServiceImpl implements DbService {
     try {
       final querySnapshot = await _likesRef.where('postId', isEqualTo: postId).get();
       int likesCount = querySnapshot.docs.length;
-      int isLiked = querySnapshot.docs.any((doc) => doc['userId'] == FirebaseUtils.currentUserId) ? 1 : 0;
+      int isLiked = querySnapshot.docs.any((doc) => doc['userId'] == FirebaseService.currentUserId) ? 1 : 0;
 
       _log.info('getLikesInfo success {likeCount: $likesCount, isLiked: $isLiked}');
 
@@ -212,7 +212,7 @@ class FirebaseDbServiceImpl implements DbService {
   }) async {
     try {
       await _likesRef.add({
-        'userId': FirebaseUtils.currentUserId,
+        'userId': FirebaseService.currentUserId,
         'postId': postId,
         'date': DateTime.now().millisecondsSinceEpoch.toString(),
       });
@@ -236,7 +236,7 @@ class FirebaseDbServiceImpl implements DbService {
     try {
       final querySnapshot = await _likesRef
           .where('postId', isEqualTo: postId)
-          .where('userId', isEqualTo: FirebaseUtils.currentUserId)
+          .where('userId', isEqualTo: FirebaseService.currentUserId)
           .get();
 
       for (var docSnapshot in querySnapshot.docs) {
@@ -262,7 +262,7 @@ class FirebaseDbServiceImpl implements DbService {
     try {
       await _commentsRef.add({
         'postId': postId,
-        'userInfo': _usersRef.doc(FirebaseUtils.currentUserId),
+        'userInfo': _usersRef.doc(FirebaseService.currentUserId),
         'commentText': commentText,
         'createdAt': DateTime.now().millisecondsSinceEpoch,
       });
@@ -495,7 +495,7 @@ class FirebaseDbServiceImpl implements DbService {
   Future<Result<bool>> isFollowedByCurrentUser({required String profileOwnerUserId}) async {
     try {
       final querySnapshot = await _followingsRef
-          .doc(FirebaseUtils.currentUserId)
+          .doc(FirebaseService.currentUserId)
           .collection(_userFollowingsCollection)
           .get();
 
@@ -567,7 +567,7 @@ class FirebaseDbServiceImpl implements DbService {
         .collection(_userNotificationCollection)
         .add({
           'postId': postId,
-          'userInfo': _usersRef.doc(FirebaseUtils.currentUserId),
+          'userInfo': _usersRef.doc(FirebaseService.currentUserId),
           'type': type.typeName,
           'creationTimestamp': DateTime.now().millisecondsSinceEpoch
         });

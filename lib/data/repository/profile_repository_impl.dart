@@ -4,7 +4,7 @@ import 'package:social_media_app/domain/model/post_entity.dart';
 import 'package:social_media_app/domain/model/user_entity.dart';
 import 'package:social_media_app/domain/repository/db_service.dart';
 import 'package:social_media_app/domain/repository/profile_repository.dart';
-import 'package:social_media_app/utils/firebase_utils.dart';
+import 'package:social_media_app/utils/firebase_service.dart';
 import 'package:social_media_app/utils/result.dart';
 
 final _log = Logger('ProfileRepositoryImpl');
@@ -57,7 +57,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
     );
     switch (res) {
       case Ok<void>():
-        var user = await DbProvider.db.getClient(FirebaseUtils.currentUserId);
+        var user = await DbProvider.db.getClient(FirebaseService.currentUserId);
 
         await DbProvider.db.updateUser(user.copyWith(
           username: username,
