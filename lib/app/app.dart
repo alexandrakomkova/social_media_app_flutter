@@ -47,35 +47,38 @@ void requestPermission() async {
 }
 
 void handleMessageData(Map<String, dynamic> data) {
-  final type = data['type'];
-  if (type == 'follow' || type == 'unfollow' && data['userId'] != null) {
-    final userId = data['userId'];
-    navigatorKey.currentState?.push(
-      MaterialPageRoute(builder: (_) => ProfilePage(userId: userId)),
-    );
-    _log.info('$userId');
-  } else if (type == 'comment' || type == 'like' && data['postEntity'] != null) {
-    final postData = data['postEntity'];
-    _log.info('${postData.toString()}');
-    final userData = jsonDecode(postData['userEntity']);
+  try {
+    final type = data['type'];
+    if (type == 'follow' || type == 'unfollow' && data['userId'] != null) {
+      final userId = data['userId'];
+      navigatorKey.currentState?.push(
+        MaterialPageRoute(builder: (_) => ProfilePage(userId: userId)),
+      );
+      _log.info('$userId');
+    } else if (type == 'comment' || type == 'like' && data['postEntity'] != null) {
+      final postData = jsonDecode(data['postEntity']);
+      final userData = postData['userEntity'];
 
-    final postEntity = PostEntity(
-      imageUrl: postData['imageUrl'],
-      description: postData['description'],
-      creationTimestamp: int.parse(postData['creationTimestamp']),
-      userEntity: UserEntity(
-        bio: userData['bio'],
-        id: userData['id'],
-        email: userData['email'],
-        photoUrl: userData['photoUrl'],
-        username: userData['username'],
-        creationTimestamp:  int.parse(userData['creationTime'])
-      )
-    );
-    _log.info('${postData['description']} ${userData['id']}');
-    navigatorKey.currentState?.push(
-      MaterialPageRoute(builder: (_) => PostPage(postEntity: postEntity,)),
-    );
+      final postEntity = PostEntity(
+          imageUrl: postData['imageUrl'].toString(),
+          description: postData['description'].toString(),
+          creationTimestamp: int.parse(postData['creationTimestamp'].toString()),
+          userId: postData['userId'].toString(),
+          userEntity: UserEntity(
+              bio: userData['bio'].toString(),
+              id: userData['id'].toString(),
+              email: userData['email'].toString(),
+              photoUrl: userData['photoUrl'].toString(),
+              username: userData['username'].toString(),
+              creationTimestamp: int.parse(userData['creationTime'].toString())
+          )
+      );
+      navigatorKey.currentState?.push(
+        MaterialPageRoute(builder: (_) => PostPage(postEntity: postEntity,)),
+      );
+    }
+  } catch (e) {
+    _log.warning(e.toString());
   }
 }
 
