@@ -15,6 +15,7 @@ Features
   * View profile
   * Edit profile information: username, bio, profile avatar
 * Push notifications on like, comment, follow, unfollow from other users
+  * Open app after click on push notification
 *  Settings
   * Customize app theme (light/dark)
 
