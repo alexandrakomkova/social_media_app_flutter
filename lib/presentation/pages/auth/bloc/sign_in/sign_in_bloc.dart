@@ -20,6 +20,7 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
         emailChanged: (event) => _emailChanged(event, emit),
         passwordChanged: (event) => _passwordChanged(event, emit),
         signIn: (_) => _signIn(emit),
+        signInWithGoogle: (_) => _signInWithGoogle(emit),
       );
     });
   }
@@ -59,6 +60,44 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
             password: state.password,
           ));
         }
+      );
+    } catch(e) {
+      final String errorMessage = e is FirebaseAuthException
+          ? e.message ?? 'Unknown error'
+          : 'An unexpected error occurred';
+
+      emit(SignInState.failed(
+        email: state.email,
+        password: state.password,
+        errorMessage: errorMessage,
+      ));
+    }
+  }
+
+  Future<void> _signInWithGoogle(Emitter<SignInState> emit) async {
+    emit(SignInState.processing(email: state.email, password: state.password));
+
+    try {
+      final res = await _authRepository.signInWithGoogle();
+
+      res.fold(
+              (onError) {
+            final String errorMessage = onError.error is FirebaseAuthException
+                ? (onError.error as FirebaseAuthException).message ?? ''
+                : 'An unexpected error occurred';
+
+            emit(SignInState.failed(
+              email: state.email,
+              password: state.password,
+              errorMessage: errorMessage,
+            ));
+          },
+              (onOk) {
+            emit(SignInState.success(
+              email: state.email,
+              password: state.password,
+            ));
+          }
       );
     } catch(e) {
       final String errorMessage = e is FirebaseAuthException

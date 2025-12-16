@@ -122,6 +122,15 @@ class _SignInViewState extends State<_SignInView> {
                           ),
                         ),
                         const SizedBox(height: 10.0),
+                        ElevatedButton(
+                          onPressed: () async {
+                              context.read<SignInBloc>().add(const SignInEvent.signInWithGoogle());
+                          },
+                          child: Text(
+                              'SignInWithGoogle',
+                          ),
+                        ),
+                        const SizedBox(height: 10.0),
                         TextButton(
                           onPressed: () {
                             Navigator.of(context).pushReplacement(

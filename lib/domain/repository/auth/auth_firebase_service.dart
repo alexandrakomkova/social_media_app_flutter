@@ -4,6 +4,7 @@ import 'package:social_media_app/utils/result.dart';
 
 abstract class AuthFirebaseService {
   Future<Result<String>> signIn(UserModel user);
+  Future<Result<UserCredential>> signInWithGoogle();
   Future<Result<User>> signUp(UserModel user);
   Future<Result<void>> signOut();
 }

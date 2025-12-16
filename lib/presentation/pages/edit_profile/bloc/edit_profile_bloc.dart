@@ -2,6 +2,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:logging/logging.dart';
 import 'package:social_media_app/data/db_provider.dart';
 import 'package:social_media_app/domain/repository/image_service.dart';
 import 'package:social_media_app/domain/repository/profile_repository.dart';
@@ -11,6 +12,7 @@ part 'edit_profile_event.dart';
 part 'edit_profile_state.dart';
 part 'edit_profile_bloc.freezed.dart';
 
+final _log = Logger('EditProfileBloc');
 class EditProfileBloc extends Bloc<EditProfileEvent, EditProfileState> {
   final ImageService _imageService;
   final ProfileRepository _profileRepository;
@@ -107,12 +109,14 @@ class EditProfileBloc extends Bloc<EditProfileEvent, EditProfileState> {
     try {
       final user = await DbProvider.db.getClient(FirebaseService.currentUserId);
 
+      _log.info('_getUserInfo: ${user.username} ${user.bio}');
       emit(EditProfileState.success(
         username: user.username,
         bio: user.bio,
         imageUrl: user.photoUrl
       ));
     } catch (e) {
+
       emit(EditProfileState.failed());
     }
   }

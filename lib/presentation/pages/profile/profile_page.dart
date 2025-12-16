@@ -244,7 +244,7 @@ class _ProfileView extends StatelessWidget {
               (route) => false
           );
         },
-        leftButtonTitle: l10n.continueButton,
+        leftButtonTitle: l10n.cancelButton,
         onLeftPressed: () {
           Navigator.pop(context);
         },

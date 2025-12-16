@@ -2,11 +2,13 @@ import 'dart:io';
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:logging/logging.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:social_media_app/domain/model/user_entity.dart';
 import 'package:sqflite/sqflite.dart';
 
+final _log = Logger('DbProvider');
 class DbProvider {
   DbProvider._();
 
@@ -25,6 +27,8 @@ class DbProvider {
     Directory documentsDirectory = await getApplicationDocumentsDirectory();
     String path = join(documentsDirectory.path, "TestDB.db");
 
+    _log.info('local db is initialized');
+
     return await openDatabase(path, version: 1, onOpen: (db) {},
         onCreate: (Database db, int version) async {
           await db.execute("CREATE TABLE User (id TEXT PRIMARY KEY, email TEXT, username TEXT, bio TEXT, photoUrl TEXT, creationTime INTEGER)");
@@ -41,6 +45,8 @@ class DbProvider {
     final db = await database;
     debugPrint(newUser.toMap().toString());
     var res = await db?.insert("User", newUser.toMap());
+
+    _log.info('new user is: ${newUser.id}');
     return res;
   }
 
@@ -54,6 +60,7 @@ class DbProvider {
   Future<int> deleteUser(String id) async {
     final db = await database;
     final res = await db?.delete("User", where: "id = ?", whereArgs: [id]);
+    _log.info('user info deleted from local db (id: $id)');
     return res ?? 0;
   }
 }

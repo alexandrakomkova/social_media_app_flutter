@@ -9,6 +9,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:logging/logging.dart';
 
 import 'package:social_media_app/app/app.dart';
+import 'package:social_media_app/data/db_provider.dart';
 import 'package:social_media_app/utils/firebase_service.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -65,6 +66,8 @@ Future<void> main() async {
     android: initializationSettingsAndroid,
     iOS: darwinInitializationSettings,
   );
+
+  await DbProvider.db.initDB();
 
   await FirebaseService.initialize(
       localNotifications: flutterLocalNotificationsPlugin,

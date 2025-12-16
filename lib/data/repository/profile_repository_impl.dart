@@ -34,7 +34,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
 
     switch (res) {
       case Ok<UserEntity>():
-        _log.info('getUserInfo success userInfo: ${res.value}');
+        _log.info('getUserInfo success userInfo: ${res.value.id} ${res.value.username}');
         await DbProvider.db.updateUser(res.value);
         return res.value;
       case Error<UserEntity>():

@@ -1,4 +1,3 @@
-import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:logging/logging.dart';
 import 'package:social_media_app/data/db_provider.dart';
@@ -57,9 +56,39 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either> signInWithGoogle() {
-    // TODO: implement signInWithGoogle
-    throw UnimplementedError();
+  Future<Result<void>> signInWithGoogle() async {
+    final userCredential = await _authFirebaseService.signInWithGoogle();
+
+    switch(userCredential) {
+      case Ok<UserCredential>():
+        _log.info('signInWithGoogle success userId: ${userCredential.value.user?.uid}');
+        final user = userCredential.value.user!;
+
+        if(userCredential.value.additionalUserInfo!.isNewUser) {
+          await _dbService.createUser(
+              user: user,
+              userModel: UserModel(
+                email: user.email ?? '',
+                username: user.displayName ?? '',
+                password: '',
+                creationTimestamp: user.metadata.creationTime?.millisecondsSinceEpoch,
+              )
+          );
+        }
+
+        final userEntity = UserEntity(
+          id: user.uid,
+          username: user.displayName ?? '',
+          email: user.email ?? '',
+          creationTimestamp: user.metadata.creationTime?.millisecondsSinceEpoch,
+        );
+        await DbProvider.db.newUser(userEntity);
+
+        return Result.ok(null);
+      case Error<UserCredential>():
+        _log.warning('signInWithGoogle error: ${userCredential.error}');
+        return Result.error(userCredential.error);
+    }
   }
 
   @override

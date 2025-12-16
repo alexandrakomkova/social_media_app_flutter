@@ -162,6 +162,7 @@ class FirebaseDbServiceImpl implements DbService {
 
       String url = await _getImageUrl(imageUrl, creationTimestamp.toString());
       _log.info('_getImageUrl $url');
+      _log.info('updateUserInfo current id: ${FirebaseService.currentUserId}');
 
       await _usersRef.doc(FirebaseService.currentUserId).update({
         'username': username,
