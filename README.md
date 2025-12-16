@@ -16,16 +16,19 @@ Features
   * Edit profile information: username, bio, profile avatar
 * Push notifications on like, comment, follow, unfollow from other users
   * Open app after click on push notification
-*  Settings
-  * Customize app theme (light/dark)
-  * Language (en, ru)
+* Settings
+  * Customize app theme (light, dark)
+  * Customize app language (en, ru)
 
 Key technologies
 ----------------
 * Flutter
 * bloc / flutter_bloc
+* freezed
 * firestore database
 * cloud functions
 * firebase auth
+* google_sign_in
 * flutter_local_notifications
 * image_picker + crop_image
+* shared preferences
