@@ -5,6 +5,7 @@ import 'package:social_media_app/l10n/l10n.dart';
 
 import 'package:social_media_app/presentation/pages/notifications/bloc/notification_bloc.dart';
 import 'package:social_media_app/presentation/pages/post/post_page.dart';
+import 'package:social_media_app/presentation/widget/custom_loader.dart';
 import 'package:social_media_app/presentation/widget/notification_card.dart';
 import 'package:social_media_app/theme/theme.dart';
 
@@ -37,7 +38,7 @@ class _NotificationsView extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                // check the nullability in NotificationBloc _getUserPost event
+                // prevent nullable exception in NotificationBloc _getUserPost event
                 builder: (_) => PostPage(postEntity: state.postEntity!),
               ),
             );
@@ -76,7 +77,7 @@ class _NotificationsView extends StatelessWidget {
                 }
 
                 if(state.status == NotificationStatus.processing) {
-                  return Center(child: CircularProgressIndicator(),);
+                  return CustomLoader();
                 }
 
                 return state.notifications.isEmpty
@@ -92,7 +93,11 @@ class _NotificationsView extends StatelessWidget {
                               return NotificationCard(
                                   notificationEntity: notification,
                                   onNotificationTap: () {
-                                    context.read<NotificationBloc>().add(NotificationEvent.getUserPost(notification.postId));
+                                    context
+                                      .read<NotificationBloc>()
+                                      .add(
+                                        NotificationEvent.getUserPost(notification.postId)
+                                      );
                                   }
                               );
                             }

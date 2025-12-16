@@ -6,6 +6,7 @@ import 'package:social_media_app/domain/model/user_entity.dart';
 import 'package:social_media_app/l10n/l10n.dart';
 import 'package:social_media_app/presentation/pages/post/bloc/comments/comments_bloc.dart';
 import 'package:social_media_app/presentation/pages/post/bloc/post/post_bloc.dart';
+import 'package:social_media_app/presentation/widget/custom_loader.dart';
 import 'package:social_media_app/presentation/widget/post_card.dart';
 import 'package:social_media_app/presentation/widget/profile_avatar.dart';
 
@@ -84,7 +85,7 @@ class _PostView extends StatelessWidget {
                             case CommentsStatus.idle:
                               return SizedBox();
                             case CommentsStatus.processing:
-                              return Center(child: CircularProgressIndicator(),);
+                              return CustomLoader();
                             case CommentsStatus.failed:
                               return Center(child: Text(l10n.errorLoadingCommentText),);
                             case CommentsStatus.success:

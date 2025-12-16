@@ -8,6 +8,7 @@ import 'package:social_media_app/presentation/pages/home/bloc/home_bloc.dart';
 import 'package:social_media_app/presentation/pages/post/bloc/comments/comments_bloc.dart';
 import 'package:social_media_app/presentation/pages/post/bloc/post/post_bloc.dart';
 import 'package:social_media_app/presentation/pages/post/post_page.dart';
+import 'package:social_media_app/presentation/widget/custom_loader.dart';
 import 'package:social_media_app/presentation/widget/post_card.dart';
 
 class HomePage extends StatelessWidget {
@@ -40,7 +41,7 @@ class _HomeView extends StatelessWidget {
 
               return switch(state.status) {
                 HomeStatus.idle => SizedBox(),
-                HomeStatus.processing => Center(child: CircularProgressIndicator(),),
+                HomeStatus.processing => CustomLoader(),
                 HomeStatus.failed => Center(child: Text('something went wrong'),),
                 HomeStatus.success => Center(
                   child: Column(
