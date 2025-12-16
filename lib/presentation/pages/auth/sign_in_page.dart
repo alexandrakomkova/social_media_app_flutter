@@ -135,7 +135,7 @@ class _SignInViewState extends State<_SignInView> {
                                 height: 24,
                               ),
                               SizedBox(width: 8),
-                              Text('Sign In with Google'),
+                              Text(l10n.signInWithGoogleText),
                             ],
                           ),
                         ),

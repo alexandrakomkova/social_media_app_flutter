@@ -29,5 +29,6 @@ sealed class HomeState with _$HomeState {
   const factory HomeState.failed({
     @Default(HomeStatus.failed) HomeStatus status,
     @Default([]) List<PostEntity> posts,
+    @Default('') String errorMessage,
   }) = HomeState$Failed;
 }

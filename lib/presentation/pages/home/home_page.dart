@@ -38,11 +38,11 @@ class _HomeView extends StatelessWidget {
         padding: const EdgeInsets.all(8.0),
         child: BlocBuilder<HomeBloc, HomeState>(
             builder: (context, state) {
-              return switch(state.status) {
-                HomeStatus.idle => SizedBox(),
-                HomeStatus.processing => CustomLoader(),
-                HomeStatus.failed => Center(child: Text('something went wrong'),),
-                HomeStatus.success => Center(
+              return switch(state) {
+                HomeState$Idle() => SizedBox(),
+                HomeState$Processing() => CustomLoader(),
+                HomeState$Failed() => Center(child: Text(context.l10n.errorOccurredText(state.errorMessage)),),
+                HomeState$Success() => Center(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     mainAxisAlignment: MainAxisAlignment.center,

@@ -261,5 +261,23 @@
   "noInternetConnectionText": "No internet connection. Please, try later.",
   "@noInternetConnectionText": {
     "description": "This text shown on NoInternetConnection widget when nop internet connection found"
+  },
+  "errorOccurredText": "Error occurred: {error}",
+  "@errorOccurredText": {
+    "description": "This text shown if error occurred",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "qwerty"
+      }
+    }
+  },
+  "profilePageNoPosts": "No posts found",
+  "@profilePageNoPosts": {
+    "description": "This text shown on ProfilePage when no posts found"
+  },
+  "signInWithGoogleText": "Sign In with Google",
+  "@signInWithGoogleText": {
+    "description": "This text shown on Sign In Screen as google sign in  button"
   }
 }

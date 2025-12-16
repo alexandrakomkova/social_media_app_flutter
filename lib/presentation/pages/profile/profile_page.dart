@@ -10,6 +10,7 @@ import 'package:social_media_app/presentation/pages/profile/bloc/profile_bloc.da
 import 'package:social_media_app/presentation/pages/settings/settings_page.dart';
 import 'package:social_media_app/presentation/widget/bottom_sheet_followers_followings_list.dart';
 import 'package:social_media_app/presentation/widget/custom_alert_dialog.dart';
+import 'package:social_media_app/presentation/widget/custom_loader.dart';
 import 'package:social_media_app/presentation/widget/profile_avatar.dart';
 import 'package:social_media_app/presentation/widget/profile_info_card.dart';
 import 'package:social_media_app/presentation/widget/profile_post_tile.dart';
@@ -91,11 +92,11 @@ class _ProfileView extends StatelessWidget {
             builder: (profileContext, state) {
               final l10n = context.l10n;
 
-              return switch(state.status) {
-                ProfileStatus.idle => SizedBox(),
-                ProfileStatus.processing => Center( child: CircularProgressIndicator()),
-                ProfileStatus.failed => Center( child: Text('something went wrong')),
-                ProfileStatus.success => Padding(
+              return switch(state) {
+                ProfileState$Idle() => SizedBox(),
+                ProfileState$Processing() => CustomLoader(),
+                ProfileState$Failed() => Center( child: Text(l10n.errorOccurredText(state.errorMessage))),
+                ProfileState$Success() => Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Column(
                     children: [
@@ -275,7 +276,7 @@ Widget _postGrid(
       ? Padding(
         padding: const EdgeInsets.all(10.0),
         child: Center(
-            child: Text('No posts found'),
+            child: Text(context.l10n.profilePageNoPosts),
         ),
       )
       : GridView.builder(
