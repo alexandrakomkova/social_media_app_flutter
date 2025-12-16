@@ -25,6 +25,7 @@ Screenshots
 <img width="250" alt="sign_up_screen" src="https://github.com/user-attachments/assets/6e29f6ce-56f8-4fc5-8c40-c8ce689fbf76" />
 <img width="250" alt="sign_in_screen" src="https://github.com/user-attachments/assets/aab89f1e-fffc-4844-8cb2-013aa93397ec" />
 <img width="250" alt="settings_screen" src="https://github.com/user-attachments/assets/23718b72-5d22-4da9-9ba4-9544aa1e2537" />
+<img width="250" alt="edit_profile_screen" src="https://github.com/user-attachments/assets/500224a7-9ab7-492b-ac68-a5c2d59fbb54" />
 <img width="250" alt="profile_screen" src="https://github.com/user-attachments/assets/6fc32e31-db15-49be-b14b-7d59a8d26855" />
 <img width="250" alt="followings_bottom_sheet" src="https://github.com/user-attachments/assets/8b9fd138-a90c-4e98-882e-7da195fa5505" />
 <img width="250" alt="search" src="https://github.com/user-attachments/assets/45f5c443-c7bf-4111-b3c3-7de1afeb02f9" />
