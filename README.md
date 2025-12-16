@@ -2,7 +2,7 @@
 
 Features
 ----------------
-* Authentication by email
+* Authentication by email and Google
 * Posts
   * Post photo posts from camera or gallery (crop function included)
   * Like posts
