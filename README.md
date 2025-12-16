@@ -18,6 +18,7 @@ Features
   * Open app after click on push notification
 *  Settings
   * Customize app theme (light/dark)
+  * Language (en, ru)
 
 Key technologies
 ----------------
