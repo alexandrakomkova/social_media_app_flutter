@@ -126,8 +126,17 @@ class _SignInViewState extends State<_SignInView> {
                           onPressed: () async {
                               context.read<SignInBloc>().add(const SignInEvent.signInWithGoogle());
                           },
-                          child: Text(
-                              'SignInWithGoogle',
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Image.asset(
+                                'assets/google-icon.png',
+                                width: 24,
+                                height: 24,
+                              ),
+                              SizedBox(width: 8),
+                              Text('Sign In with Google'),
+                            ],
                           ),
                         ),
                         const SizedBox(height: 10.0),
