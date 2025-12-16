@@ -63,51 +63,24 @@ class _SettingsView extends StatelessWidget {
                 ),
               ),
             ),
-            // Text(
-            //     'Language',
-            //   style: SocialMediaTheme.settingListTileTextStyle,
-            // ),
-            // Expanded(
-            //   child: Consumer<LanguageProvider>(
-            //     builder: (context, languageProvider, child) =>
-            //       ListView(
-            //         children: [
-            //           ListTile(
-            //             title: Text('English'),
-            //             onTap: () {
-            //               languageProvider.setLocale(Locale('en'));
-            //             },
-            //             selected: languageProvider.locale.languageCode == 'en',
-            //           ),
-            //           ListTile(
-            //             title: Text('Русский'),
-            //             onTap: () {
-            //               languageProvider.setLocale(Locale('ru'));
-            //             },
-            //             selected: languageProvider.locale.languageCode == 'ru',
-            //           ),
-            //         ],
-            //       ),
-            //   )
-            // )
-
             ListTile(
               title: Text(
-                'Language',
+                l10n.languageLabel,
                 style: SocialMediaTheme.settingListTileTextStyle,
               ),
               trailing: Consumer<LanguageProvider>(
                 builder: (context, languageProvider, child) =>
-                  DropdownButton(
-                    value: languageProvider.locale,
-                    icon: const Icon(Icons.keyboard_arrow_down),
-                    items: ['en', 'ru'].map((String items) {
-                      return DropdownMenuItem(value: items, child: Text(items));
-                    }).toList(),
-
-                    onChanged: (newValue) {
-                      languageProvider.setLocale(Locale(newValue.toString()));
-                    }
+                  Expanded(
+                    child: DropdownButton(
+                      value: languageProvider.locale,
+                      icon: const Icon(Icons.keyboard_arrow_down),
+                      items: languageProvider.supportedLocales.map((Locale item) {
+                        return DropdownMenuItem(value: item, child: Text(item.languageCode));
+                      }).toList(),
+                      onChanged: (Locale? newValue) {
+                        languageProvider.setLocale(newValue ?? Locale('en'));
+                      }
+                    ),
                   ),
                 ),
               ),

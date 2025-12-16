@@ -2,14 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-enum Language {
-  en(language: 'en'), ru(language: 'ru');
+import 'app_localizations.dart';
 
-  final String language;
-  const Language({
-    required this.language
-  });
-}
 class LanguageProvider with ChangeNotifier {
   Locale _locale;
 
@@ -18,6 +12,7 @@ class LanguageProvider with ChangeNotifier {
   }
 
   Locale get locale => _locale;
+  List<Locale> get supportedLocales => AppLocalizations.supportedLocales;
 
   void setLocale(Locale locale) async {
     if (locale == _locale) return;
