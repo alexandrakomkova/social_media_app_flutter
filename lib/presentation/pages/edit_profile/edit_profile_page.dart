@@ -108,9 +108,11 @@ class _EditProfileViewState extends State<_EditProfileView> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     BlocBuilder<EditProfileBloc, EditProfileState>(
+                        buildWhen: (previousState, state) =>
+                        previousState.status != state.status,
                         builder: (editProfileContext, state) {
                           return CustomTextFormField(
-                            textFieldKey: const Key('editProfilePage_username_textField'),
+                            textFieldKey: UniqueKey(),
                             initialValue: state.username,
                             hintText: l10n.usernameHintText,
                             onChanged: (value) {
@@ -123,9 +125,11 @@ class _EditProfileViewState extends State<_EditProfileView> {
 
                     const SizedBox(height: 15.0),
                     BlocBuilder<EditProfileBloc, EditProfileState>(
+                      buildWhen: (previousState, state) =>
+                        previousState.status != state.status,
                       builder: (editProfileContext, state) {
                         return CustomTextFormField(
-                          textFieldKey: const Key('editProfilePage_bio_textField'),
+                          textFieldKey: UniqueKey(),
                           initialValue: state.bio,
                           hintText: l10n.bioHintText,
                           onChanged: (value) {
