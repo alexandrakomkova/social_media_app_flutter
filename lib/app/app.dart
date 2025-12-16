@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -19,8 +20,11 @@ import 'package:social_media_app/data/repository/search_repository_impl.dart';
 import 'package:social_media_app/l10n/app_localizations.dart';
 import 'package:social_media_app/l10n/language_provider.dart';
 import 'package:social_media_app/main.dart';
+import 'package:social_media_app/presentation/cubit/internet_connectivity__cubit.dart';
 import 'package:social_media_app/presentation/pages/auth/sign_in_page.dart';
 import 'package:social_media_app/presentation/pages/main_screen/main_page.dart';
+import 'package:social_media_app/presentation/widget/checking_internet_connection.dart';
+import 'package:social_media_app/presentation/widget/no_internet_connection.dart';
 import 'package:social_media_app/theme/theme.dart';
 import 'package:social_media_app/theme/theme_provider.dart';
 import 'package:social_media_app/utils/notification_handler.dart';
@@ -28,8 +32,13 @@ import 'package:social_media_app/utils/notification_handler.dart';
 final _log = Logger('App widget');
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 final notificationHandler = NotificationHandler(_log, navigatorKey);
+
 class App extends StatefulWidget {
-  const App({super.key});
+  final Connectivity connectivity;
+  const App({
+    required this.connectivity,
+    super.key,
+  });
 
   @override
   State<App> createState() => _AppState();
@@ -135,8 +144,11 @@ class _AppState extends State<App> {
           )
         ),
       ],
-      child: const _AppView(
-      ),
+      child:  BlocProvider(
+          create: (_) =>
+        InternetConnectivityCubit(connectivity: widget.connectivity),
+        child: const _AppView(),
+      )
     );
   }
 }
@@ -168,16 +180,7 @@ class _AppView extends StatelessWidget {
                 Locale('ru'),
               ],
               theme: themeProvider.isDarkMode ? SocialMediaTheme.darkTheme : SocialMediaTheme.lightTheme,
-              home: StreamBuilder(
-                stream: FirebaseAuth.instance.authStateChanges(),
-                builder: ((BuildContext context, snapshot) {
-                  if (snapshot.hasData) {
-                    return MainPage();
-                  } else {
-                    return SignInPage();
-                  }
-                }),
-              ),
+              home: const _AppScreen(),
             );
           }
         );
@@ -185,4 +188,31 @@ class _AppView extends StatelessWidget {
     );
   }
 }
+
+class _AppScreen extends StatelessWidget {
+  const _AppScreen();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<InternetConnectivityCubit, InternetConnectivityState>(
+      builder: (_, internetCubitState) {
+        return switch(internetCubitState.status) {
+          InternetStatus.loading => CheckingInternetConnection(),
+          InternetStatus.disconnected => NoInternetConnection(),
+          InternetStatus.connected => StreamBuilder(
+            stream: FirebaseAuth.instance.authStateChanges(),
+            builder: ((BuildContext context, snapshot) {
+              if (snapshot.hasData) {
+                return MainPage();
+              } else {
+                return SignInPage();
+              }
+            }),
+          ),
+        };
+      },
+    );
+  }
+}
+
 

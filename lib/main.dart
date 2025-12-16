@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
@@ -82,6 +83,6 @@ Future<void> main() async {
   );
 
   runApp(
-    const App()
+    App(connectivity: Connectivity())
   );
 }

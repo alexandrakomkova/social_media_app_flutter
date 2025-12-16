@@ -253,5 +253,13 @@
         "example": "qwerty"
       }
     }
+  },
+  "checkingInternetConnectionText": "Проверяем ваше Интернет соединение..",
+  "@checkingInternetConnectionText": {
+    "description": "This text shown on CheckingInternetConnection widget while internet connection is checking"
+  },
+  "noInternetConnectionText": "Нет соединения с Интернетом. Пожалуйста, попробуйте позже.",
+  "@noInternetConnectionText": {
+    "description": "This text shown on NoInternetConnection widget when nop internet connection found"
   }
 }

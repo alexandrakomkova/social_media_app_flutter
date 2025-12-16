@@ -38,7 +38,6 @@ class _HomeView extends StatelessWidget {
         padding: const EdgeInsets.all(8.0),
         child: BlocBuilder<HomeBloc, HomeState>(
             builder: (context, state) {
-
               return switch(state.status) {
                 HomeStatus.idle => SizedBox(),
                 HomeStatus.processing => CustomLoader(),
