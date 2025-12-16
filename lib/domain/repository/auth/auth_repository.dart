@@ -1,4 +1,3 @@
-import 'package:dartz/dartz.dart';
 import 'package:social_media_app/data/model/user_model.dart';
 import 'package:social_media_app/utils/result.dart';
 
