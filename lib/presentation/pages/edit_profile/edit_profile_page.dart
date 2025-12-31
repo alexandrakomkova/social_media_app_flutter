@@ -19,10 +19,10 @@ class EditProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => EditProfileBloc(
+      create: (context) => EditProfileBloc.getUserInfo(
         profileRepository: context.read<ProfileRepository>(),
         imageService: context.read<ImageService>(),
-      )..add(EditProfileEvent.getUserInfo()),
+      ),
       child: const _EditProfileView(),
     );
   }
