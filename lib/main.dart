@@ -11,7 +11,9 @@ import 'package:logging/logging.dart';
 import 'package:social_media_app/app/app.dart';
 import 'package:social_media_app/data/db_provider.dart';
 import 'package:social_media_app/utils/firebase_service.dart';
+import 'package:social_media_app/utils/notification_handler.dart';
 
+final _log = Logger('Main');
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 
@@ -70,6 +72,9 @@ Future<void> main() async {
 
   await DbProvider.db.initDB();
 
+  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  final notificationHandler = NotificationHandler(_log, navigatorKey);
+
   await FirebaseService.initialize(
     localNotifications: flutterLocalNotificationsPlugin,
     onBackgroundMessage: _firebaseMessagingBackgroundHandler,
@@ -82,5 +87,52 @@ Future<void> main() async {
     },
   );
 
-  runApp(App(connectivity: Connectivity()));
+  _requestPermission();
+  _firebaseMessagingSetup(notificationHandler: notificationHandler);
+
+  runApp(App(connectivity: Connectivity(), navigatorKey: navigatorKey));
+}
+
+void _requestPermission() async {
+  NotificationSettings settings = await FirebaseMessaging.instance
+      .requestPermission(alert: true, badge: true, sound: true);
+
+  _log.info('User granted permission: ${settings.authorizationStatus}');
+}
+
+void _firebaseMessagingSetup({
+  required NotificationHandler notificationHandler,
+}) {
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    RemoteNotification? notification = message.notification;
+    AndroidNotification? android = message.notification?.android;
+
+    if (notification != null && android != null) {
+      flutterLocalNotificationsPlugin.show(
+        notification.hashCode,
+        notification.title,
+        notification.body,
+        NotificationDetails(
+          android: AndroidNotificationDetails(
+            'fireground_channel_id',
+            'Foreground Notifications',
+            channelDescription: 'Channel for foreground notifications',
+            importance: Importance.max,
+            priority: Priority.high,
+          ),
+        ),
+        payload: jsonEncode(message.data),
+      );
+    }
+  });
+
+  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+    notificationHandler.handleMessageData(message.data);
+  });
+
+  FirebaseMessaging.instance.getInitialMessage().then((message) {
+    if (message != null) {
+      notificationHandler.handleMessageData(message.data);
+    }
+  });
 }

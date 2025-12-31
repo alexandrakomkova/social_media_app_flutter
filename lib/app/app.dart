@@ -1,12 +1,7 @@
-import 'dart:convert';
-
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
 import 'package:social_media_app/data/repository/auth/auth_firebase_service_impl.dart';
 import 'package:social_media_app/data/repository/auth/auth_repository_impl.dart';
@@ -28,7 +23,6 @@ import 'package:social_media_app/domain/repository/profile_repository.dart';
 import 'package:social_media_app/domain/repository/search_repository.dart';
 import 'package:social_media_app/l10n/app_localizations.dart';
 import 'package:social_media_app/l10n/language_provider.dart';
-import 'package:social_media_app/main.dart';
 import 'package:social_media_app/presentation/cubit/internet_connectivity_cubit.dart';
 import 'package:social_media_app/presentation/pages/auth/sign_in_page.dart';
 import 'package:social_media_app/presentation/pages/main_screen/main_page.dart';
@@ -36,67 +30,25 @@ import 'package:social_media_app/presentation/widget/checking_internet_connectio
 import 'package:social_media_app/presentation/widget/no_internet_connection.dart';
 import 'package:social_media_app/theme/theme.dart';
 import 'package:social_media_app/theme/theme_provider.dart';
-import 'package:social_media_app/utils/notification_handler.dart';
-
-final _log = Logger('App widget');
-final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
-final notificationHandler = NotificationHandler(_log, _navigatorKey);
 
 class App extends StatefulWidget {
   final Connectivity connectivity;
+  final GlobalKey<NavigatorState> navigatorKey;
 
-  const App({required this.connectivity, super.key});
+  const App({
+    required this.connectivity,
+    required this.navigatorKey,
+    super.key,
+  });
 
   @override
   State<App> createState() => _AppState();
-}
-
-void requestPermission() async {
-  NotificationSettings settings = await FirebaseMessaging.instance
-      .requestPermission(alert: true, badge: true, sound: true);
-
-  _log.info('User granted permission: ${settings.authorizationStatus}');
 }
 
 class _AppState extends State<App> {
   @override
   void initState() {
     super.initState();
-
-    requestPermission();
-
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      RemoteNotification? notification = message.notification;
-      AndroidNotification? android = message.notification?.android;
-
-      if (notification != null && android != null) {
-        flutterLocalNotificationsPlugin.show(
-          notification.hashCode,
-          notification.title,
-          notification.body,
-          NotificationDetails(
-            android: AndroidNotificationDetails(
-              'fireground_channel_id',
-              'Foreground Notifications',
-              channelDescription: 'Channel for foreground notifications',
-              importance: Importance.max,
-              priority: Priority.high,
-            ),
-          ),
-          payload: jsonEncode(message.data),
-        );
-      }
-    });
-
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      notificationHandler.handleMessageData(message.data);
-    });
-
-    FirebaseMessaging.instance.getInitialMessage().then((message) {
-      if (message != null) {
-        notificationHandler.handleMessageData(message.data);
-      }
-    });
   }
 
   @override
@@ -140,14 +92,16 @@ class _AppState extends State<App> {
       child: BlocProvider(
         create: (_) =>
             InternetConnectivityCubit(connectivity: widget.connectivity),
-        child: const _AppView(),
+        child: _AppView(navigatorKey: widget.navigatorKey),
       ),
     );
   }
 }
 
 class _AppView extends StatelessWidget {
-  const _AppView();
+  final GlobalKey<NavigatorState> navigatorKey;
+
+  const _AppView({required this.navigatorKey});
 
   @override
   Widget build(BuildContext context) {
@@ -160,7 +114,7 @@ class _AppView extends StatelessWidget {
             Widget? child,
           ) {
             return MaterialApp(
-              navigatorKey: _navigatorKey,
+              navigatorKey: navigatorKey,
               debugShowCheckedModeBanner: false,
               localizationsDelegates: AppLocalizations.localizationsDelegates,
               locale: languageProvider.locale,
