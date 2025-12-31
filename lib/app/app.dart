@@ -20,7 +20,7 @@ import 'package:social_media_app/data/repository/search_repository_impl.dart';
 import 'package:social_media_app/l10n/app_localizations.dart';
 import 'package:social_media_app/l10n/language_provider.dart';
 import 'package:social_media_app/main.dart';
-import 'package:social_media_app/presentation/cubit/internet_connectivity__cubit.dart';
+import 'package:social_media_app/presentation/cubit/internet_connectivity_cubit.dart';
 import 'package:social_media_app/presentation/pages/auth/sign_in_page.dart';
 import 'package:social_media_app/presentation/pages/main_screen/main_page.dart';
 import 'package:social_media_app/presentation/widget/checking_internet_connection.dart';
@@ -35,10 +35,8 @@ final notificationHandler = NotificationHandler(_log, navigatorKey);
 
 class App extends StatefulWidget {
   final Connectivity connectivity;
-  const App({
-    required this.connectivity,
-    super.key,
-  });
+
+  const App({required this.connectivity, super.key});
 
   @override
   State<App> createState() => _AppState();
@@ -101,54 +99,50 @@ class _AppState extends State<App> {
   Widget build(BuildContext context) {
     return MultiRepositoryProvider(
       providers: [
-        ChangeNotifierProvider(
-          create: (_) => ThemeProvider(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => LanguageProvider(Locale('en'))
-        ),
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => LanguageProvider(Locale('en'))),
         RepositoryProvider(create: (_) => AuthFirebaseServiceImpl()),
         RepositoryProvider(create: (_) => FirebaseDbServiceImpl()),
-        RepositoryProvider(create:
-            (authRepositoryContext) => AuthRepositoryImpl(
-                authFirebaseService:  authRepositoryContext.read<AuthFirebaseServiceImpl>(),
-                firebaseDbService: authRepositoryContext.read<FirebaseDbServiceImpl>(),
-            )
+        RepositoryProvider(
+          create: (authRepositoryContext) => AuthRepositoryImpl(
+            authFirebaseService: authRepositoryContext
+                .read<AuthFirebaseServiceImpl>(),
+            firebaseDbService: authRepositoryContext
+                .read<FirebaseDbServiceImpl>(),
+          ),
         ),
-        RepositoryProvider(create:
-            (homeContext) => HomeRepositoryImpl(
-                dbService: homeContext.read<FirebaseDbServiceImpl>()
-            )
+        RepositoryProvider(
+          create: (homeContext) => HomeRepositoryImpl(
+            dbService: homeContext.read<FirebaseDbServiceImpl>(),
+          ),
         ),
-        RepositoryProvider(create:
-            (notificationContext) => NotificationRepositoryImpl(
-              dbService: notificationContext.read<FirebaseDbServiceImpl>()
-            )
+        RepositoryProvider(
+          create: (notificationContext) => NotificationRepositoryImpl(
+            dbService: notificationContext.read<FirebaseDbServiceImpl>(),
+          ),
         ),
-        RepositoryProvider(create:
-          (searchContext) => SearchRepositoryImpl(
-              dbService: searchContext.read<FirebaseDbServiceImpl>(),
-          )
+        RepositoryProvider(
+          create: (searchContext) => SearchRepositoryImpl(
+            dbService: searchContext.read<FirebaseDbServiceImpl>(),
+          ),
         ),
-        RepositoryProvider(create:
-            (_) => ImageServiceImpl()
+        RepositoryProvider(create: (_) => ImageServiceImpl()),
+        RepositoryProvider(
+          create: (profileContext) => ProfileRepositoryImpl(
+            dbService: profileContext.read<FirebaseDbServiceImpl>(),
+          ),
         ),
-        RepositoryProvider(create:
-            (profileContext) => ProfileRepositoryImpl(
-              dbService: profileContext.read<FirebaseDbServiceImpl>(),
-            ),
-        ),
-        RepositoryProvider(create:
-          (postContext) => PostRepositoryImpl(
-              dbService: postContext.read<FirebaseDbServiceImpl>()
-          )
+        RepositoryProvider(
+          create: (postContext) => PostRepositoryImpl(
+            dbService: postContext.read<FirebaseDbServiceImpl>(),
+          ),
         ),
       ],
-      child:  BlocProvider(
-          create: (_) =>
-        InternetConnectivityCubit(connectivity: widget.connectivity),
+      child: BlocProvider(
+        create: (_) =>
+            InternetConnectivityCubit(connectivity: widget.connectivity),
         child: const _AppView(),
-      )
+      ),
     );
   }
 }
@@ -159,32 +153,23 @@ class _AppView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer<ThemeProvider>(
-      builder: (
-          context,
-          ThemeProvider themeProvider,
-          Widget? child,
-      ) {
+      builder: (context, ThemeProvider themeProvider, Widget? child) {
         return Consumer<LanguageProvider>(
-          builder: (
-            context,
-            LanguageProvider languageProvider,
-            Widget? child,
-          ) {
+          builder: (context, LanguageProvider languageProvider, Widget? child) {
             return MaterialApp(
               navigatorKey: navigatorKey,
               debugShowCheckedModeBanner: false,
               localizationsDelegates: AppLocalizations.localizationsDelegates,
               locale: languageProvider.locale,
-              supportedLocales: [
-                Locale('en'),
-                Locale('ru'),
-              ],
-              theme: themeProvider.isDarkMode ? SocialMediaTheme.darkTheme : SocialMediaTheme.lightTheme,
+              supportedLocales: [Locale('en'), Locale('ru')],
+              theme: themeProvider.isDarkMode
+                  ? SocialMediaTheme.darkTheme
+                  : SocialMediaTheme.lightTheme,
               home: const _AppScreen(),
             );
-          }
+          },
         );
-      }
+      },
     );
   }
 }
@@ -196,7 +181,7 @@ class _AppScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<InternetConnectivityCubit, InternetConnectivityState>(
       builder: (_, internetCubitState) {
-        return switch(internetCubitState.status) {
+        return switch (internetCubitState.status) {
           InternetStatus.loading => CheckingInternetConnection(),
           InternetStatus.disconnected => NoInternetConnection(),
           InternetStatus.connected => StreamBuilder(
@@ -214,5 +199,3 @@ class _AppScreen extends StatelessWidget {
     );
   }
 }
-
-

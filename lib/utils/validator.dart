@@ -1,6 +1,6 @@
 class Validator {
   static String? validateEmail(String? email) {
-    if(email == null) {
+    if (email == null) {
       return 'Please enter an email address';
     }
 
@@ -15,15 +15,18 @@ class Validator {
   }
 
   static String? validatePassword(String? password) {
-    if(password == null || password.length < 6) {
+    if (password == null || password.length < 6) {
       return 'Password must be at least 6 symbols';
     }
 
     return null;
   }
 
-  static String? validateRepeatPassword(String? password, String? repeatPassword) {
-    if(password != repeatPassword) {
+  static String? validateRepeatPassword(
+    String? password,
+    String? repeatPassword,
+  ) {
+    if (password != repeatPassword) {
       return 'Passwords must be equal';
     }
 
@@ -31,7 +34,7 @@ class Validator {
   }
 
   static String? validateUsername(String? username) {
-    if(username == null || username.length < 3) {
+    if (username == null || username.length < 3) {
       return 'Username must be at least 3 symbols';
     }
 
