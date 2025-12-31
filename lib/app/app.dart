@@ -30,8 +30,8 @@ import 'package:social_media_app/theme/theme_provider.dart';
 import 'package:social_media_app/utils/notification_handler.dart';
 
 final _log = Logger('App widget');
-final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-final notificationHandler = NotificationHandler(_log, navigatorKey);
+final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+final notificationHandler = NotificationHandler(_log, _navigatorKey);
 
 class App extends StatefulWidget {
   final Connectivity connectivity;
@@ -43,13 +43,8 @@ class App extends StatefulWidget {
 }
 
 void requestPermission() async {
-  FirebaseMessaging messaging = FirebaseMessaging.instance;
-
-  NotificationSettings settings = await messaging.requestPermission(
-    alert: true,
-    badge: true,
-    sound: true,
-  );
+  NotificationSettings settings = await FirebaseMessaging.instance
+      .requestPermission(alert: true, badge: true, sound: true);
 
   _log.info('User granted permission: ${settings.authorizationStatus}');
 }
@@ -157,7 +152,7 @@ class _AppView extends StatelessWidget {
         return Consumer<LanguageProvider>(
           builder: (context, LanguageProvider languageProvider, Widget? child) {
             return MaterialApp(
-              navigatorKey: navigatorKey,
+              navigatorKey: _navigatorKey,
               debugShowCheckedModeBanner: false,
               localizationsDelegates: AppLocalizations.localizationsDelegates,
               locale: languageProvider.locale,
