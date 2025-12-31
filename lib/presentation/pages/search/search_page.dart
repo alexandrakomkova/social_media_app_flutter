@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:social_media_app/data/repository/search_repository_impl.dart';
+import 'package:social_media_app/domain/repository/search_repository.dart';
 import 'package:social_media_app/l10n/l10n.dart';
 import 'package:social_media_app/presentation/pages/profile/profile_page.dart';
 import 'package:social_media_app/presentation/widget/user_card.dart';
+
 import 'bloc/search_bloc.dart';
 
 class SearchPage extends StatelessWidget {
@@ -13,9 +14,8 @@ class SearchPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<SearchBloc>(
-      create: (searchContext) => SearchBloc(
-        searchRepository: searchContext.read<SearchRepositoryImpl>()
-      ),
+      create: (context) =>
+          SearchBloc(searchRepository: context.read<SearchRepository>()),
       child: _SearchView(),
     );
   }
@@ -34,16 +34,16 @@ class _SearchView extends StatelessWidget {
         width: MediaQuery.of(context).size.width,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child:  Center(
+          child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 // search bar
                 _SearchBar(),
-                SizedBox(height: 10.0,),
+                SizedBox(height: 10.0),
 
                 // search result in cards
-                _SearchResult()
+                _SearchResult(),
               ],
             ),
           ),
@@ -52,6 +52,7 @@ class _SearchView extends StatelessWidget {
     );
   }
 }
+
 class _SearchBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -63,35 +64,38 @@ class _SearchBar extends StatelessWidget {
             padding: const EdgeInsets.all(8.0),
             child: BlocBuilder<SearchBloc, SearchState>(
               buildWhen: (previous, current) =>
-                previous.searchQuery != current.searchQuery,
+                  previous.searchQuery != current.searchQuery,
               builder: (searchContext, state) {
                 return TextFormField(
                   initialValue: state.searchQuery,
                   onChanged: (value) {
-                    searchContext.read<SearchBloc>().add(SearchEvent.queryChanged(value));
-                    searchContext.read<SearchBloc>().add(SearchEvent.searchUsers(state.searchQuery));
+                    searchContext.read<SearchBloc>().add(
+                      SearchEvent.queryChanged(value),
+                    );
+                    searchContext.read<SearchBloc>().add(
+                      SearchEvent.searchUsers(state.searchQuery),
+                    );
                   },
                   decoration: InputDecoration(
-                      suffixIcon: GestureDetector(
-                        onTap: () {
-                          searchContext.read<SearchBloc>().add(SearchEvent.searchUsers(state.searchQuery));
-                        },
-                        child: Icon(
-                          Icons.search,
-                          color: Colors.grey[700],
-                        ),
-                      ),
-                      hintText: context.l10n.searchHintText,
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12.0)
-                      ),
-                      errorStyle: TextStyle(fontSize: 12.0)
+                    suffixIcon: GestureDetector(
+                      onTap: () {
+                        searchContext.read<SearchBloc>().add(
+                          SearchEvent.searchUsers(state.searchQuery),
+                        );
+                      },
+                      child: Icon(Icons.search, color: Colors.grey[700]),
+                    ),
+                    hintText: context.l10n.searchHintText,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                    errorStyle: TextStyle(fontSize: 12.0),
                   ),
                 );
               },
             ),
           ),
-        )
+        ),
       ],
     );
   }
@@ -102,23 +106,23 @@ class _SearchResult extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<SearchBloc, SearchState>(
       builder: (context, state) {
-        return switch(state.status) {
+        return switch (state.status) {
           SearchStatus.idle => SizedBox(),
-          SearchStatus.processing => Center( child: CircularProgressIndicator(), ),
+          SearchStatus.processing => Center(child: CircularProgressIndicator()),
           SearchStatus.failed => throw UnimplementedError(),
           SearchStatus.success => Expanded(
-                child: ListView.builder(
-                  itemCount: state.searchResult.length,
-                  itemBuilder: (context, index) {
-                    var user = state.searchResult.elementAt(index);
+            child: ListView.builder(
+              itemCount: state.searchResult.length,
+              itemBuilder: (context, index) {
+                var user = state.searchResult.elementAt(index);
 
-                    return UserCard(
-                      userEntity: user,
-                      onTap: () => _showUserProfile(context: context, id: user.id),
-                    );
-                  },
-                )
+                return UserCard(
+                  userEntity: user,
+                  onTap: () => _showUserProfile(context: context, id: user.id),
+                );
+              },
             ),
+          ),
         };
       },
     );
@@ -128,10 +132,6 @@ class _SearchResult extends StatelessWidget {
 void _showUserProfile({required BuildContext context, required String id}) {
   Navigator.push(
     context,
-    MaterialPageRoute(
-      builder: (_) => ProfilePage(userId: id,),
-    ),
+    MaterialPageRoute(builder: (_) => ProfilePage(userId: id)),
   );
 }
-
-

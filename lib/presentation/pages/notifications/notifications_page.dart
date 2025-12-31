@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:social_media_app/data/repository/notification_repository_impl.dart';
+import 'package:social_media_app/domain/repository/notification_repository.dart';
 import 'package:social_media_app/l10n/l10n.dart';
-
 import 'package:social_media_app/presentation/pages/notifications/bloc/notification_bloc.dart';
 import 'package:social_media_app/presentation/pages/post/post_page.dart';
 import 'package:social_media_app/presentation/widget/custom_loader.dart';
@@ -15,11 +14,9 @@ class NotificationsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<NotificationBloc>(
-      create:
-        (notificationContext) =>
-          NotificationBloc.getNotifications(
-              notificationRepository: notificationContext.read<NotificationRepositoryImpl>()
-          ),
+      create: (context) => NotificationBloc.getNotifications(
+        notificationRepository: context.read<NotificationRepository>(),
+      ),
       child: const _NotificationsView(),
     );
   }
@@ -33,22 +30,22 @@ class _NotificationsView extends StatelessWidget {
     final l10n = context.l10n;
 
     return BlocListener<NotificationBloc, NotificationState>(
-        listener: (context, state) {
-          if (state is NotificationState$PostLoaded) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                // prevent nullable exception in NotificationBloc _getUserPost event
-                builder: (_) => PostPage(postEntity: state.postEntity!),
-              ),
-            );
-          }
-          if (state is NotificationState$Failed) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.errorMessage)),
-            );
-          }
-        },
+      listener: (context, state) {
+        if (state is NotificationState$PostLoaded) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              // prevent nullable exception in NotificationBloc _getUserPost event
+              builder: (_) => PostPage(postEntity: state.postEntity!),
+            ),
+          );
+        }
+        if (state is NotificationState$Failed) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(state.errorMessage)));
+        }
+      },
       child: Scaffold(
         appBar: AppBar(
           title: Text(l10n.notificationsPageLabel),
@@ -56,7 +53,9 @@ class _NotificationsView extends StatelessWidget {
           actions: [
             GestureDetector(
               onTap: () {
-                context.read<NotificationBloc>().add(NotificationEvent.deleteAll());
+                context.read<NotificationBloc>().add(
+                  NotificationEvent.deleteAll(),
+                );
               },
               child: Padding(
                 padding: const EdgeInsets.all(10.0),
@@ -65,23 +64,23 @@ class _NotificationsView extends StatelessWidget {
                   style: SocialMediaTheme.appBarActionsTextStyle,
                 ),
               ),
-            )
+            ),
           ],
         ),
         body: Padding(
           padding: const EdgeInsets.all(8.0),
           child: BlocBuilder<NotificationBloc, NotificationState>(
-              builder: (_, state) {
-                if(state.status == NotificationStatus.idle) {
-                  return SizedBox();
-                }
+            builder: (_, state) {
+              if (state.status == NotificationStatus.idle) {
+                return SizedBox();
+              }
 
-                if(state.status == NotificationStatus.processing) {
-                  return CustomLoader();
-                }
+              if (state.status == NotificationStatus.processing) {
+                return CustomLoader();
+              }
 
-                return state.notifications.isEmpty
-                  ? Center(child: Text(l10n.notificationPageNoNotifications),)
+              return state.notifications.isEmpty
+                  ? Center(child: Text(l10n.notificationPageNoNotifications))
                   : Column(
                       children: [
                         Expanded(
@@ -91,25 +90,24 @@ class _NotificationsView extends StatelessWidget {
                               final notification = state.notifications[index];
 
                               return NotificationCard(
-                                  notificationEntity: notification,
-                                  onNotificationTap: () {
-                                    context
-                                      .read<NotificationBloc>()
-                                      .add(
-                                        NotificationEvent.getUserPost(notification.postId)
-                                      );
-                                  }
+                                notificationEntity: notification,
+                                onNotificationTap: () {
+                                  context.read<NotificationBloc>().add(
+                                    NotificationEvent.getUserPost(
+                                      notification.postId,
+                                    ),
+                                  );
+                                },
                               );
-                            }
+                            },
+                          ),
                         ),
-                      ),
-                    ],
-                  );
-              }
+                      ],
+                    );
+            },
           ),
         ),
       ),
     );
   }
 }
-

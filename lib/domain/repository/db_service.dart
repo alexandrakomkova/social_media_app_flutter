@@ -10,12 +10,14 @@ import 'package:social_media_app/utils/result.dart';
 
 abstract class DbService {
   // user
-  Future<void> createUser({
-    required User user,
-    required UserModel userModel,
-  });
+  Future<void> createUser({required User user, required UserModel userModel});
+
   Future<Result<UserEntity>> getUserById({required String id});
-  Future<Result<List<UserEntity>>> searchUserByUsername({required String username});
+
+  Future<Result<List<UserEntity>>> searchUserByUsername({
+    required String username,
+  });
+
   Future<Result<void>> updateUserInfo({
     required String imageUrl,
     required String username,
@@ -27,19 +29,24 @@ abstract class DbService {
     required File image,
     required String description,
   });
+
   Future<Result<List<PostEntity>>> getUserPosts({required String userId});
+
   Future<Result<PostEntity?>> getUserPost({required String postId});
 
   // likes
   Future<Result<Map<String, int>>> getLikesInfo({required String postId});
+
   Future<Result<void>> addLike({
     required String postId,
     required String postOwnerId,
   });
+
   Future<Result<void>> removeLike({required String postId});
 
   //comments
   Future<Result<List<CommentEntity>>> getComments({required String postId});
+
   Future<Result<void>> addComment({
     required String postId,
     required String commentText,
@@ -51,23 +58,33 @@ abstract class DbService {
     required String userId,
     required String userIdToFollow,
   });
+
   Future<void> unfollowUser({
     required String userId,
     required String userIdToUnfollow,
   });
+
   Future<Result<List<UserEntity>>> getFollowers({required String userId});
+
   Future<Result<List<UserEntity>>> getFollowings({required String userId});
-  Future<Result<bool>> isFollowedByCurrentUser({required String profileOwnerUserId});
+
+  Future<Result<bool>> isFollowedByCurrentUser({
+    required String profileOwnerUserId,
+  });
 
   //home
   Future<Result<List<PostEntity>>> getNewPosts({required String userId});
 
   // notifications
-  Future<Result<List<NotificationEntity>>> getNotifications({required String userId});
+  Future<Result<List<NotificationEntity>>> getNotifications({
+    required String userId,
+  });
+
   Future<Result<void>> addNotification({
     String? postId,
     required String ownerId,
     required NotificationType type,
   });
+
   Future<Result<void>> deleteAllNotifications({required String userId});
 }

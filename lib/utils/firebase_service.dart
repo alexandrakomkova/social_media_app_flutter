@@ -7,8 +7,6 @@ import 'package:social_media_app/firebase_options.dart';
 class FirebaseService {
   static final String currentUserId = FirebaseAuth.instance.currentUser!.uid;
 
-  //static String get currentUserId => FirebaseAuth.instance.currentUser!.uid;
-
   static Future<void> initialize({
     required FlutterLocalNotificationsPlugin localNotifications,
     required Future<void> Function(RemoteMessage) onBackgroundMessage,

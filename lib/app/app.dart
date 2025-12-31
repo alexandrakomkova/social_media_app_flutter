@@ -17,6 +17,15 @@ import 'package:social_media_app/data/repository/notification_repository_impl.da
 import 'package:social_media_app/data/repository/post_repository_impl.dart';
 import 'package:social_media_app/data/repository/profile_repository_impl.dart';
 import 'package:social_media_app/data/repository/search_repository_impl.dart';
+import 'package:social_media_app/domain/repository/auth/auth_firebase_service.dart';
+import 'package:social_media_app/domain/repository/auth/auth_repository.dart';
+import 'package:social_media_app/domain/repository/db_service.dart';
+import 'package:social_media_app/domain/repository/home_repository.dart';
+import 'package:social_media_app/domain/repository/image_service.dart';
+import 'package:social_media_app/domain/repository/notification_repository.dart';
+import 'package:social_media_app/domain/repository/post_repository.dart';
+import 'package:social_media_app/domain/repository/profile_repository.dart';
+import 'package:social_media_app/domain/repository/search_repository.dart';
 import 'package:social_media_app/l10n/app_localizations.dart';
 import 'package:social_media_app/l10n/language_provider.dart';
 import 'package:social_media_app/main.dart';
@@ -96,41 +105,36 @@ class _AppState extends State<App> {
       providers: [
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => LanguageProvider(Locale('en'))),
-        RepositoryProvider(create: (_) => AuthFirebaseServiceImpl()),
-        RepositoryProvider(create: (_) => FirebaseDbServiceImpl()),
-        RepositoryProvider(
-          create: (authRepositoryContext) => AuthRepositoryImpl(
-            authFirebaseService: authRepositoryContext
-                .read<AuthFirebaseServiceImpl>(),
-            firebaseDbService: authRepositoryContext
-                .read<FirebaseDbServiceImpl>(),
+        RepositoryProvider<AuthFirebaseService>(
+          create: (_) => AuthFirebaseServiceImpl(),
+        ),
+        RepositoryProvider<DbService>(create: (_) => FirebaseDbServiceImpl()),
+        RepositoryProvider<AuthRepository>(
+          create: (context) => AuthRepositoryImpl(
+            authFirebaseService: context.read<AuthFirebaseService>(),
+            firebaseDbService: context.read<DbService>(),
           ),
         ),
-        RepositoryProvider(
-          create: (homeContext) => HomeRepositoryImpl(
-            dbService: homeContext.read<FirebaseDbServiceImpl>(),
-          ),
+        RepositoryProvider<HomeRepository>(
+          create: (context) =>
+              HomeRepositoryImpl(dbService: context.read<DbService>()),
         ),
-        RepositoryProvider(
-          create: (notificationContext) => NotificationRepositoryImpl(
-            dbService: notificationContext.read<FirebaseDbServiceImpl>(),
-          ),
+        RepositoryProvider<NotificationRepository>(
+          create: (context) =>
+              NotificationRepositoryImpl(dbService: context.read<DbService>()),
         ),
-        RepositoryProvider(
-          create: (searchContext) => SearchRepositoryImpl(
-            dbService: searchContext.read<FirebaseDbServiceImpl>(),
-          ),
+        RepositoryProvider<SearchRepository>(
+          create: (context) =>
+              SearchRepositoryImpl(dbService: context.read<DbService>()),
         ),
-        RepositoryProvider(create: (_) => ImageServiceImpl()),
-        RepositoryProvider(
-          create: (profileContext) => ProfileRepositoryImpl(
-            dbService: profileContext.read<FirebaseDbServiceImpl>(),
-          ),
+        RepositoryProvider<ImageService>(create: (_) => ImageServiceImpl()),
+        RepositoryProvider<ProfileRepository>(
+          create: (context) =>
+              ProfileRepositoryImpl(dbService: context.read<DbService>()),
         ),
-        RepositoryProvider(
-          create: (postContext) => PostRepositoryImpl(
-            dbService: postContext.read<FirebaseDbServiceImpl>(),
-          ),
+        RepositoryProvider<PostRepository>(
+          create: (context) =>
+              PostRepositoryImpl(dbService: context.read<DbService>()),
         ),
       ],
       child: BlocProvider(
@@ -147,10 +151,14 @@ class _AppView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ThemeProvider>(
-      builder: (context, ThemeProvider themeProvider, Widget? child) {
-        return Consumer<LanguageProvider>(
-          builder: (context, LanguageProvider languageProvider, Widget? child) {
+    return Consumer2<ThemeProvider, LanguageProvider>(
+      builder:
+          (
+            BuildContext context,
+            ThemeProvider themeProvider,
+            LanguageProvider languageProvider,
+            Widget? child,
+          ) {
             return MaterialApp(
               navigatorKey: _navigatorKey,
               debugShowCheckedModeBanner: false,
@@ -163,8 +171,6 @@ class _AppView extends StatelessWidget {
               home: const _AppScreen(),
             );
           },
-        );
-      },
     );
   }
 }
