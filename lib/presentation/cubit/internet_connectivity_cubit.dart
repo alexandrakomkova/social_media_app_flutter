@@ -9,7 +9,7 @@ part 'internet_connectivity_state.dart';
 
 class InternetConnectivityCubit extends Cubit<InternetConnectivityState> {
   final Connectivity connectivity;
-  StreamSubscription<List<ConnectivityResult>>? connectivityStreamSubscription;
+  StreamSubscription<List<ConnectivityResult>>? _connectivityStreamSubscription;
 
   InternetConnectivityCubit({required this.connectivity})
     : super(const InternetConnectivityState.loading()) {
@@ -17,7 +17,7 @@ class InternetConnectivityCubit extends Cubit<InternetConnectivityState> {
   }
 
   StreamSubscription<List<ConnectivityResult>> monitorInternetConnection() {
-    return connectivityStreamSubscription = connectivity.onConnectivityChanged
+    return _connectivityStreamSubscription = connectivity.onConnectivityChanged
         .listen((connectivityResult) {
           if (connectivityResult.contains(ConnectivityResult.wifi) ||
               connectivityResult.contains(ConnectivityResult.mobile)) {
@@ -38,7 +38,7 @@ class InternetConnectivityCubit extends Cubit<InternetConnectivityState> {
 
   @override
   Future<void> close() {
-    connectivityStreamSubscription?.cancel();
+    _connectivityStreamSubscription?.cancel();
     return super.close();
   }
 }
