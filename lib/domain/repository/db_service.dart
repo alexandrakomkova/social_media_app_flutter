@@ -26,7 +26,7 @@ abstract class DbService {
 
   // posts
   Future<Result<void>> createPost({
-    required File image,
+    required File? image,
     required String description,
   });
 

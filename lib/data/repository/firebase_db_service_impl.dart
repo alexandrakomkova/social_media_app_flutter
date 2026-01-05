@@ -115,17 +115,20 @@ class FirebaseDbServiceImpl implements DbService {
 
   @override
   Future<Result<void>> createPost({
-    required File image,
+    required File? image,
     required String description,
   }) async {
     try {
+      if (image == null) return Result.error(Exception('Picked image is null'));
+
       final int creationTimestamp = DateTime.now().millisecondsSinceEpoch;
       final String imageUrl = await ImageLoader.getImageUrl(
         image,
         creationTimestamp.toString(),
       );
+
       if (imageUrl.isEmpty) {
-        return Result.error(Exception());
+        return Result.error(Exception('Image url is empty'));
       }
 
       await _postsRef.doc(creationTimestamp.toString()).set({
