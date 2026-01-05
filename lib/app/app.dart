@@ -119,9 +119,9 @@ class _AppView extends StatelessWidget {
               localizationsDelegates: AppLocalizations.localizationsDelegates,
               locale: languageProvider.locale,
               supportedLocales: [Locale('en'), Locale('ru')],
-              theme: themeProvider.isDarkMode
-                  ? SocialMediaTheme.darkTheme
-                  : SocialMediaTheme.lightTheme,
+              theme: AppTheme.lightTheme,
+              darkTheme: AppTheme.darkTheme,
+              themeMode: themeProvider.themeMode,
               home: const _AppScreen(),
             );
           },

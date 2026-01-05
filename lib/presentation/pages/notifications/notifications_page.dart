@@ -61,7 +61,7 @@ class _NotificationsView extends StatelessWidget {
                 padding: const EdgeInsets.all(10.0),
                 child: Text(
                   l10n.deleteAllButton,
-                  style: SocialMediaTheme.appBarActionsTextStyle,
+                  style: AppTheme.appBarActionsTextStyle,
                 ),
               ),
             ),

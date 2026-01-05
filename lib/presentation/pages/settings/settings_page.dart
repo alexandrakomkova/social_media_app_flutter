@@ -23,12 +23,7 @@ class _SettingsView extends StatelessWidget {
     final l10n = context.l10n;
 
     return Scaffold(
-      appBar: AppBar(
-        title:  Text(
-            l10n.settingsPageLabel,
-        ),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: Text(l10n.settingsPageLabel), centerTitle: true),
       body: Padding(
         padding: const EdgeInsets.all(10.0),
         child: Column(
@@ -38,21 +33,19 @@ class _SettingsView extends StatelessWidget {
             ListTile(
               title: Text(
                 l10n.editProfileLabel,
-                style: SocialMediaTheme.settingListTileTextStyle,
+                style: AppTheme.settingListTileTextStyle,
               ),
               trailing: Icon(Icons.edit),
               onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => EditProfilePage(),
-                  ),
-                );
+                Navigator.of(
+                  context,
+                ).push(MaterialPageRoute(builder: (_) => EditProfilePage()));
               },
             ),
             ListTile(
               title: Text(
                 l10n.darkModeLabel,
-                style: SocialMediaTheme.settingListTileTextStyle,
+                style: AppTheme.settingListTileTextStyle,
               ),
               trailing: Consumer<ThemeProvider>(
                 builder: (context, themeProvider, child) => Switch(
@@ -66,28 +59,32 @@ class _SettingsView extends StatelessWidget {
             ListTile(
               title: Text(
                 l10n.languageLabel,
-                style: SocialMediaTheme.settingListTileTextStyle,
+                style: AppTheme.settingListTileTextStyle,
               ),
               trailing: Consumer<LanguageProvider>(
-                builder: (context, languageProvider, child) =>
-                  Column(
-                    children: [
+                builder: (context, languageProvider, child) => Column(
+                  children: [
                     Expanded(
                       child: DropdownButton(
-                      value: languageProvider.locale,
-                          icon: const Icon(Icons.keyboard_arrow_down),
-                          items: languageProvider.supportedLocales.map((Locale item) {
-                            return DropdownMenuItem(value: item, child: Text(item.languageCode));
-                          }).toList(),
-                          onChanged: (Locale? newValue) {
-                            languageProvider.setLocale(newValue ?? Locale('en'));
-                          }
+                        value: languageProvider.locale,
+                        icon: const Icon(Icons.keyboard_arrow_down),
+                        items: languageProvider.supportedLocales.map((
+                          Locale item,
+                        ) {
+                          return DropdownMenuItem(
+                            value: item,
+                            child: Text(item.languageCode),
+                          );
+                        }).toList(),
+                        onChanged: (Locale? newValue) {
+                          languageProvider.setLocale(newValue ?? Locale('en'));
+                        },
                       ),
-                      )
-                    ]
-                  ),
+                    ),
+                  ],
                 ),
               ),
+            ),
           ],
         ),
       ),
