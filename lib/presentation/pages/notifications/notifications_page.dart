@@ -71,11 +71,11 @@ class _NotificationsView extends StatelessWidget {
           padding: const EdgeInsets.all(8.0),
           child: BlocBuilder<NotificationBloc, NotificationState>(
             builder: (_, state) {
-              if (state.status == NotificationStatus.idle) {
+              if (state is NotificationState$Idle) {
                 return SizedBox();
               }
 
-              if (state.status == NotificationStatus.processing) {
+              if (state is NotificationState$Processing) {
                 return CustomLoader();
               }
 
