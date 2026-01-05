@@ -79,8 +79,9 @@ class _SignInViewState extends State<_SignInView> {
                               ),
                               initialValue: state.email,
                               hintText: l10n.emailHintText,
-                              validator: (value) =>
-                                  Validator.validateEmail(value),
+                              validator: (value) => Validator(
+                                context: context,
+                              ).validateEmail(value),
                               onChanged: (value) => signInContext
                                   .read<SignInBloc>()
                                   .add(SignInEvent.emailChanged(value)),
@@ -97,8 +98,9 @@ class _SignInViewState extends State<_SignInView> {
                               initialValue: state.password,
                               hintText: l10n.passwordHintText,
                               obscureText: true,
-                              validator: (value) =>
-                                  Validator.validatePassword(value),
+                              validator: (value) => Validator(
+                                context: context,
+                              ).validatePassword(value),
                               onChanged: (value) => signInContext
                                   .read<SignInBloc>()
                                   .add(SignInEvent.passwordChanged(value)),

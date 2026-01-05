@@ -77,8 +77,9 @@ class _SignUpViewState extends State<_SignUpView> {
                               ),
                               initialValue: state.username,
                               hintText: l10n.usernameHintText,
-                              validator: (value) =>
-                                  Validator.validateUsername(value),
+                              validator: (value) => Validator(
+                                context: context,
+                              ).validateUsername(value),
                               onChanged: (value) => signUpContext
                                   .read<SignUpBloc>()
                                   .add(SignUpEvent.usernameChanged(value)),
@@ -94,8 +95,9 @@ class _SignUpViewState extends State<_SignUpView> {
                               ),
                               initialValue: state.email,
                               hintText: l10n.emailHintText,
-                              validator: (value) =>
-                                  Validator.validateEmail(value),
+                              validator: (value) => Validator(
+                                context: context,
+                              ).validateEmail(value),
                               onChanged: (value) => signUpContext
                                   .read<SignUpBloc>()
                                   .add(SignUpEvent.emailChanged(value)),
@@ -112,8 +114,9 @@ class _SignUpViewState extends State<_SignUpView> {
                               initialValue: state.password,
                               hintText: l10n.passwordHintText,
                               obscureText: true,
-                              validator: (value) =>
-                                  Validator.validatePassword(value),
+                              validator: (value) => Validator(
+                                context: context,
+                              ).validatePassword(value),
                               onChanged: (value) => signUpContext
                                   .read<SignUpBloc>()
                                   .add(SignUpEvent.passwordChanged(value)),
@@ -130,11 +133,9 @@ class _SignUpViewState extends State<_SignUpView> {
                               initialValue: state.repeatPassword,
                               hintText: l10n.repeatPasswordHintText,
                               obscureText: true,
-                              validator: (value) =>
-                                  Validator.validateRepeatPassword(
-                                    state.password,
-                                    value,
-                                  ),
+                              validator: (value) => Validator(
+                                context: context,
+                              ).validateRepeatPassword(state.password, value),
                               onChanged: (value) =>
                                   signUpContext.read<SignUpBloc>().add(
                                     SignUpEvent.repeatPasswordChanged(value),
