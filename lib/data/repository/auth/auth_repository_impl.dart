@@ -38,11 +38,10 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Result<void>> signIn(UserModel user) async {
     final userId = await _authFirebaseService.signIn(user);
-    late UserEntity userEntity;
 
     switch (userId) {
       case Ok<String>():
-        userEntity = UserEntity(
+        final UserEntity userEntity = UserEntity(
           id: userId.value,
           email: user.email,
           creationTimestamp: user.creationTimestamp,
