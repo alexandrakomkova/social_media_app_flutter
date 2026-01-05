@@ -48,7 +48,8 @@ class _SignUpViewState extends State<_SignUpView> {
           ).pushReplacement(MaterialPageRoute(builder: (_) => SignInPage()));
         }
       },
-      listenWhen: (previous, current) => previous.status != current.status,
+      listenWhen: (previous, current) =>
+          previous.runtimeType != current.runtimeType,
       child: Scaffold(
         appBar: AppBar(),
         body: SizedBox(
