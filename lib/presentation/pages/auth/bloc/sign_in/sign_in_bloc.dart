@@ -5,16 +5,16 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:social_media_app/data/model/user_model.dart';
 import 'package:social_media_app/domain/repository/auth/auth_repository.dart';
 
+part 'sign_in_bloc.freezed.dart';
 part 'sign_in_event.dart';
 part 'sign_in_state.dart';
-part 'sign_in_bloc.freezed.dart';
 
 class SignInBloc extends Bloc<SignInEvent, SignInState> {
   final AuthRepository _authRepository;
 
-  SignInBloc({
-    required AuthRepository authRepository,
-  }) : _authRepository = authRepository, super(const SignInState.idle()) {
+  SignInBloc({required AuthRepository authRepository})
+    : _authRepository = authRepository,
+      super(const SignInState.idle()) {
     on<SignInEvent>((events, emit) async {
       await events.map(
         emailChanged: (event) => _emailChanged(event, emit),
@@ -25,11 +25,17 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     });
   }
 
-  Future<void> _emailChanged(_EmailChanged event, Emitter<SignInState> emit) async {
+  Future<void> _emailChanged(
+    _EmailChanged event,
+    Emitter<SignInState> emit,
+  ) async {
     emit(state.copyWith(email: event.email));
   }
 
-  Future<void> _passwordChanged(_PasswordChanged event, Emitter<SignInState> emit) async {
+  Future<void> _passwordChanged(
+    _PasswordChanged event,
+    Emitter<SignInState> emit,
+  ) async {
     emit(state.copyWith(password: event.password));
   }
 
@@ -37,40 +43,42 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
     emit(SignInState.processing(email: state.email, password: state.password));
 
     try {
-      final res = await _authRepository.signIn(UserModel(
-        email: state.email,
-        password: state.password,
-      ));
+      final res = await _authRepository.signIn(
+        UserModel(email: state.email, password: state.password),
+      );
 
       res.fold(
         (onError) {
           final String errorMessage = onError.error is FirebaseAuthException
               ? (onError.error as FirebaseAuthException).message ?? ''
-              : 'An unexpected error occurred';
+              : 'An unexpected error occurred -';
 
-          emit(SignInState.failed(
-            email: state.email,
-            password: state.password,
-            errorMessage: errorMessage,
-          ));
+          emit(
+            SignInState.failed(
+              email: state.email,
+              password: state.password,
+              errorMessage: errorMessage,
+            ),
+          );
         },
         (onOk) {
-          emit(SignInState.success(
-            email: state.email,
-            password: state.password,
-          ));
-        }
+          emit(
+            SignInState.success(email: state.email, password: state.password),
+          );
+        },
       );
-    } catch(e) {
+    } catch (e) {
       final String errorMessage = e is FirebaseAuthException
           ? e.message ?? 'Unknown error'
           : 'An unexpected error occurred';
 
-      emit(SignInState.failed(
-        email: state.email,
-        password: state.password,
-        errorMessage: errorMessage,
-      ));
+      emit(
+        SignInState.failed(
+          email: state.email,
+          password: state.password,
+          errorMessage: errorMessage,
+        ),
+      );
     }
   }
 
@@ -81,34 +89,37 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
       final res = await _authRepository.signInWithGoogle();
 
       res.fold(
-              (onError) {
-            final String errorMessage = onError.error is FirebaseAuthException
-                ? (onError.error as FirebaseAuthException).message ?? ''
-                : 'An unexpected error occurred';
+        (onError) {
+          final String errorMessage = onError.error is FirebaseAuthException
+              ? (onError.error as FirebaseAuthException).message ?? ''
+              : 'An unexpected error occurred';
 
-            emit(SignInState.failed(
+          emit(
+            SignInState.failed(
               email: state.email,
               password: state.password,
               errorMessage: errorMessage,
-            ));
-          },
-              (onOk) {
-            emit(SignInState.success(
-              email: state.email,
-              password: state.password,
-            ));
-          }
+            ),
+          );
+        },
+        (onOk) {
+          emit(
+            SignInState.success(email: state.email, password: state.password),
+          );
+        },
       );
-    } catch(e) {
+    } catch (e) {
       final String errorMessage = e is FirebaseAuthException
           ? e.message ?? 'Unknown error'
           : 'An unexpected error occurred';
 
-      emit(SignInState.failed(
-        email: state.email,
-        password: state.password,
-        errorMessage: errorMessage,
-      ));
+      emit(
+        SignInState.failed(
+          email: state.email,
+          password: state.password,
+          errorMessage: errorMessage,
+        ),
+      );
     }
   }
 }

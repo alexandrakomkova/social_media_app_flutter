@@ -5,18 +5,24 @@ import 'package:social_media_app/domain/repository/auth/auth_firebase_service.da
 import 'package:social_media_app/utils/result.dart';
 
 class AuthFirebaseServiceImpl implements AuthFirebaseService {
-  final _firebaseAuth = FirebaseAuth.instance;
+  final FirebaseAuth _firebaseAuth;
+
+  AuthFirebaseServiceImpl({required FirebaseAuth firebaseAuth})
+    : _firebaseAuth = firebaseAuth;
+
   final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   @override
   Future<Result<String>> signIn(UserModel user) async {
     try {
       final res = await _firebaseAuth.signInWithEmailAndPassword(
-          email: user.email,
-          password: user.password,
+        email: user.email,
+        password: user.password,
       );
 
-      return res.user == null ? Result.error(Exception()) : Result.ok(res.user!.uid);
+      return res.user == null
+          ? Result.error(Exception())
+          : Result.ok(res.user!.uid);
     } on FirebaseAuthException catch (e) {
       return Result.error(e);
     }
@@ -29,12 +35,12 @@ class AuthFirebaseServiceImpl implements AuthFirebaseService {
         email: user.email,
         password: user.password,
       );
-      if(res.user != null) {
+      if (res.user != null) {
         return Result.ok(res.user!);
       } else {
         return Result.error(Exception('Cannot create user'));
       }
-    } on Exception catch(e) {
+    } on Exception catch (e) {
       return Result.error(e);
     }
   }
@@ -46,7 +52,7 @@ class AuthFirebaseServiceImpl implements AuthFirebaseService {
       await _googleSignIn.signOut();
 
       return Result.ok(null);
-    } on FirebaseAuthException catch(e) {
+    } on FirebaseAuthException catch (e) {
       return Result.error(e);
     }
   }
@@ -56,7 +62,9 @@ class AuthFirebaseServiceImpl implements AuthFirebaseService {
     try {
       final googleUser = await _googleSignIn.signIn();
 
-      if (googleUser == null) return Result.error(Exception('googleUser is null'));
+      if (googleUser == null) {
+        return Result.error(Exception('googleUser is null'));
+      }
 
       final googleAuth = await googleUser.authentication;
 
@@ -64,8 +72,10 @@ class AuthFirebaseServiceImpl implements AuthFirebaseService {
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
-      final userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
-      if(userCredential.user == null) {
+      final userCredential = await FirebaseAuth.instance.signInWithCredential(
+        credential,
+      );
+      if (userCredential.user == null) {
         return Result.error(Exception('Cannot register user with google'));
       }
 

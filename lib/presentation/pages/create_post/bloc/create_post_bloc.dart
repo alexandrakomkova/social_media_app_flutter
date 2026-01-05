@@ -8,8 +8,7 @@ import 'package:social_media_app/domain/repository/image_service.dart';
 import 'package:social_media_app/utils/result.dart';
 
 part 'create_post_bloc.freezed.dart';
-part 'create_post_event.dart';
-part 'create_post_state.dart';
+part 'create_post_event.dart';art 'create_post_state.dart';
 
 final _log = Logger('CreatePostBloc');
 
@@ -56,7 +55,7 @@ class CreatePostBloc extends Bloc<CreatePostEvent, CreatePostState> {
       switch (res) {
         case Ok<void>():
           emit(CreatePostState.success(postDescription: '', imageFile: null));
-        case Error<void>():
+        case Failure<void>():
           _log.warning(res.error.toString());
           emit(CreatePostState.failed());
       }

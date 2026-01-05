@@ -3,9 +3,9 @@ sealed class Result<T> {
 
   factory Result.ok(T value) => Ok(value);
 
-  factory Result.error(Exception error) => Error(error);
+  factory Result.error(Exception error) => Failure(error);
 
-  R fold<R>(R Function(Error<T>) onError, R Function(Ok<T>) onOk);
+  R fold<R>(R Function(Failure<T>) onError, R Function(Ok<T>) onOk);
 }
 
 final class Ok<T> extends Result<T> {
@@ -14,18 +14,18 @@ final class Ok<T> extends Result<T> {
   final T value;
 
   @override
-  R fold<R>(R Function(Error<T>) onError, R Function(Ok<T>) onOk) {
+  R fold<R>(R Function(Failure<T>) onError, R Function(Ok<T>) onOk) {
     return onOk(this);
   }
 }
 
-final class Error<T> extends Result<T> {
-  const Error(this.error);
+final class Failure<T> extends Result<T> {
+  const Failure(this.error);
 
   final Exception error;
 
   @override
-  R fold<R>(R Function(Error<T>) onError, R Function(Ok<T>) onOk) {
+  R fold<R>(R Function(Failure<T>) onError, R Function(Ok<T>) onOk) {
     return onError(this);
   }
 }

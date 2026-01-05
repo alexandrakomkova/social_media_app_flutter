@@ -58,7 +58,8 @@ class _AppState extends State<App> {
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => LanguageProvider(Locale('en'))),
         RepositoryProvider<AuthFirebaseService>(
-          create: (_) => AuthFirebaseServiceImpl(),
+          create: (_) =>
+              AuthFirebaseServiceImpl(firebaseAuth: FirebaseAuth.instance),
         ),
         RepositoryProvider<DbService>(create: (_) => FirebaseDbServiceImpl()),
         RepositoryProvider<AuthRepository>(

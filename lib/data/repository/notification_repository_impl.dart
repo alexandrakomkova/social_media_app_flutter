@@ -6,18 +6,20 @@ import 'package:social_media_app/domain/repository/notification_repository.dart'
 import 'package:social_media_app/utils/result.dart';
 
 final _log = Logger('NotificationRepositoryImpl');
+
 class NotificationRepositoryImpl implements NotificationRepository {
   final DbService _dbService;
 
-  const NotificationRepositoryImpl({
-    required DbService dbService,
-  }): _dbService = dbService;
+  const NotificationRepositoryImpl({required DbService dbService})
+    : _dbService = dbService;
 
   @override
-  Future<List<NotificationEntity>> getNotifications({required String userId}) async {
+  Future<List<NotificationEntity>> getNotifications({
+    required String userId,
+  }) async {
     final notifications = await _dbService.getNotifications(userId: userId);
 
-    switch(notifications) {
+    switch (notifications) {
       case Ok<List<NotificationEntity>>():
         _log.info('getNotifications success');
         return notifications.value;
@@ -31,7 +33,7 @@ class NotificationRepositoryImpl implements NotificationRepository {
   Future<void> deleteAll({required String userId}) async {
     final res = await _dbService.deleteAllNotifications(userId: userId);
 
-    switch(res) {
+    switch (res) {
       case Ok<void>():
         return;
       case Error<void>():
@@ -43,9 +45,9 @@ class NotificationRepositoryImpl implements NotificationRepository {
   @override
   Future<Result<PostEntity?>> getUserPost({required String postId}) async {
     final res = await _dbService.getUserPost(postId: postId);
-    switch(res) {
+    switch (res) {
       case Ok<PostEntity?>():
-        if(res.value == null) {
+        if (res.value == null) {
           return Result.error(Exception('No post found'));
         } else {
           return Result.ok(res.value);

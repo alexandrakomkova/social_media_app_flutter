@@ -22,7 +22,7 @@ class PostRepositoryImpl implements PostRepository {
     switch (res) {
       case Ok<({int likesCount, bool isLiked})>():
         return res.value;
-      case Error<({int likesCount, bool isLiked})>():
+      case Failure<({int likesCount, bool isLiked})>():
         _log.warning("${_log.name} getLikesInfo error: ${res.error}");
         return (likesCount: 0, isLiked: false);
     }
@@ -40,7 +40,7 @@ class PostRepositoryImpl implements PostRepository {
     switch (res) {
       case Ok<void>():
         return res.value;
-      case Error<void>():
+      case Failure<void>():
         return;
     }
   }
@@ -51,7 +51,7 @@ class PostRepositoryImpl implements PostRepository {
     switch (res) {
       case Ok<void>():
         return res.value;
-      case Error<void>():
+      case Failure<void>():
         return;
     }
   }
@@ -72,7 +72,7 @@ class PostRepositoryImpl implements PostRepository {
     switch (res) {
       case Ok<void>():
         return;
-      case Error<void>():
+      case Failure<void>():
         debugPrint('--- PostRepositoryImpl addComment ${res.error}');
         return;
     }
@@ -85,7 +85,7 @@ class PostRepositoryImpl implements PostRepository {
     switch (res) {
       case Ok<List<CommentEntity>>():
         return res.value;
-      case Error<List<CommentEntity>>():
+      case Failure<List<CommentEntity>>():
         debugPrint(res.error.toString());
         return [];
     }
