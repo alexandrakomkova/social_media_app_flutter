@@ -37,14 +37,7 @@ class _SearchView extends StatelessWidget {
           child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                // search bar
-                _SearchBar(),
-                SizedBox(height: 10.0),
-
-                // search result in cards
-                _SearchResult(),
-              ],
+              children: [_SearchBar(), SizedBox(height: 10.0), _SearchResult()],
             ),
           ),
         ),
@@ -106,11 +99,15 @@ class _SearchResult extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<SearchBloc, SearchState>(
       builder: (context, state) {
-        return switch (state.status) {
-          SearchStatus.idle => SizedBox(),
-          SearchStatus.processing => Center(child: CircularProgressIndicator()),
-          SearchStatus.failed => throw UnimplementedError(),
-          SearchStatus.success => Expanded(
+        return switch (state) {
+          SearchState$Idle() => SizedBox(),
+          SearchState$Proccessing() => Center(
+            child: CircularProgressIndicator(),
+          ),
+          SearchState$Failed() => Center(
+            child: Text(context.l10n.errorOccurredText(state.errorMessage)),
+          ),
+          SearchState$Success() => Expanded(
             child: ListView.builder(
               itemCount: state.searchResult.length,
               itemBuilder: (context, index) {
