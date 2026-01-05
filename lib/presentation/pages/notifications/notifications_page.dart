@@ -90,8 +90,8 @@ class _NotificationsView extends StatelessWidget {
                               final notification = state.notifications[index];
 
                               return NotificationCard(
-                                notificationEntity: notification,
-                                onNotificationTap: () {
+                                entity: notification,
+                                onTap: () {
                                   context.read<NotificationBloc>().add(
                                     NotificationEvent.getUserPost(
                                       notification.postId,
