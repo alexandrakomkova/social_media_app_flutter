@@ -114,7 +114,7 @@ class _EditProfileViewState extends State<_EditProfileView> {
                 children: [
                   BlocBuilder<EditProfileBloc, EditProfileState>(
                     buildWhen: (previousState, state) =>
-                        previousState.status != state.status,
+                        previousState.runtimeType != state.runtimeType,
                     builder: (editProfileContext, state) {
                       return CustomTextFormField(
                         textFieldKey: UniqueKey(),
@@ -134,7 +134,7 @@ class _EditProfileViewState extends State<_EditProfileView> {
                   const SizedBox(height: 15.0),
                   BlocBuilder<EditProfileBloc, EditProfileState>(
                     buildWhen: (previousState, state) =>
-                        previousState.status != state.status,
+                        previousState.runtimeType != state.runtimeType,
                     builder: (editProfileContext, state) {
                       return CustomTextFormField(
                         textFieldKey: UniqueKey(),
