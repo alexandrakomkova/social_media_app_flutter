@@ -16,24 +16,16 @@ class ProfileInfoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
+      child: ColoredBox(
         color: Colors.transparent,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               value,
-              style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            Text(
-              valueLabel,
-              style: TextStyle(
-                fontSize: 18,
-              ),
-            ),
+            Text(valueLabel, style: TextStyle(fontSize: 18)),
           ],
         ),
       ),

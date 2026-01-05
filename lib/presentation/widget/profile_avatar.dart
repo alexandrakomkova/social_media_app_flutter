@@ -16,36 +16,28 @@ class ProfileAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: userEntity.photoUrl.isEmpty
-          ? CircleAvatar(
-        radius: radius,
-        backgroundColor: Theme.of(context)
-            .colorScheme
-            .secondary,
-        child: Center(
-          child: Text(
-            userEntity.username.isEmpty ? '?' : userEntity.username[0].toUpperCase(),
-            //userEntity.username[0].toUpperCase(),
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.onPrimary,
-              fontSize: radius * 30 / 100,
-              fontWeight: FontWeight.w900,
+    return userEntity.photoUrl.isEmpty
+        ? CircleAvatar(
+            radius: radius,
+            backgroundColor: Theme.of(context).colorScheme.secondary,
+            child: Center(
+              child: Text(
+                userEntity.username.isEmpty
+                    ? '?'
+                    : userEntity.username[0].toUpperCase(),
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onPrimary,
+                  fontSize: radius * 30 / 100,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
             ),
-          ),
-        ),
-      )
+          )
         : CircleAvatar(
             radius: radius,
-            backgroundImage:
-              RegExp(r'http').hasMatch(userEntity.photoUrl)
-                  ? CachedNetworkImageProvider(
-                      userEntity.photoUrl,
-                    )
-                  : FileImage(
-                      File(userEntity.photoUrl),
-              ),
-      ),
-    );
+            backgroundImage: RegExp(r'http').hasMatch(userEntity.photoUrl)
+                ? CachedNetworkImageProvider(userEntity.photoUrl)
+                : FileImage(File(userEntity.photoUrl)),
+          );
   }
 }
