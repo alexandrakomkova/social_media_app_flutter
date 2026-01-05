@@ -49,7 +49,8 @@ class _ProfileView extends StatelessWidget {
           ).showSnackBar(SnackBar(content: Text(state.errorMessage)));
         }
       },
-      listenWhen: (previous, current) => previous.status != current.status,
+      listenWhen: (previous, current) =>
+          previous.runtimeType != current.runtimeType,
       child: Scaffold(
         appBar: AppBar(
           title: BlocBuilder<ProfileBloc, ProfileState>(
