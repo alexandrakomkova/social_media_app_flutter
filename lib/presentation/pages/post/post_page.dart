@@ -59,7 +59,6 @@ class _PostView extends StatelessWidget {
                     ),
                     children: [
                       // post
-                      //_postInfo(context),
                       PostCard(
                         postEntity: context.read<PostBloc>().state.postEntity,
                       ),
@@ -82,16 +81,16 @@ class _PostView extends StatelessWidget {
                       // comments section
                       BlocBuilder<CommentsBloc, CommentsState>(
                         builder: (context, state) {
-                          switch (state.status) {
-                            case CommentsStatus.idle:
+                          switch (state) {
+                            case CommentsState$Idle():
                               return SizedBox();
-                            case CommentsStatus.processing:
+                            case CommentsState$Processing():
                               return CustomLoader();
-                            case CommentsStatus.failed:
+                            case CommentsState$Failed():
                               return Center(
                                 child: Text(l10n.errorLoadingCommentText),
                               );
-                            case CommentsStatus.success:
+                            case CommentsState$Success():
                               return ListView.builder(
                                 physics: NeverScrollableScrollPhysics(),
                                 shrinkWrap: true,
