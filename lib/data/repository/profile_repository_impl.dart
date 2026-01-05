@@ -22,7 +22,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
     switch (res) {
       case Ok<List<PostEntity>>():
         return res.value;
-      case Error<List<PostEntity>>():
+      case Failure<List<PostEntity>>():
         _log.warning('getUserPosts error: ${res.error}');
         return [];
     }
@@ -39,7 +39,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
         );
         await DbProvider.db.updateUser(res.value);
         return res.value;
-      case Error<UserEntity>():
+      case Failure<UserEntity>():
         _log.warning('getUserInfo error: ${res.error}');
         return null;
     }
@@ -65,7 +65,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
         );
         _log.info('updateUserInfo success');
         return;
-      case Error<void>():
+      case Failure<void>():
         _log.warning('updateUserInfo error: ${res.error}');
         return;
     }
@@ -100,7 +100,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
           'getFollowers success followerList length ${res.value.length}',
         );
         return res.value;
-      case Error<List<UserEntity>>():
+      case Failure<List<UserEntity>>():
         _log.warning('getFollowers error: ${res.error}');
         return [];
     }
@@ -113,7 +113,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
     switch (res) {
       case Ok<List<UserEntity>>():
         return res.value;
-      case Error<List<UserEntity>>():
+      case Failure<List<UserEntity>>():
         _log.warning('getFollowings error: ${res.error}');
         return [];
     }
@@ -131,7 +131,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
       case Ok<bool>():
         _log.info('isFollowedByCurrentUser ${res.value}');
         return res.value;
-      case Error<bool>():
+      case Failure<bool>():
         _log.warning('isFollowedByCurrentUser error: ${res.error}');
         return false;
     }

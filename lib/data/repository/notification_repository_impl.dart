@@ -23,7 +23,7 @@ class NotificationRepositoryImpl implements NotificationRepository {
       case Ok<List<NotificationEntity>>():
         _log.info('getNotifications success');
         return notifications.value;
-      case Error<List<NotificationEntity>>():
+      case Failure<List<NotificationEntity>>():
         _log.warning('getNotifications error: ${notifications.error}');
         return [];
     }
@@ -36,7 +36,7 @@ class NotificationRepositoryImpl implements NotificationRepository {
     switch (res) {
       case Ok<void>():
         return;
-      case Error<void>():
+      case Failure<void>():
         _log.warning('deleteAll error: ${res.error}');
         return;
     }
@@ -52,7 +52,7 @@ class NotificationRepositoryImpl implements NotificationRepository {
         } else {
           return Result.ok(res.value);
         }
-      case Error<PostEntity?>():
+      case Failure<PostEntity?>():
         _log.warning('deleteAll error: ${res.error}');
         return Result.error(res.error);
     }

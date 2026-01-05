@@ -20,7 +20,7 @@ class HomeRepositoryImpl implements HomeRepository {
       case Ok<List<PostEntity>>():
         _log.info('getNewPosts success');
         return posts.value;
-      case Error<List<PostEntity>>():
+      case Failure<List<PostEntity>>():
         _log.warning('getNewPosts error: ${posts.error}');
         return [];
     }

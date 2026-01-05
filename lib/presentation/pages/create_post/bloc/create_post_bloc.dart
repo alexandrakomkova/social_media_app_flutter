@@ -8,7 +8,8 @@ import 'package:social_media_app/domain/repository/image_service.dart';
 import 'package:social_media_app/utils/result.dart';
 
 part 'create_post_bloc.freezed.dart';
-part 'create_post_event.dart';art 'create_post_state.dart';
+part 'create_post_event.dart';
+part 'create_post_state.dart';
 
 final _log = Logger('CreatePostBloc');
 
