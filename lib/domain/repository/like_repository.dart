@@ -1,5 +1,7 @@
 abstract class LikeRepository {
-  Future<Map<String, int>> getLikesInfo({required String postId});
+  Future<({int likesCount, bool isLiked})> getLikesInfo({
+    required String postId,
+  });
 
   Future<void> addLike({required String postId, required String postOwnerId});
 

@@ -35,7 +35,9 @@ abstract class DbService {
   Future<Result<PostEntity?>> getUserPost({required String postId});
 
   // likes
-  Future<Result<Map<String, int>>> getLikesInfo({required String postId});
+  Future<Result<({int likesCount, bool isLiked})>> getLikesInfo({
+    required String postId,
+  });
 
   Future<Result<void>> addLike({
     required String postId,

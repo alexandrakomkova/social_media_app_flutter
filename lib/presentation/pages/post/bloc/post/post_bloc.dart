@@ -52,8 +52,8 @@ class PostBloc extends Bloc<PostEvent, PostState> {
       emit(
         PostState.success(
           postEntity: state.postEntity,
-          likesCount: res['likesCount'] ?? 0,
-          isLiked: res['isLiked'] == 1 ? true : false,
+          likesCount: res.likesCount,
+          isLiked: res.isLiked,
         ),
       );
     } catch (e) {

@@ -14,15 +14,17 @@ class PostRepositoryImpl implements PostRepository {
     : _dbService = dbService;
 
   @override
-  Future<Map<String, int>> getLikesInfo({required String postId}) async {
+  Future<({int likesCount, bool isLiked})> getLikesInfo({
+    required String postId,
+  }) async {
     final res = await _dbService.getLikesInfo(postId: postId);
 
     switch (res) {
-      case Ok<Map<String, int>>():
+      case Ok<({int likesCount, bool isLiked})>():
         return res.value;
-      case Error<Map<String, int>>():
+      case Error<({int likesCount, bool isLiked})>():
         _log.warning("${_log.name} getLikesInfo error: ${res.error}");
-        return {'likesCount': 0, 'isLiked': 0};
+        return (likesCount: 0, isLiked: false);
     }
   }
 
