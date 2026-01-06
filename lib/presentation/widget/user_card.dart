@@ -3,38 +3,29 @@ import 'package:social_media_app/domain/model/user_entity.dart';
 import 'package:social_media_app/presentation/widget/profile_avatar.dart';
 
 class UserCard extends StatelessWidget {
-  final UserEntity userEntity;
+  final UserEntity entity;
   final void Function()? onTap;
 
-  const UserCard({
-    required this.userEntity,
-    required this.onTap,
-    super.key,
-  });
+  const UserCard({required this.entity, required this.onTap, super.key});
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
       leading: ProfileAvatar(
         radius: 30.0,
-        userEntity: userEntity,
+        username: entity.username,
+        photoUrl: entity.photoUrl,
       ),
       title: Text(
-        userEntity.username,
-        style: TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w600
-        ),
+        entity.username,
+        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
       ),
       subtitle: Text(
-        userEntity.bio,
-        style: TextStyle(
-          fontSize: 14,
-        ),
-        overflow: TextOverflow.ellipsis
+        entity.bio,
+        style: TextStyle(fontSize: 14),
+        overflow: TextOverflow.ellipsis,
       ),
       onTap: onTap,
     );
-
   }
 }

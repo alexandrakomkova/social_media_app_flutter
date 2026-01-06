@@ -114,7 +114,7 @@ class _SearchResult extends StatelessWidget {
                 var user = state.searchResult.elementAt(index);
 
                 return UserCard(
-                  userEntity: user,
+                  entity: user,
                   onTap: () => _showUserProfile(context: context, id: user.id),
                 );
               },

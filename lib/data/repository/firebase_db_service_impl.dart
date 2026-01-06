@@ -64,20 +64,49 @@ class FirebaseDbServiceImpl implements DbService {
     }
   }
 
+  // @override
+  // Future<Result<UserEntity>> getUserById({required String id}) async {
+  //   try {
+  //     final docSnap = await _usersRef
+  //         .doc(id)
+  //         .withConverter(
+  //           fromFirestore: UserEntity.fromFirestore,
+  //           toFirestore: (UserEntity userEntity, _) => userEntity.toFirestore(),
+  //         )
+  //         .get();
+  //
+  //     final userEntity = docSnap.data();
+  //
+  //     //return Result.ok(userEntity ?? UserEntity());
+  //     return Result.ok(userEntity);
+  //   } on Exception catch (e) {
+  //     _log.warning('getUserById error: $e');
+  //     return Result.error(e);
+  //   }
+  // }
+
   @override
   Future<Result<UserEntity>> getUserById({required String id}) async {
     try {
-      final docSnap = await _usersRef
-          .doc(id)
-          .withConverter(
-            fromFirestore: UserEntity.fromFirestore,
-            toFirestore: (UserEntity userEntity, _) => userEntity.toFirestore(),
-          )
-          .get();
+      final docSnap = await _usersRef.doc(id).get();
 
-      final userEntity = docSnap.data();
+      final Map<String, dynamic>? userData = docSnap.data();
 
-      return Result.ok(userEntity ?? UserEntity());
+      if (userData == null) {
+        _log.warning('getUserById error: empty user data');
+        return Result.error(Exception('Empty user data'));
+      }
+
+      return Result.ok(
+        UserEntity(
+          id: userData['id'],
+          email: userData['email'],
+          username: userData['username'],
+          bio: userData['bio'],
+          photoUrl: userData['photoUrl'],
+          creationTimestamp: userData['creationTimestamp'],
+        ),
+      );
     } on Exception catch (e) {
       _log.warning('getUserById error: $e');
       return Result.error(e);
@@ -682,6 +711,7 @@ class FirebaseDbServiceImpl implements DbService {
           description: postData['description'],
           userId: userData['id'],
           userEntity: UserEntity(
+            id: userData['id'],
             email: userData['email'],
             username: userData['username'],
             bio: userData['bio'],

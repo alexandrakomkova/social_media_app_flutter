@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:social_media_app/domain/model/post_entity.dart';
-import 'package:social_media_app/domain/model/user_entity.dart';
 import 'package:social_media_app/domain/repository/auth/auth_repository.dart';
 import 'package:social_media_app/domain/repository/profile_repository.dart';
 import 'package:social_media_app/l10n/l10n.dart';
@@ -104,7 +103,8 @@ class _ProfileView extends StatelessWidget {
                           children: [
                             ProfileAvatar(
                               radius: 50.0,
-                              userEntity: state.user ?? UserEntity(),
+                              username: state.user?.username ?? '',
+                              photoUrl: state.user?.photoUrl ?? '',
                             ),
                           ],
                         ),

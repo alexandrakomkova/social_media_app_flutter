@@ -26,7 +26,7 @@ class DbProvider {
       onOpen: (db) {},
       onCreate: (Database db, int version) async {
         await db.execute(
-          "CREATE TABLE User (id TEXT PRIMARY KEY, email TEXT, username TEXT, bio TEXT, photoUrl TEXT, creationTime INTEGER)",
+          "CREATE TABLE User (id TEXT PRIMARY KEY, email TEXT, username TEXT, bio TEXT, photoUrl TEXT, creationTimestamp INTEGER)",
         );
       },
     );

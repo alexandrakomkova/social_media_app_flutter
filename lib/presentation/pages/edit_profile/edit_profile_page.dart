@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:social_media_app/domain/model/user_entity.dart';
 import 'package:social_media_app/domain/repository/image_service.dart';
 import 'package:social_media_app/domain/repository/profile_repository.dart';
 import 'package:social_media_app/l10n/l10n.dart';
@@ -81,11 +80,8 @@ class _EditProfileViewState extends State<_EditProfileView> {
                   },
                   child: ProfileAvatar(
                     radius: 80,
-                    userEntity: UserEntity(
-                      username: state.username,
-                      bio: state.bio,
-                      photoUrl: state.imageUrl,
-                    ),
+                    username: state.username,
+                    photoUrl: state.imageUrl,
                   ),
                 );
               },

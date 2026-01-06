@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:social_media_app/domain/model/post_entity.dart';
-import 'package:social_media_app/domain/model/user_entity.dart';
 import 'package:social_media_app/domain/repository/post_repository.dart';
 import 'package:social_media_app/l10n/l10n.dart';
 import 'package:social_media_app/presentation/pages/post/bloc/comments/comments_bloc.dart';
@@ -101,10 +100,8 @@ class _PostView extends StatelessWidget {
                                   return ListTile(
                                     leading: ProfileAvatar(
                                       radius: 20.0,
-                                      userEntity: UserEntity(
-                                        username: comment.author.username,
-                                        photoUrl: comment.author.photoUrl,
-                                      ),
+                                      username: comment.author.username,
+                                      photoUrl: comment.author.photoUrl,
                                     ),
                                     title: Text(
                                       comment.author.username,

@@ -49,7 +49,11 @@ class PostCard extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          ProfileAvatar(radius: 20.0, userEntity: entity.userEntity),
+          ProfileAvatar(
+            radius: 20.0,
+            username: entity.userEntity.username,
+            photoUrl: entity.userEntity.photoUrl,
+          ),
           const SizedBox(width: 10.0),
           Text(entity.userEntity.username, style: TextStyle(fontSize: 16.0)),
         ],

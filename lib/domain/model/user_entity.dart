@@ -1,47 +1,23 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class UserEntity {
-  String id;
-  String email;
-  String username;
-  int? creationTimestamp;
-  String bio;
-  String photoUrl;
+  final String id;
+  final String email;
+  final String username;
+  final int creationTimestamp;
+  final String bio;
+  final String photoUrl;
 
   UserEntity({
-    this.email = '',
-    this.creationTimestamp = 0,
-    this.username = '',
-    this.bio = '',
-    this.photoUrl = '',
-    this.id = ''
-  });
-
-  factory UserEntity.fromFirestore(
-      DocumentSnapshot<Map<String, dynamic>> snapshot,
-      SnapshotOptions? options,
-  ) {
-    final data = snapshot.data();
-    return UserEntity(
-        email: data?['email'],
-        username: data?['username'],
-        bio: data?['bio'],
-        photoUrl: data?['photoUrl'],
-        creationTimestamp: data?['creationTimestamp'],
-        id: data?['id'],
-    );
-  }
-
-  Map<String, dynamic> toFirestore() {
-    return {
-      "email": email,
-      "username": username,
-      "bio": bio,
-      "photoUrl": photoUrl,
-      if (creationTimestamp != null) "creationTimestamp": creationTimestamp,
-      "id": id,
-    };
-  }
+    required this.id,
+    required this.email,
+    String? username,
+    String? bio,
+    String? photoUrl,
+    int? creationTimestamp,
+  }) : username = username ?? '',
+       bio = bio ?? '',
+       photoUrl = photoUrl ?? '',
+       creationTimestamp =
+           creationTimestamp ?? DateTime.now().millisecondsSinceEpoch;
 
   factory UserEntity.fromMap(Map<String, dynamic> json) => UserEntity(
     id: json["id"],
@@ -49,7 +25,7 @@ class UserEntity {
     email: json["email"],
     bio: json["bio"],
     photoUrl: json["photoUrl"],
-    creationTimestamp: json["creationTime"]
+    creationTimestamp: json["creationTimestamp"],
   );
 
   Map<String, dynamic> toMap() => {
@@ -58,7 +34,7 @@ class UserEntity {
     "email": email,
     "bio": bio,
     "photoUrl": photoUrl,
-    "creationTime": creationTimestamp,
+    "creationTimestamp": creationTimestamp,
   };
 
   UserEntity copyWith({
@@ -70,12 +46,12 @@ class UserEntity {
     int? creationTimestamp,
   }) {
     return UserEntity(
-        id: id ?? this.id,
-        username: username ?? this.username,
-        email: email ?? this.email,
-        bio: bio ?? this.bio,
-        photoUrl: photoUrl ?? this.photoUrl,
-        creationTimestamp: creationTimestamp ?? this.creationTimestamp
+      id: id ?? this.id,
+      username: username ?? this.username,
+      email: email ?? this.email,
+      bio: bio ?? this.bio,
+      photoUrl: photoUrl ?? this.photoUrl,
+      creationTimestamp: creationTimestamp ?? this.creationTimestamp,
     );
   }
 }
