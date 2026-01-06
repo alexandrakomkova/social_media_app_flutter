@@ -1,8 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:logging/logging.dart';
 import 'package:social_media_app/data/model/user_model.dart';
 import 'package:social_media_app/domain/repository/auth/auth_firebase_service.dart';
 import 'package:social_media_app/utils/result.dart';
+
+final _log = Logger('AuthFirebaseServiceImpl');
 
 class AuthFirebaseServiceImpl implements AuthFirebaseService {
   final FirebaseAuth _firebaseAuth;
@@ -46,18 +49,6 @@ class AuthFirebaseServiceImpl implements AuthFirebaseService {
   }
 
   @override
-  Future<Result<void>> signOut() async {
-    try {
-      await _firebaseAuth.signOut();
-      await _googleSignIn.signOut();
-
-      return Result.ok(null);
-    } on FirebaseAuthException catch (e) {
-      return Result.error(e);
-    }
-  }
-
-  @override
   Future<Result<UserCredential>> signInWithGoogle() async {
     try {
       final googleUser = await _googleSignIn.signIn();
@@ -80,6 +71,18 @@ class AuthFirebaseServiceImpl implements AuthFirebaseService {
       }
 
       return Result.ok(userCredential);
+    } on FirebaseAuthException catch (e) {
+      return Result.error(e);
+    }
+  }
+
+  @override
+  Future<Result<void>> signOut() async {
+    try {
+      await _firebaseAuth.signOut();
+      await _googleSignIn.signOut();
+
+      return Result.ok(null);
     } on FirebaseAuthException catch (e) {
       return Result.error(e);
     }

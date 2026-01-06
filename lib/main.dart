@@ -70,7 +70,7 @@ Future<void> main() async {
     iOS: darwinInitializationSettings,
   );
 
-  await DbProvider.db.initDB();
+  await DbProvider.db.initDb();
 
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
   final notificationHandler = NotificationHandler(_log, navigatorKey);

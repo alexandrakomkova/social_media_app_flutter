@@ -96,10 +96,11 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Result<void>> signOut() async {
+    final String currentUserId = FirebaseService.currentUserId;
     final res = await _authFirebaseService.signOut();
     switch (res) {
       case Ok<void>():
-        await DbProvider.db.deleteUser(FirebaseService.currentUserId);
+        await DbProvider.db.deleteUser(currentUserId);
         _log.info('signOut success');
         return Result.ok(null);
       case Failure<void>():
