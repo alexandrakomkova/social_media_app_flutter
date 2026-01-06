@@ -589,8 +589,6 @@ class FirebaseDbServiceImpl implements DbService {
         if (userDoc.exists) {
           final userData = userDoc.data() as dynamic;
 
-          //_log.info('${userDoc.id} => $userData');
-
           notifications.add(
             NotificationEntity(
               userEntity: UserEntity(
