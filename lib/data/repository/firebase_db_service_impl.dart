@@ -334,19 +334,19 @@ class FirebaseDbServiceImpl implements DbService {
                 if (userDoc.data() == null) {
                   return Result.ok([]);
                 }
-                var user = userDoc.data() as dynamic;
+                var user = userDoc.data() as Map<String, dynamic>?;
 
                 comments.add(
                   CommentEntity(
                     postId: data['postId'],
                     text: data['commentText'],
                     author: UserEntity(
-                      id: user['id'],
-                      username: user['username'],
-                      email: user['email'],
-                      bio: user['bio'],
-                      creationTimestamp: user['creationTimestamp'],
-                      photoUrl: user['photoUrl'],
+                      id: user?['id'],
+                      username: user?['username'],
+                      email: user?['email'],
+                      bio: user?['bio'],
+                      creationTimestamp: user?['creationTimestamp'],
+                      photoUrl: user?['photoUrl'],
                     ),
                     createdAt: data['createdAt'],
                   ),
@@ -426,21 +426,27 @@ class FirebaseDbServiceImpl implements DbService {
   ) async {
     List<UserEntity> users = [];
     for (var docSnapshot in querySnapshot.docs) {
-      final data = docSnapshot.data() as dynamic;
+      final data = docSnapshot.data() as Map<String, dynamic>?;
+
+      if (data == null) {
+        _log.info('_getUserEntitiesFromQuery data is null');
+        return users;
+      }
+
       var userRef = data['userInfo'] as DocumentReference;
       final userDoc = await userRef.get();
 
       if (userDoc.exists) {
-        var userData = userDoc.data() as dynamic;
+        var userData = userDoc.data() as Map<String, dynamic>?;
 
         users.add(
           UserEntity(
-            id: userData['id'],
-            username: userData['username'],
-            email: userData['email'],
-            bio: userData['bio'],
-            creationTimestamp: userData['creationTimestamp'],
-            photoUrl: userData['photoUrl'],
+            id: userData?['id'],
+            username: userData?['username'],
+            email: userData?['email'],
+            bio: userData?['bio'],
+            creationTimestamp: userData?['creationTimestamp'],
+            photoUrl: userData?['photoUrl'],
           ),
         );
       }
@@ -501,21 +507,27 @@ class FirebaseDbServiceImpl implements DbService {
   ) async {
     List<PostEntity> posts = [];
     for (var docSnapshot in querySnapshot.docs) {
-      final data = docSnapshot.data() as dynamic;
+      final data = docSnapshot.data() as Map<String, dynamic>?;
+
+      if (data == null) {
+        _log.info('_getPostEntitiesFromQuery data is null');
+        return posts;
+      }
+
       var userRef = data['userInfo'] as DocumentReference;
 
       final userDoc = await userRef.get();
       if (userDoc.exists) {
-        var userData = userDoc.data() as dynamic;
+        var userData = userDoc.data() as Map<String, dynamic>?;
         posts.add(
           PostEntity(
             userEntity: UserEntity(
-              id: userData['id'],
-              username: userData['username'],
-              email: userData['email'],
-              bio: userData['bio'],
-              creationTimestamp: userData['creationTimestamp'],
-              photoUrl: userData['photoUrl'],
+              id: userData?['id'],
+              username: userData?['username'],
+              email: userData?['email'],
+              bio: userData?['bio'],
+              creationTimestamp: userData?['creationTimestamp'],
+              photoUrl: userData?['photoUrl'],
             ),
             userId: data['userId'],
             imageUrl: data['imageUrl'],
@@ -590,22 +602,28 @@ class FirebaseDbServiceImpl implements DbService {
       List<NotificationEntity> notifications = [];
 
       for (var docSnapshot in notificationsSnapshot.docs) {
-        final data = docSnapshot.data() as dynamic;
+        final data = docSnapshot.data() as Map<String, dynamic>?;
+
+        if (data == null) {
+          _log.info('getNotifications data is null');
+          return Result.ok([]);
+        }
+
         var userRef = data['userInfo'] as DocumentReference;
 
         final userDoc = await userRef.get();
         if (userDoc.exists) {
-          final userData = userDoc.data() as dynamic;
+          final userData = userDoc.data() as Map<String, dynamic>?;
 
           notifications.add(
             NotificationEntity(
               userEntity: UserEntity(
-                id: userData['id'],
-                username: userData['username'],
-                email: userData['email'],
-                bio: userData['bio'],
-                creationTimestamp: userData['creationTimestamp'],
-                photoUrl: userData['photoUrl'],
+                id: userData?['id'],
+                username: userData?['username'],
+                email: userData?['email'],
+                bio: userData?['bio'],
+                creationTimestamp: userData?['creationTimestamp'],
+                photoUrl: userData?['photoUrl'],
               ),
               postId: data['postId'],
               type: data['type'].toString().toNotificationType,
@@ -678,24 +696,24 @@ class FirebaseDbServiceImpl implements DbService {
         return Result.error(Exception('No post found'));
       }
 
-      final postData = postSnapshot.data() as dynamic;
-      var userRef = postData['userInfo'] as DocumentReference;
+      final postData = postSnapshot.data();
+      var userRef = postData?['userInfo'] as DocumentReference;
 
       final userDoc = await userRef.get();
       if (userDoc.exists) {
-        final userData = userDoc.data() as dynamic;
+        final userData = userDoc.data() as Map<String, dynamic>?;
         final postEntity = PostEntity(
-          imageUrl: postData['imageUrl'],
-          creationTimestamp: postData['creationTimestamp'],
-          description: postData['description'],
-          userId: userData['id'],
+          imageUrl: postData?['imageUrl'],
+          creationTimestamp: postData?['creationTimestamp'],
+          description: postData?['description'],
+          userId: userData?['id'],
           userEntity: UserEntity(
-            id: userData['id'],
-            email: userData['email'],
-            username: userData['username'],
-            bio: userData['bio'],
-            creationTimestamp: userData['creationTimestamp'],
-            photoUrl: userData['photoUrl'],
+            id: userData?['id'],
+            email: userData?['email'],
+            username: userData?['username'],
+            bio: userData?['bio'],
+            creationTimestamp: userData?['creationTimestamp'],
+            photoUrl: userData?['photoUrl'],
           ),
         );
 
