@@ -32,7 +32,7 @@ class PostCard extends StatelessWidget {
               children: [
                 _userHeader(entity: state.postEntity),
                 _postImage(imageUrl: state.postEntity.imageUrl),
-                _postInfo(context: context, state: state),
+                _postInfo(context: context),
                 _description(description: state.postEntity.description),
                 Divider(),
               ],
@@ -65,7 +65,8 @@ class PostCard extends StatelessWidget {
     return SizedBox(child: CachedNetworkImage(imageUrl: imageUrl));
   }
 
-  Widget _postInfo({required BuildContext context, required PostState state}) {
+  Widget _postInfo({required BuildContext context}) {
+    final state = context.watch<PostBloc>().state;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Row(

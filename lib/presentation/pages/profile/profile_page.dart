@@ -93,121 +93,11 @@ class _ProfileView extends StatelessWidget {
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
                   children: [
-                    // profile head
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      //mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            ProfileAvatar(
-                              radius: 50.0,
-                              username: state.user?.username ?? '',
-                              photoUrl: state.user?.photoUrl ?? '',
-                            ),
-                          ],
-                        ),
-                        SizedBox(width: 20.0),
-                        Expanded(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceAround,
-                                children: [
-                                  ProfileInfoCard(
-                                    value: state.posts.length.toString(),
-                                    valueLabel: l10n.profileInfoCardPostsCount,
-                                  ),
-                                  ProfileInfoCard(
-                                    value: state.followers.length.toString(),
-                                    valueLabel:
-                                        l10n.profileInfoCardFollowersCount,
-                                    onTap: () {
-                                      showBottomSheetCreationVariants(
-                                        context: context,
-                                        bottomSheetTitle:
-                                            l10n.bottomSheetFollowersTitle,
-                                        users: state.followers,
-                                      );
-                                    },
-                                  ),
-                                  ProfileInfoCard(
-                                    value: state.followings.length.toString(),
-                                    valueLabel:
-                                        l10n.profileInfoCardFollowingsCount,
-                                    onTap: () {
-                                      showBottomSheetCreationVariants(
-                                        context: context,
-                                        bottomSheetTitle:
-                                            l10n.bottomSheetFollowingsTitle,
-                                        users: state.followings,
-                                      );
-                                    },
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 10.0),
-
-                              if (userId != FirebaseService.currentUserId)
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    BlocBuilder<ProfileBloc, ProfileState>(
-                                      builder: (context, state) {
-                                        return _followButton(
-                                          context: context,
-                                          buttonText: state.isFollowed
-                                              ? l10n.unfollowButton
-                                              : l10n.followButton,
-                                          onPressed: () {
-                                            state.isFollowed
-                                                ? context.read<ProfileBloc>().add(
-                                                    ProfileEvent.unfollowUser(
-                                                      userIdToUnfollow: userId,
-                                                    ),
-                                                  )
-                                                : context
-                                                      .read<ProfileBloc>()
-                                                      .add(
-                                                        ProfileEvent.followUser(
-                                                          userIdToFollow:
-                                                              userId,
-                                                        ),
-                                                      );
-                                          },
-                                        );
-                                      },
-                                    ),
-                                  ],
-                                ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.5,
-                          child: Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: Text(
-                              state.user?.bio ?? '',
-                              style: TextStyle(fontSize: 16),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                    _profileHeader(context: context, state: state),
+                    _userBio(context: context, bio: state.user?.bio ?? ''),
 
                     SizedBox(height: 10.0),
 
-                    // 'all posts' title
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -225,8 +115,7 @@ class _ProfileView extends StatelessWidget {
                     ),
 
                     SizedBox(height: 10.0),
-                    // pics grid
-                    _postGrid(context, state.posts),
+                    _postsGrid(context, state.posts),
                   ],
                 ),
               ),
@@ -260,40 +149,154 @@ class _ProfileView extends StatelessWidget {
       ),
     );
   }
-}
 
-Widget _followButton({
-  required BuildContext context,
-  required String buttonText,
-  required void Function()? onPressed,
-}) {
-  return ElevatedButton(
-    onPressed: onPressed,
-    child: Text(buttonText, style: TextStyle()),
-  );
-}
+  Widget _profileHeader({
+    required BuildContext context,
+    required ProfileState state,
+  }) {
+    final l10n = context.l10n;
 
-Widget _postGrid(BuildContext context, List<PostEntity> posts) {
-  return posts.isEmpty
-      ? Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: Center(child: Text(context.l10n.profilePageNoPosts)),
-        )
-      : GridView.builder(
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3,
-            mainAxisSpacing: 10.0,
-            crossAxisSpacing: 10.0,
-            childAspectRatio: 1.0,
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            ProfileAvatar(
+              radius: 50.0,
+              username: state.user?.username ?? '',
+              photoUrl: state.user?.photoUrl ?? '',
+            ),
+          ],
+        ),
+        SizedBox(width: 20.0),
+        Expanded(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _profileInfo(context: context),
+              SizedBox(height: 10.0),
+
+              if (userId != FirebaseService.currentUserId)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    BlocBuilder<ProfileBloc, ProfileState>(
+                      builder: (context, state) {
+                        return _followButton(
+                          text: state.isFollowed
+                              ? l10n.unfollowButton
+                              : l10n.followButton,
+                          onPressed: () {
+                            state.isFollowed
+                                ? context.read<ProfileBloc>().add(
+                                    ProfileEvent.unfollowUser(
+                                      userIdToUnfollow: userId,
+                                    ),
+                                  )
+                                : context.read<ProfileBloc>().add(
+                                    ProfileEvent.followUser(
+                                      userIdToFollow: userId,
+                                    ),
+                                  );
+                          },
+                        );
+                      },
+                    ),
+                  ],
+                ),
+            ],
           ),
-          physics: NeverScrollableScrollPhysics(),
-          scrollDirection: Axis.vertical,
-          shrinkWrap: true,
-          itemCount: posts.length,
-          itemBuilder: (context, index) {
-            var post = posts[index];
+        ),
+      ],
+    );
+  }
 
-            return ProfilePostTile(postEntity: post);
+  Widget _userBio({required BuildContext context, required String bio}) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: MediaQuery.of(context).size.width * 0.5,
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Text(
+              bio,
+              style: TextStyle(fontSize: 16),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _profileInfo({required BuildContext context}) {
+    final l10n = context.l10n;
+    final state = context.watch<ProfileBloc>().state;
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+        ProfileInfoCard(
+          value: state.posts.length.toString(),
+          valueLabel: l10n.profileInfoCardPostsCount,
+        ),
+        ProfileInfoCard(
+          value: state.followers.length.toString(),
+          valueLabel: l10n.profileInfoCardFollowersCount,
+          onTap: () {
+            showBottomSheetCreationVariants(
+              context: context,
+              bottomSheetTitle: l10n.bottomSheetFollowersTitle,
+              users: state.followers,
+            );
           },
-        );
+        ),
+        ProfileInfoCard(
+          value: state.followings.length.toString(),
+          valueLabel: l10n.profileInfoCardFollowingsCount,
+          onTap: () {
+            showBottomSheetCreationVariants(
+              context: context,
+              bottomSheetTitle: l10n.bottomSheetFollowingsTitle,
+              users: state.followings,
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _followButton({
+    required String text,
+    required void Function()? onPressed,
+  }) {
+    return ElevatedButton(onPressed: onPressed, child: Text(text));
+  }
+
+  Widget _postsGrid(BuildContext context, List<PostEntity> posts) {
+    return posts.isEmpty
+        ? Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Center(child: Text(context.l10n.profilePageNoPosts)),
+          )
+        : GridView.builder(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              mainAxisSpacing: 10.0,
+              crossAxisSpacing: 10.0,
+              childAspectRatio: 1.0,
+            ),
+            physics: NeverScrollableScrollPhysics(),
+            scrollDirection: Axis.vertical,
+            shrinkWrap: true,
+            itemCount: posts.length,
+            itemBuilder: (context, index) {
+              var post = posts[index];
+
+              return ProfilePostTile(postEntity: post);
+            },
+          );
+  }
 }

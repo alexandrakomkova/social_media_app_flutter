@@ -1,11 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:logging/logging.dart';
 import 'package:social_media_app/data/model/user_model.dart';
 import 'package:social_media_app/domain/repository/auth/auth_firebase_service.dart';
 import 'package:social_media_app/utils/result.dart';
-
-final _log = Logger('AuthFirebaseServiceImpl');
 
 class AuthFirebaseServiceImpl implements AuthFirebaseService {
   final FirebaseAuth _firebaseAuth;

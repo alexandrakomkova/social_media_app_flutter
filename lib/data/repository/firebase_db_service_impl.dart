@@ -64,27 +64,6 @@ class FirebaseDbServiceImpl implements DbService {
     }
   }
 
-  // @override
-  // Future<Result<UserEntity>> getUserById({required String id}) async {
-  //   try {
-  //     final docSnap = await _usersRef
-  //         .doc(id)
-  //         .withConverter(
-  //           fromFirestore: UserEntity.fromFirestore,
-  //           toFirestore: (UserEntity userEntity, _) => userEntity.toFirestore(),
-  //         )
-  //         .get();
-  //
-  //     final userEntity = docSnap.data();
-  //
-  //     //return Result.ok(userEntity ?? UserEntity());
-  //     return Result.ok(userEntity);
-  //   } on Exception catch (e) {
-  //     _log.warning('getUserById error: $e');
-  //     return Result.error(e);
-  //   }
-  // }
-
   @override
   Future<Result<UserEntity>> getUserById({required String id}) async {
     try {
