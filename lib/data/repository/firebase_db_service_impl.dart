@@ -331,8 +331,8 @@ class FirebaseDbServiceImpl implements DbService {
                 comments.add(
                   CommentEntity(
                     postId: data['postId'],
-                    commentText: data['commentText'],
-                    userEntity: UserEntity(
+                    text: data['commentText'],
+                    author: UserEntity(
                       id: user['id'],
                       username: user['username'],
                       email: user['email'],

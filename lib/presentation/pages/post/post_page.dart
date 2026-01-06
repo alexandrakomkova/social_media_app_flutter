@@ -102,18 +102,18 @@ class _PostView extends StatelessWidget {
                                     leading: ProfileAvatar(
                                       radius: 20.0,
                                       userEntity: UserEntity(
-                                        username: comment.userEntity.username,
-                                        photoUrl: comment.userEntity.photoUrl,
+                                        username: comment.author.username,
+                                        photoUrl: comment.author.photoUrl,
                                       ),
                                     ),
                                     title: Text(
-                                      comment.userEntity.username,
+                                      comment.author.username,
                                       style: TextStyle(
                                         fontWeight: FontWeight.w600,
                                       ),
                                     ),
                                     subtitle: Text(
-                                      comment.commentText,
+                                      comment.text,
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                   );
