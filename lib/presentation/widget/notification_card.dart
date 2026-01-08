@@ -48,8 +48,12 @@ class NotificationCard extends StatelessWidget {
         context.l10n.notificationOnLikeText(
           notificationEntity.userEntity.username,
         ),
+        style: Theme.of(context).textTheme.titleMedium,
       ),
-      subtitle: Text(notificationEntity.formattedCreationTimestamp),
+      subtitle: Text(
+        notificationEntity.formattedCreationTimestamp,
+        style: Theme.of(context).textTheme.bodySmall,
+      ),
       onTap: onTap,
     );
   }
@@ -65,8 +69,12 @@ class NotificationCard extends StatelessWidget {
         context.l10n.notificationOnCommentText(
           notificationEntity.userEntity.username,
         ),
+        style: Theme.of(context).textTheme.titleMedium,
       ),
-      subtitle: Text(notificationEntity.formattedCreationTimestamp),
+      subtitle: Text(
+        notificationEntity.formattedCreationTimestamp,
+        style: Theme.of(context).textTheme.bodySmall,
+      ),
       onTap: onTap,
     );
   }
@@ -81,8 +89,12 @@ class NotificationCard extends StatelessWidget {
         context.l10n.notificationOnFollowText(
           notificationEntity.userEntity.username,
         ),
+        style: Theme.of(context).textTheme.titleMedium,
       ),
-      subtitle: Text(notificationEntity.formattedCreationTimestamp),
+      subtitle: Text(
+        notificationEntity.formattedCreationTimestamp,
+        style: Theme.of(context).textTheme.bodySmall,
+      ),
       onTap: () {
         Navigator.of(context).push(
           MaterialPageRoute(
@@ -104,6 +116,7 @@ class NotificationCard extends StatelessWidget {
         context.l10n.notificationOnUnfollowText(
           notificationEntity.userEntity.username,
         ),
+        style: Theme.of(context).textTheme.titleMedium,
       ),
       subtitle: Text(notificationEntity.formattedCreationTimestamp),
       onTap: () {
@@ -123,8 +136,14 @@ class NotificationCard extends StatelessWidget {
   }) {
     return ListTile(
       leading: Icon(notificationEntity.type.icon),
-      title: Text(notificationEntity.userEntity.username),
-      subtitle: Text(notificationEntity.formattedCreationTimestamp),
+      title: Text(
+        notificationEntity.userEntity.username,
+        style: Theme.of(context).textTheme.titleMedium,
+      ),
+      subtitle: Text(
+        notificationEntity.formattedCreationTimestamp,
+        style: Theme.of(context).textTheme.bodySmall,
+      ),
     );
   }
 }

@@ -25,6 +25,11 @@ abstract class AppTheme {
       titleTextStyle: TextStyle(fontSize: 18.0, color: Colors.black),
     ),
     bottomAppBarTheme: BottomAppBarThemeData(elevation: 0, color: lightBG),
+    textTheme: const TextTheme(
+      titleMedium: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+      bodySmall: TextStyle(fontSize: 14),
+      bodyMedium: TextStyle(fontSize: 16),
+    ),
   );
 
   static TextStyle appBarActionsTextStyle = TextStyle(
@@ -55,5 +60,10 @@ abstract class AppTheme {
       titleTextStyle: TextStyle(fontSize: 18.0, color: Colors.white),
     ),
     bottomAppBarTheme: BottomAppBarThemeData(elevation: 0, color: darkBG),
+    textTheme: const TextTheme(
+      titleMedium: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+      bodySmall: TextStyle(fontSize: 14),
+      bodyMedium: TextStyle(fontSize: 16),
+    ),
   );
 }

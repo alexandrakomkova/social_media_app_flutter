@@ -18,11 +18,11 @@ class UserCard extends StatelessWidget {
       ),
       title: Text(
         entity.username,
-        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        style: Theme.of(context).textTheme.titleMedium,
       ),
       subtitle: Text(
         entity.bio,
-        style: TextStyle(fontSize: 14),
+        style: Theme.of(context).textTheme.bodySmall,
         overflow: TextOverflow.ellipsis,
       ),
       onTap: onTap,

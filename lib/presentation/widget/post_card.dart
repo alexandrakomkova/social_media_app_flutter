@@ -30,10 +30,13 @@ class PostCard extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _userHeader(entity: state.postEntity),
+                _userHeader(entity: state.postEntity, context: context),
                 _postImage(imageUrl: state.postEntity.imageUrl),
                 _postInfo(context: context),
-                _description(description: state.postEntity.description),
+                _description(
+                  description: state.postEntity.description,
+                  context: context,
+                ),
                 Divider(),
               ],
             ),
@@ -43,7 +46,10 @@ class PostCard extends StatelessWidget {
     );
   }
 
-  Widget _userHeader({required PostEntity entity}) {
+  Widget _userHeader({
+    required PostEntity entity,
+    required BuildContext context,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
@@ -55,7 +61,10 @@ class PostCard extends StatelessWidget {
             photoUrl: entity.userEntity.photoUrl,
           ),
           const SizedBox(width: 10.0),
-          Text(entity.userEntity.username, style: TextStyle(fontSize: 16.0)),
+          Text(
+            entity.userEntity.username,
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
         ],
       ),
     );
@@ -74,7 +83,7 @@ class PostCard extends StatelessWidget {
         children: [
           Text(
             state.postEntity.formattedCreationTimestamp,
-            style: const TextStyle(fontSize: 14.0),
+            style: Theme.of(context).textTheme.bodySmall,
           ),
           const SizedBox(width: 8.0),
 
@@ -104,12 +113,15 @@ class PostCard extends StatelessWidget {
     );
   }
 
-  Widget _description({required String description}) {
+  Widget _description({
+    required String description,
+    required BuildContext context,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Text(
         description,
-        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16.0),
+        style: Theme.of(context).textTheme.titleMedium,
         maxLines: 5,
         overflow: TextOverflow.ellipsis,
       ),

@@ -105,13 +105,16 @@ class _PostView extends StatelessWidget {
                                     ),
                                     title: Text(
                                       comment.author.username,
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                      ),
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.titleMedium,
                                     ),
                                     subtitle: Text(
                                       comment.text,
                                       overflow: TextOverflow.ellipsis,
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.bodySmall,
                                     ),
                                   );
                                 },
