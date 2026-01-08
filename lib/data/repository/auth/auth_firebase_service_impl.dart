@@ -75,6 +75,9 @@ class AuthFirebaseServiceImpl implements AuthFirebaseService {
     } on FirebaseAuthException catch (e) {
       _log.warning(e.toString());
       return Result.error(e);
+    } on Exception catch (e) {
+      _log.warning(e.toString());
+      return Result.error(e);
     }
   }
 
