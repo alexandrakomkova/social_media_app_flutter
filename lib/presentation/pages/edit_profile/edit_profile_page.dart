@@ -6,7 +6,6 @@ import 'package:social_media_app/l10n/l10n.dart';
 import 'package:social_media_app/presentation/widget/choose_image_source.dart';
 import 'package:social_media_app/presentation/widget/custom_alert_dialog.dart';
 import 'package:social_media_app/presentation/widget/custom_appbar.dart';
-import 'package:social_media_app/presentation/widget/custom_text_form_field.dart';
 import 'package:social_media_app/presentation/widget/profile_avatar.dart';
 import 'package:social_media_app/utils/validator.dart';
 
@@ -112,10 +111,16 @@ class _EditProfileViewState extends State<_EditProfileView> {
                     buildWhen: (previousState, state) =>
                         previousState.runtimeType != state.runtimeType,
                     builder: (editProfileContext, state) {
-                      return CustomTextFormField(
-                        textFieldKey: UniqueKey(),
+                      return TextFormField(
+                        key: UniqueKey(),
                         initialValue: state.username,
-                        hintText: l10n.usernameHintText,
+                        decoration: InputDecoration(
+                          hintText: l10n.usernameHintText,
+                          border: Theme.of(context).inputDecorationTheme.border,
+                          errorStyle: Theme.of(
+                            context,
+                          ).inputDecorationTheme.errorStyle,
+                        ),
                         onChanged: (value) {
                           editProfileContext.read<EditProfileBloc>().add(
                             EditProfileEvent.usernameChanged(value),
@@ -132,10 +137,16 @@ class _EditProfileViewState extends State<_EditProfileView> {
                     buildWhen: (previousState, state) =>
                         previousState.runtimeType != state.runtimeType,
                     builder: (editProfileContext, state) {
-                      return CustomTextFormField(
-                        textFieldKey: UniqueKey(),
+                      return TextFormField(
+                        key: UniqueKey(),
                         initialValue: state.bio,
-                        hintText: l10n.bioHintText,
+                        decoration: InputDecoration(
+                          hintText: l10n.bioHintText,
+                          border: Theme.of(context).inputDecorationTheme.border,
+                          errorStyle: Theme.of(
+                            context,
+                          ).inputDecorationTheme.errorStyle,
+                        ),
                         onChanged: (value) {
                           editProfileContext.read<EditProfileBloc>().add(
                             EditProfileEvent.bioChanged(value),

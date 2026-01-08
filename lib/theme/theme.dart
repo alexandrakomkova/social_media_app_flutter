@@ -30,6 +30,10 @@ abstract class AppTheme {
       bodySmall: TextStyle(fontSize: 14),
       bodyMedium: TextStyle(fontSize: 16),
     ),
+    inputDecorationTheme: InputDecorationTheme(
+      errorStyle: const TextStyle(fontSize: 12.0),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.0)),
+    ),
   );
 
   static TextStyle appBarActionsTextStyle = TextStyle(
@@ -64,6 +68,10 @@ abstract class AppTheme {
       titleMedium: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
       bodySmall: TextStyle(fontSize: 14),
       bodyMedium: TextStyle(fontSize: 16),
+    ),
+    inputDecorationTheme: InputDecorationTheme(
+      errorStyle: const TextStyle(fontSize: 12.0),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12.0)),
     ),
   );
 }

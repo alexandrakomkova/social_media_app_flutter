@@ -5,7 +5,6 @@ import 'package:social_media_app/l10n/l10n.dart';
 import 'package:social_media_app/presentation/pages/auth/bloc/sign_in/sign_in_bloc.dart';
 import 'package:social_media_app/presentation/pages/auth/sign_up_page.dart';
 import 'package:social_media_app/presentation/pages/main_screen/main_page.dart';
-import 'package:social_media_app/presentation/widget/custom_text_form_field.dart';
 import 'package:social_media_app/utils/validator.dart';
 
 class SignInPage extends StatelessWidget {
@@ -74,30 +73,44 @@ class _SignInViewState extends State<_SignInView> {
                       children: [
                         BlocBuilder<SignInBloc, SignInState>(
                           builder: (signInContext, state) {
-                            return CustomTextFormField(
-                              textFieldKey: const Key(
-                                'signInForm_email_textFormField',
-                              ),
+                            return TextFormField(
+                              key: const Key('signInForm_email_textFormField'),
                               initialValue: state.email,
-                              hintText: l10n.emailHintText,
                               validator: (value) => Validator(
                                 context: context,
                               ).validateEmail(value),
                               onChanged: (value) => signInContext
                                   .read<SignInBloc>()
                                   .add(SignInEvent.emailChanged(value)),
+                              decoration: InputDecoration(
+                                hintText: l10n.emailHintText,
+                                border: Theme.of(
+                                  context,
+                                ).inputDecorationTheme.border,
+                                errorStyle: Theme.of(
+                                  context,
+                                ).inputDecorationTheme.errorStyle,
+                              ),
                             );
                           },
                         ),
                         const SizedBox(height: 15.0),
                         BlocBuilder<SignInBloc, SignInState>(
                           builder: (signInContext, state) {
-                            return CustomTextFormField(
-                              textFieldKey: const Key(
+                            return TextFormField(
+                              key: const Key(
                                 'signInForm_password_textFormField',
                               ),
+                              decoration: InputDecoration(
+                                hintText: l10n.passwordHintText,
+                                border: Theme.of(
+                                  context,
+                                ).inputDecorationTheme.border,
+                                errorStyle: Theme.of(
+                                  context,
+                                ).inputDecorationTheme.errorStyle,
+                              ),
                               initialValue: state.password,
-                              hintText: l10n.passwordHintText,
                               obscureText: true,
                               validator: (value) => Validator(
                                 context: context,

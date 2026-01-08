@@ -4,7 +4,6 @@ import 'package:social_media_app/domain/repository/auth/auth_repository.dart';
 import 'package:social_media_app/l10n/l10n.dart';
 import 'package:social_media_app/presentation/pages/auth/bloc/sign_up/sign_up_bloc.dart';
 import 'package:social_media_app/presentation/pages/auth/sign_in_page.dart';
-import 'package:social_media_app/presentation/widget/custom_text_form_field.dart';
 import 'package:social_media_app/utils/validator.dart';
 
 class SignUpPage extends StatelessWidget {
@@ -72,12 +71,20 @@ class _SignUpViewState extends State<_SignUpView> {
                       children: [
                         BlocBuilder<SignUpBloc, SignUpState>(
                           builder: (signUpContext, state) {
-                            return CustomTextFormField(
-                              textFieldKey: const Key(
+                            return TextFormField(
+                              key: const Key(
                                 'signUpForm_username_textFormField',
                               ),
+                              decoration: InputDecoration(
+                                hintText: l10n.usernameHintText,
+                                border: Theme.of(
+                                  context,
+                                ).inputDecorationTheme.border,
+                                errorStyle: Theme.of(
+                                  context,
+                                ).inputDecorationTheme.errorStyle,
+                              ),
                               initialValue: state.username,
-                              hintText: l10n.usernameHintText,
                               validator: (value) => Validator(
                                 context: context,
                               ).validateUsername(value),
@@ -90,12 +97,18 @@ class _SignUpViewState extends State<_SignUpView> {
                         const SizedBox(height: 15.0),
                         BlocBuilder<SignUpBloc, SignUpState>(
                           builder: (signUpContext, state) {
-                            return CustomTextFormField(
-                              textFieldKey: const Key(
-                                'signUpForm_email_textFormField',
-                              ),
+                            return TextFormField(
+                              key: const Key('signUpForm_email_textFormField'),
                               initialValue: state.email,
-                              hintText: l10n.emailHintText,
+                              decoration: InputDecoration(
+                                hintText: l10n.emailHintText,
+                                border: Theme.of(
+                                  context,
+                                ).inputDecorationTheme.border,
+                                errorStyle: Theme.of(
+                                  context,
+                                ).inputDecorationTheme.errorStyle,
+                              ),
                               validator: (value) => Validator(
                                 context: context,
                               ).validateEmail(value),
@@ -108,12 +121,20 @@ class _SignUpViewState extends State<_SignUpView> {
                         const SizedBox(height: 15.0),
                         BlocBuilder<SignUpBloc, SignUpState>(
                           builder: (signUpContext, state) {
-                            return CustomTextFormField(
-                              textFieldKey: const Key(
+                            return TextFormField(
+                              key: const Key(
                                 'signUpForm_password_textFormField',
                               ),
                               initialValue: state.password,
-                              hintText: l10n.passwordHintText,
+                              decoration: InputDecoration(
+                                hintText: l10n.passwordHintText,
+                                border: Theme.of(
+                                  context,
+                                ).inputDecorationTheme.border,
+                                errorStyle: Theme.of(
+                                  context,
+                                ).inputDecorationTheme.errorStyle,
+                              ),
                               obscureText: true,
                               validator: (value) => Validator(
                                 context: context,
@@ -127,12 +148,20 @@ class _SignUpViewState extends State<_SignUpView> {
                         const SizedBox(height: 15.0),
                         BlocBuilder<SignUpBloc, SignUpState>(
                           builder: (signUpContext, state) {
-                            return CustomTextFormField(
-                              textFieldKey: const Key(
+                            return TextFormField(
+                              key: const Key(
                                 'signUpForm_repeatPassword_textFormField',
                               ),
                               initialValue: state.repeatPassword,
-                              hintText: l10n.repeatPasswordHintText,
+                              decoration: InputDecoration(
+                                hintText: l10n.repeatPasswordHintText,
+                                border: Theme.of(
+                                  context,
+                                ).inputDecorationTheme.border,
+                                errorStyle: Theme.of(
+                                  context,
+                                ).inputDecorationTheme.errorStyle,
+                              ),
                               obscureText: true,
                               validator: (value) => Validator(
                                 context: context,
