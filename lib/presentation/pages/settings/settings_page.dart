@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:social_media_app/l10n/l10n.dart';
 import 'package:social_media_app/l10n/language_provider.dart';
 import 'package:social_media_app/presentation/pages/edit_profile/edit_profile_page.dart';
-import 'package:social_media_app/theme/theme.dart';
 import 'package:social_media_app/theme/theme_provider.dart';
 
 class SettingsPage extends StatelessWidget {
@@ -33,7 +32,7 @@ class _SettingsView extends StatelessWidget {
             ListTile(
               title: Text(
                 l10n.editProfileLabel,
-                style: AppTheme.settingListTileTextStyle,
+                style: Theme.of(context).textTheme.titleLarge,
               ),
               trailing: Icon(Icons.edit),
               onTap: () {
@@ -45,7 +44,7 @@ class _SettingsView extends StatelessWidget {
             ListTile(
               title: Text(
                 l10n.darkModeLabel,
-                style: AppTheme.settingListTileTextStyle,
+                style: Theme.of(context).textTheme.titleLarge,
               ),
               trailing: Consumer<ThemeProvider>(
                 builder: (context, themeProvider, child) => Switch(
@@ -59,10 +58,11 @@ class _SettingsView extends StatelessWidget {
             ListTile(
               title: Text(
                 l10n.languageLabel,
-                style: AppTheme.settingListTileTextStyle,
+                style: Theme.of(context).textTheme.titleLarge,
               ),
               trailing: Consumer<LanguageProvider>(
-                builder: (context, languageProvider, child) => Column(
+                builder: (context, languageProvider, child) => Flex(
+                  direction: Axis.vertical,
                   children: [
                     Expanded(
                       child: DropdownButton(

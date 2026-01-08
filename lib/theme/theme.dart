@@ -26,9 +26,10 @@ abstract class AppTheme {
     ),
     bottomAppBarTheme: BottomAppBarThemeData(elevation: 0, color: lightBG),
     textTheme: const TextTheme(
-      titleMedium: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-      bodySmall: TextStyle(fontSize: 14),
-      bodyMedium: TextStyle(fontSize: 16),
+      titleLarge: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w600),
+      titleMedium: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w600),
+      bodyMedium: TextStyle(fontSize: 16.0),
+      bodySmall: TextStyle(fontSize: 14.0),
     ),
     inputDecorationTheme: InputDecorationTheme(
       errorStyle: const TextStyle(fontSize: 12.0),
@@ -65,9 +66,10 @@ abstract class AppTheme {
     ),
     bottomAppBarTheme: BottomAppBarThemeData(elevation: 0, color: darkBG),
     textTheme: const TextTheme(
-      titleMedium: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-      bodySmall: TextStyle(fontSize: 14),
-      bodyMedium: TextStyle(fontSize: 16),
+      titleLarge: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w600),
+      titleMedium: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w600),
+      bodyMedium: TextStyle(fontSize: 16.0),
+      bodySmall: TextStyle(fontSize: 14.0),
     ),
     inputDecorationTheme: InputDecorationTheme(
       errorStyle: const TextStyle(fontSize: 12.0),
