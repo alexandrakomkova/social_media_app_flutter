@@ -183,10 +183,7 @@ class _ProfileView extends StatelessWidget {
                   children: [
                     BlocBuilder<ProfileBloc, ProfileState>(
                       builder: (context, state) {
-                        return _followButton(
-                          text: state.isFollowed
-                              ? l10n.unfollowButton
-                              : l10n.followButton,
+                        return ElevatedButton(
                           onPressed: () {
                             state.isFollowed
                                 ? context.read<ProfileBloc>().add(
@@ -200,6 +197,11 @@ class _ProfileView extends StatelessWidget {
                                     ),
                                   );
                           },
+                          child: Text(
+                            state.isFollowed
+                                ? l10n.unfollowButton
+                                : l10n.followButton,
+                          ),
                         );
                       },
                     ),
@@ -268,13 +270,6 @@ class _ProfileView extends StatelessWidget {
     );
   }
 
-  Widget _followButton({
-    required String text,
-    required void Function()? onPressed,
-  }) {
-    return ElevatedButton(onPressed: onPressed, child: Text(text));
-  }
-
   Widget _postsGrid(BuildContext context, List<PostEntity> posts) {
     return posts.isEmpty
         ? Padding(
@@ -288,7 +283,7 @@ class _ProfileView extends StatelessWidget {
               crossAxisSpacing: 10.0,
               childAspectRatio: 1.0,
             ),
-            physics: NeverScrollableScrollPhysics(),
+            physics: const NeverScrollableScrollPhysics(),
             scrollDirection: Axis.vertical,
             shrinkWrap: true,
             itemCount: posts.length,
