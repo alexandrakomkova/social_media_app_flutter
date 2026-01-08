@@ -30,8 +30,8 @@ class _SearchView extends StatelessWidget {
         systemOverlayStyle: SystemUiOverlayStyle(),
       ),
       body: SizedBox(
-        height: MediaQuery.of(context).size.height,
-        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.sizeOf(context).height,
+        width: MediaQuery.sizeOf(context).width,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8.0),
           child: Center(

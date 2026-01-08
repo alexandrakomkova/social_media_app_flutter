@@ -53,7 +53,7 @@ class _SignInViewState extends State<_SignInView> {
       child: Scaffold(
         appBar: AppBar(),
         body: SizedBox(
-          height: MediaQuery.of(context).size.height,
+          height: MediaQuery.sizeOf(context).height,
           child: Padding(
             padding: EdgeInsets.all(10.0),
             child: Center(

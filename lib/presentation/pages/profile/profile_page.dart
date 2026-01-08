@@ -219,7 +219,7 @@ class _ProfileView extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
-          width: MediaQuery.of(context).size.width * 0.5,
+          width: MediaQuery.sizeOf(context).width * 0.5,
           child: Padding(
             padding: const EdgeInsets.all(10.0),
             child: Text(

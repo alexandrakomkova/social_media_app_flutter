@@ -67,8 +67,8 @@ class _CreatePostView extends StatelessWidget {
               );
             },
             child: SizedBox(
-              height: MediaQuery.of(context).size.height * 0.5,
-              width: MediaQuery.of(context).size.width * 0.5,
+              height: MediaQuery.sizeOf(context).height * 0.5,
+              width: MediaQuery.sizeOf(context).width * 0.5,
               child: DecoratedBox(
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.secondaryContainer,
@@ -86,10 +86,9 @@ class _CreatePostView extends StatelessWidget {
                     } else {
                       return Image.file(
                         state.imageFile!,
-                        width:
-                            MediaQuery.of(createPostContext).size.width * 0.5,
+                        width: MediaQuery.sizeOf(createPostContext).width * 0.5,
                         height:
-                            MediaQuery.of(createPostContext).size.width * 0.5,
+                            MediaQuery.sizeOf(createPostContext).width * 0.5,
                         fit: BoxFit.cover,
                       );
                     }
