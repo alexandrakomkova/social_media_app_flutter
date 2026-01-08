@@ -61,27 +61,18 @@ class _SettingsView extends StatelessWidget {
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               trailing: Consumer<LanguageProvider>(
-                builder: (context, languageProvider, child) => Flex(
-                  direction: Axis.vertical,
-                  children: [
-                    Expanded(
-                      child: DropdownButton(
-                        value: languageProvider.locale,
-                        icon: const Icon(Icons.keyboard_arrow_down),
-                        items: languageProvider.supportedLocales.map((
-                          Locale item,
-                        ) {
-                          return DropdownMenuItem(
-                            value: item,
-                            child: Text(item.languageCode),
-                          );
-                        }).toList(),
-                        onChanged: (Locale? newValue) {
-                          languageProvider.setLocale(newValue ?? Locale('en'));
-                        },
-                      ),
-                    ),
-                  ],
+                builder: (context, languageProvider, child) => DropdownButton(
+                  value: languageProvider.locale,
+                  icon: const Icon(Icons.keyboard_arrow_down),
+                  items: languageProvider.supportedLocales.map((Locale item) {
+                    return DropdownMenuItem(
+                      value: item,
+                      child: Text(item.languageCode),
+                    );
+                  }).toList(),
+                  onChanged: (Locale? newValue) {
+                    languageProvider.setLocale(newValue ?? Locale('en'));
+                  },
                 ),
               ),
             ),
