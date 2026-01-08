@@ -18,13 +18,17 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
   SignInBloc({required AuthRepository authRepository})
     : _authRepository = authRepository,
       super(const SignInState.idle()) {
-    on<SignInEvent>((events, emit) async {
-      await events.map(
-        emailChanged: (event) => _emailChanged(event, emit),
-        passwordChanged: (event) => _passwordChanged(event, emit),
-        signIn: (_) => _signIn(emit),
-        signInWithGoogle: (_) => _signInWithGoogle(emit),
-      );
+    on<SignInEvent>((event, emit) async {
+      switch (event.runtimeType) {
+        case const (_EmailChanged):
+          await _emailChanged(event as _EmailChanged, emit);
+        case const (_PasswordChanged):
+          await _passwordChanged(event as _PasswordChanged, emit);
+        case const (_SignIn):
+          await _signIn(emit);
+        case const (_SignInWithGoogle):
+          await _signInWithGoogle(emit);
+      }
     });
   }
 

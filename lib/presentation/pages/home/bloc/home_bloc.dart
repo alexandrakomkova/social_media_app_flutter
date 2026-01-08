@@ -15,8 +15,11 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   HomeBloc({required HomeRepository homeRepository})
     : _homeRepository = homeRepository,
       super(const HomeState.idle()) {
-    on<HomeEvent>((events, emit) async {
-      await events.map(getNewPosts: (_) => _getNewPosts(emit));
+    on<HomeEvent>((event, emit) async {
+      switch (event.runtimeType) {
+        case const (_GetNewPosts):
+          await _getNewPosts(emit);
+      }
     });
   }
 

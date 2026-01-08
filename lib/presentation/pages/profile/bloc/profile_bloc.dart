@@ -26,15 +26,21 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   }) : _authRepository = authRepository,
        _profileRepository = profileRepository,
        super(const ProfileState.idle()) {
-    on<ProfileEvent>((events, emit) async {
-      await events.map(
-        signOut: (_) => _signOut(emit),
-        getUserInfo: (event) => _getUserInfo(event, emit),
-        getUserPosts: (event) => _getUserPosts(event, emit),
-        getUserProfile: (event) => _getUserProfile(event, emit),
-        followUser: (event) => _followUser(event, emit),
-        unfollowUser: (event) => _unfollowUser(event, emit),
-      );
+    on<ProfileEvent>((event, emit) async {
+      switch (event.runtimeType) {
+        case const (_GetUserInfo):
+          await _getUserInfo(event as _GetUserInfo, emit);
+        case const (_GetUserPosts):
+          await _getUserPosts(event as _GetUserPosts, emit);
+        case const (_GetUserProfile):
+          await _getUserProfile(event as _GetUserProfile, emit);
+        case const (_FollowUser):
+          await _followUser(event as _FollowUser, emit);
+        case const (_UnfollowUser):
+          await _unfollowUser(event as _UnfollowUser, emit);
+        case const (_SignOut):
+          await _signOut(emit);
+      }
     }, transformer: sequential());
   }
 

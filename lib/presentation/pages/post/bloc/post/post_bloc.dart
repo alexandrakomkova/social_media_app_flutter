@@ -16,13 +16,17 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     required LikeRepository postRepository,
   }) : _postRepository = postRepository,
        super(PostState.idle(postEntity: postEntity)) {
-    on<PostEvent>((events, emit) async {
-      await events.map(
-        getLikesInfo: (_) => _getLikesInfo(emit),
-        addLike: (_) => _addLike(emit),
-        removeLike: (_) => _removeLike(emit),
-        toggleLike: (event) => _toggleLike(event, emit),
-      );
+    on<PostEvent>((event, emit) async {
+      switch (event.runtimeType) {
+        case const (_GetLikesInfo):
+          await _getLikesInfo(emit);
+        case const (_AddLike):
+          await _addLike(emit);
+        case const (_RemoveLike):
+          await _removeLike(emit);
+        case const (_ToggleLike):
+          await _toggleLike(event as _ToggleLike, emit);
+      }
     });
   }
 

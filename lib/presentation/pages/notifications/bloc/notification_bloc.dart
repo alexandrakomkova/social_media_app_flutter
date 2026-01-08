@@ -19,12 +19,15 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
   NotificationBloc({required NotificationRepository notificationRepository})
     : _notificationRepository = notificationRepository,
       super(NotificationState.idle()) {
-    on<NotificationEvent>((events, emit) async {
-      await events.map(
-        getNotifications: (_) => _getNotifications(emit),
-        deleteAll: (_) => _deleteAll(emit),
-        getUserPost: (event) => _getUserPost(event, emit),
-      );
+    on<NotificationEvent>((event, emit) async {
+      switch (event.runtimeType) {
+        case const (_GetNotifications):
+          await _getNotifications(emit);
+        case const (_DeleteAll):
+          await _deleteAll(emit);
+        case const (_GetUserPost):
+          await _getUserPost(event as _GetUserPost, emit);
+      }
     });
   }
 

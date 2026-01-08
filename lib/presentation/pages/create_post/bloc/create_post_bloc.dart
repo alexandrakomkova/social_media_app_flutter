@@ -23,12 +23,15 @@ class CreatePostBloc extends Bloc<CreatePostEvent, CreatePostState> {
   }) : _imageService = imageService,
        _dbService = dbService,
        super(const CreatePostState.idle()) {
-    on<CreatePostEvent>((events, emit) async {
-      await events.map(
-        postDescriptionChanged: (event) => _postDescriptionChanged(event, emit),
-        selectImage: (event) => _selectImage(event, emit),
-        createPost: (_) => _createPost(emit),
-      );
+    on<CreatePostEvent>((event, emit) async {
+      switch (event.runtimeType) {
+        case const (_PostDescriptionChanged):
+          await _postDescriptionChanged(event as _PostDescriptionChanged, emit);
+        case const (_SelectImage):
+          await _selectImage(event as _SelectImage, emit);
+        case const (_CreatePost):
+          await _createPost(emit);
+      }
     });
   }
 
