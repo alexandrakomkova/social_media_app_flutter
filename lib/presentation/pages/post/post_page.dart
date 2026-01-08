@@ -57,7 +57,6 @@ class _PostView extends StatelessWidget {
                       vertical: 4.0,
                     ),
                     children: [
-                      // post
                       PostCard(
                         postEntity: context.read<PostBloc>().state.postEntity,
                       ),
@@ -77,86 +76,86 @@ class _PostView extends StatelessWidget {
                         },
                       ),
 
-                      // comments section
-                      BlocBuilder<CommentsBloc, CommentsState>(
-                        builder: (context, state) {
-                          switch (state) {
-                            case CommentsState$Idle():
-                              return SizedBox();
-                            case CommentsState$Processing():
-                              return CustomLoader();
-                            case CommentsState$Failed():
-                              return Center(
-                                child: Text(l10n.errorLoadingCommentText),
-                              );
-                            case CommentsState$Success():
-                              return ListView.builder(
-                                physics: NeverScrollableScrollPhysics(),
-                                shrinkWrap: true,
-                                itemCount: state.comments.length,
-                                itemBuilder: (BuildContext context, int index) {
-                                  return CommentCard(
-                                    entity: state.comments[index],
-                                  );
-                                },
-                              );
-                          }
-                        },
-                      ),
+                      _commentsList(context: context),
                     ],
                   ),
                 ),
-              ], //
+              ],
             ),
           ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: SafeArea(
-              child: Container(
-                color: Theme.of(context).scaffoldBackgroundColor,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12.0,
-                  vertical: 8.0,
-                ),
-                child: BlocBuilder<CommentsBloc, CommentsState>(
-                  builder: (context, state) {
-                    return Row(
-                      children: [
-                        Expanded(
-                          child: TextFormField(
-                            key: const Key('comment_textFormField'),
-                            initialValue: state.commentText,
-                            decoration: InputDecoration(
-                              hintText: l10n.addCommentHintText,
-                              border: const OutlineInputBorder(),
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 10.0,
-                                vertical: 10.0,
-                              ),
-                            ),
-                            onChanged: (value) {
-                              context.read<CommentsBloc>().add(
-                                CommentsEvent.commentTextChanged(value),
-                              );
-                            },
-                          ),
-                        ),
-                        IconButton(
-                          onPressed: () {
-                            context.read<CommentsBloc>()
-                              ..add(CommentsEvent.addComment())
-                              ..add(CommentsEvent.getComments());
-                          },
-                          icon: const Icon(Icons.send),
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              ),
-            ),
-          ),
+          _commentTextField(context: context),
         ],
+      ),
+    );
+  }
+
+  Widget _commentsList({required BuildContext context}) {
+    return BlocBuilder<CommentsBloc, CommentsState>(
+      builder: (context, state) {
+        switch (state) {
+          case CommentsState$Idle():
+            return SizedBox();
+          case CommentsState$Processing():
+            return CustomLoader();
+          case CommentsState$Failed():
+            return Center(child: Text(context.l10n.errorLoadingCommentText));
+          case CommentsState$Success():
+            return ListView.builder(
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              itemCount: state.comments.length,
+              itemBuilder: (BuildContext context, int index) {
+                return CommentCard(entity: state.comments[index]);
+              },
+            );
+        }
+      },
+    );
+  }
+
+  Widget _commentTextField({required BuildContext context}) {
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: SafeArea(
+        child: Container(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+          child: BlocBuilder<CommentsBloc, CommentsState>(
+            builder: (context, state) {
+              return Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      key: const Key('comment_textFormField'),
+                      initialValue: state.commentText,
+                      decoration: InputDecoration(
+                        hintText: context.l10n.addCommentHintText,
+                        border: const OutlineInputBorder(),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 10.0,
+                          vertical: 10.0,
+                        ),
+                      ),
+                      onChanged: (value) {
+                        context.read<CommentsBloc>().add(
+                          CommentsEvent.commentTextChanged(value),
+                        );
+                      },
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      context.read<CommentsBloc>()
+                        ..add(CommentsEvent.addComment())
+                        ..add(CommentsEvent.getComments());
+                    },
+                    icon: const Icon(Icons.send),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
       ),
     );
   }
