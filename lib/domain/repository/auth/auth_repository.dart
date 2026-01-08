@@ -8,5 +8,5 @@ abstract class AuthRepository {
 
   Future<Result<void>> signOut();
 
-  Future<Result<void>> signInWithGoogle();
+  Future<Result<bool?>> signInWithGoogle();
 }

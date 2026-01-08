@@ -1,8 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:logging/logging.dart';
 import 'package:social_media_app/data/model/user_model.dart';
 import 'package:social_media_app/domain/repository/auth/auth_firebase_service.dart';
 import 'package:social_media_app/utils/result.dart';
+
+final _log = Logger('AuthFirebaseServiceImpl');
 
 class AuthFirebaseServiceImpl implements AuthFirebaseService {
   final FirebaseAuth _firebaseAuth;
@@ -46,12 +49,12 @@ class AuthFirebaseServiceImpl implements AuthFirebaseService {
   }
 
   @override
-  Future<Result<UserCredential>> signInWithGoogle() async {
+  Future<Result<UserCredential?>> signInWithGoogle() async {
     try {
       final googleUser = await _googleSignIn.signIn();
 
       if (googleUser == null) {
-        return Result.error(Exception('googleUser is null'));
+        return Result.ok(null);
       }
 
       final googleAuth = await googleUser.authentication;
@@ -64,11 +67,13 @@ class AuthFirebaseServiceImpl implements AuthFirebaseService {
         credential,
       );
       if (userCredential.user == null) {
+        _log.warning('Cannot register user with google');
         return Result.error(Exception('Cannot register user with google'));
       }
 
       return Result.ok(userCredential);
     } on FirebaseAuthException catch (e) {
+      _log.warning(e.toString());
       return Result.error(e);
     }
   }

@@ -99,6 +99,7 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
           final String errorMessage = onError.error is FirebaseAuthException
               ? (onError.error as FirebaseAuthException).message ?? ''
               : 'An unexpected error occurred';
+          _log.warning(onError.error.toString());
 
           emit(
             SignInState.failed(
@@ -109,15 +110,19 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
           );
         },
         (onOk) {
-          emit(
-            SignInState.success(email: state.email, password: state.password),
-          );
+          if (onOk.value != null) {
+            emit(
+              SignInState.success(email: state.email, password: state.password),
+            );
+          }
         },
       );
     } catch (e) {
       final String errorMessage = e is FirebaseAuthException
           ? e.message ?? 'Unknown error'
           : 'An unexpected error occurred';
+
+      _log.warning(e.toString());
 
       emit(
         SignInState.failed(

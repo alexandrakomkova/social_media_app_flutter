@@ -56,7 +56,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Result<void>> signInWithGoogle() async {
+  Future<Result<bool?>> signInWithGoogle() async {
     final userCredential = await _authFirebaseService.signInWithGoogle();
 
     switch (userCredential) {
@@ -87,10 +87,13 @@ class AuthRepositoryImpl implements AuthRepository {
         );
         await DbProvider.db.newUser(userEntity);
 
-        return Result.ok(null);
+        return Result.ok(true);
       case Failure<UserCredential>():
         _log.warning('signInWithGoogle error: ${userCredential.error}');
         return Result.error(userCredential.error);
+      default:
+        _log.info('googleUser is null');
+        return Result.ok(null);
     }
   }
 
