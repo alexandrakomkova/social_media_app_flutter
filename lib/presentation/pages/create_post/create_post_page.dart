@@ -66,32 +66,36 @@ class _CreatePostView extends StatelessWidget {
                 },
               );
             },
-            child: Container(
+            child: SizedBox(
               height: MediaQuery.of(context).size.height * 0.5,
               width: MediaQuery.of(context).size.width * 0.5,
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.secondaryContainer,
-                borderRadius: BorderRadius.all(Radius.circular(5.0)),
-                border: Border.all(
-                  color: Theme.of(context).colorScheme.secondary,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.secondaryContainer,
+                  borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+                ),
+                child: BlocBuilder<CreatePostBloc, CreatePostState>(
+                  builder: (createPostContext, state) {
+                    if (state.imageFile == null) {
+                      return Center(
+                        child: Text(createPostContext.l10n.uploadPhotoText),
+                      );
+                    } else {
+                      return Image.file(
+                        state.imageFile!,
+                        width:
+                            MediaQuery.of(createPostContext).size.width * 0.5,
+                        height:
+                            MediaQuery.of(createPostContext).size.width * 0.5,
+                        fit: BoxFit.cover,
+                      );
+                    }
+                  },
                 ),
               ),
-              child: BlocBuilder<CreatePostBloc, CreatePostState>(
-                builder: (createPostContext, state) {
-                  if (state.imageFile == null) {
-                    return Center(
-                      child: Text(createPostContext.l10n.uploadPhotoText),
-                    );
-                  } else {
-                    return Image.file(
-                      state.imageFile!,
-                      width: MediaQuery.of(createPostContext).size.width * 0.5,
-                      height: MediaQuery.of(createPostContext).size.width * 0.5,
-                      fit: BoxFit.cover,
-                    );
-                  }
-                },
-              ), // image
             ),
           ),
           SizedBox(height: 20.0),
