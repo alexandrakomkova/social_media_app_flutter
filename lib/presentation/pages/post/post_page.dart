@@ -5,9 +5,9 @@ import 'package:social_media_app/domain/repository/post_repository.dart';
 import 'package:social_media_app/l10n/l10n.dart';
 import 'package:social_media_app/presentation/pages/post/bloc/comments/comments_bloc.dart';
 import 'package:social_media_app/presentation/pages/post/bloc/post/post_bloc.dart';
+import 'package:social_media_app/presentation/widget/comment_card.dart';
 import 'package:social_media_app/presentation/widget/custom_loader.dart';
 import 'package:social_media_app/presentation/widget/post_card.dart';
-import 'package:social_media_app/presentation/widget/profile_avatar.dart';
 
 class PostPage extends StatelessWidget {
   final PostEntity postEntity;
@@ -95,27 +95,8 @@ class _PostView extends StatelessWidget {
                                 shrinkWrap: true,
                                 itemCount: state.comments.length,
                                 itemBuilder: (BuildContext context, int index) {
-                                  var comment = state.comments[index];
-
-                                  return ListTile(
-                                    leading: ProfileAvatar(
-                                      radius: 20.0,
-                                      username: comment.author.username,
-                                      photoUrl: comment.author.photoUrl,
-                                    ),
-                                    title: Text(
-                                      comment.author.username,
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.titleMedium,
-                                    ),
-                                    subtitle: Text(
-                                      comment.text,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.bodySmall,
-                                    ),
+                                  return CommentCard(
+                                    entity: state.comments[index],
                                   );
                                 },
                               );
