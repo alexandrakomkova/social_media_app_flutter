@@ -5,7 +5,7 @@ import 'package:social_media_app/presentation/widget/profile_avatar.dart';
 class CommentCard extends StatelessWidget {
   final CommentEntity entity;
 
-  const CommentCard({required this.entity, super.key});
+  const CommentCard({super.key, required this.entity});
 
   @override
   Widget build(BuildContext context) {

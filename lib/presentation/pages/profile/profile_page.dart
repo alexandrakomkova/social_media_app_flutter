@@ -18,7 +18,7 @@ import 'package:social_media_app/utils/firebase_service.dart';
 class ProfilePage extends StatelessWidget {
   final String userId;
 
-  const ProfilePage({required this.userId, super.key});
+  const ProfilePage({super.key, required this.userId});
 
   @override
   Widget build(BuildContext context) {

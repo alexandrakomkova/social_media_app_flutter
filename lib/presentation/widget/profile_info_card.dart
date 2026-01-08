@@ -6,10 +6,10 @@ class ProfileInfoCard extends StatelessWidget {
   final void Function()? onTap;
 
   const ProfileInfoCard({
+    super.key,
     required this.value,
     required this.valueLabel,
     this.onTap,
-    super.key,
   });
 
   @override

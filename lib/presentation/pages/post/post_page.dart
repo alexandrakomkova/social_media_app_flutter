@@ -12,7 +12,7 @@ import 'package:social_media_app/presentation/widget/post_card.dart';
 class PostPage extends StatelessWidget {
   final PostEntity postEntity;
 
-  const PostPage({required this.postEntity, super.key});
+  const PostPage({super.key, required this.postEntity});
 
   @override
   Widget build(BuildContext context) {

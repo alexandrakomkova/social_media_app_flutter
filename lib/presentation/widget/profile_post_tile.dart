@@ -7,7 +7,7 @@ import 'package:social_media_app/presentation/pages/post/post_page.dart';
 class ProfilePostTile extends StatelessWidget {
   final PostEntity postEntity;
 
-  const ProfilePostTile({required this.postEntity, super.key});
+  const ProfilePostTile({super.key, required this.postEntity});
 
   @override
   Widget build(BuildContext context) {

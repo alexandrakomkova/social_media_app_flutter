@@ -6,7 +6,7 @@ class UserCard extends StatelessWidget {
   final UserEntity entity;
   final void Function()? onTap;
 
-  const UserCard({required this.entity, required this.onTap, super.key});
+  const UserCard({super.key, required this.entity, required this.onTap});
 
   @override
   Widget build(BuildContext context) {

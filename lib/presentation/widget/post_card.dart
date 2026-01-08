@@ -10,7 +10,7 @@ class PostCard extends StatelessWidget {
   final PostEntity postEntity;
   final void Function()? onCommentsPressed;
 
-  const PostCard({required this.postEntity, this.onCommentsPressed, super.key});
+  const PostCard({super.key, required this.postEntity, this.onCommentsPressed});
 
   @override
   Widget build(BuildContext context) {

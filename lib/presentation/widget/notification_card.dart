@@ -8,9 +8,9 @@ class NotificationCard extends StatelessWidget {
   final void Function()? onTap;
 
   const NotificationCard({
+    super.key,
     required this.entity,
     required this.onTap,
-    super.key,
   });
 
   @override

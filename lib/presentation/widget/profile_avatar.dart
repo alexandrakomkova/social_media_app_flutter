@@ -9,10 +9,10 @@ class ProfileAvatar extends StatelessWidget {
   final String photoUrl;
 
   const ProfileAvatar({
+    super.key,
     required this.radius,
     required this.username,
     required this.photoUrl,
-    super.key,
   });
 
   @override
