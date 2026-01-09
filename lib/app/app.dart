@@ -21,6 +21,7 @@ import 'package:social_media_app/domain/repository/notification_repository.dart'
 import 'package:social_media_app/domain/repository/post_repository.dart';
 import 'package:social_media_app/domain/repository/profile_repository.dart';
 import 'package:social_media_app/domain/repository/search_repository.dart';
+import 'package:social_media_app/initialization/dependencies.dart';
 import 'package:social_media_app/l10n/app_localizations.dart';
 import 'package:social_media_app/l10n/language_provider.dart';
 import 'package:social_media_app/presentation/cubit/internet_connectivity_cubit.dart';
@@ -55,8 +56,17 @@ class _AppState extends State<App> {
   Widget build(BuildContext context) {
     return MultiRepositoryProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => ThemeProvider()),
-        ChangeNotifierProvider(create: (_) => LanguageProvider(Locale('en'))),
+        ChangeNotifierProvider(
+          create: (_) => ThemeProvider(
+            sharedPreferences: Dependencies.of(context).sharedPreferences,
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => LanguageProvider(
+            locale: Locale('en'),
+            sharedPreferences: Dependencies.of(context).sharedPreferences,
+          ),
+        ),
         RepositoryProvider<AuthFirebaseService>(
           create: (_) =>
               AuthFirebaseServiceImpl(firebaseAuth: FirebaseAuth.instance),

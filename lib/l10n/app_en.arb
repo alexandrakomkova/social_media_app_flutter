@@ -299,5 +299,9 @@
   "validationUsernameLength": "Username must be at least 3 symbols",
   "@validationUsernameLength": {
     "description": "This text shown on Sign Up Screen if username is less than 3 symbols and sign up button is clicked"
+  },
+  "appErrorScreenText": "Something went wrong.. Please, try later",
+  "@appErrorScreenText": {
+    "description": "This text shown on ArrError Screen when some error while initialization app occurred"
   }
 }
