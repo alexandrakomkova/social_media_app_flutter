@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:logging/logging.dart';
 import 'package:social_media_app/data/db_provider.dart';
 import 'package:social_media_app/domain/model/post_entity.dart';
@@ -16,15 +17,23 @@ class ProfileRepositoryImpl implements ProfileRepository {
     : _dbService = dbService;
 
   @override
-  Future<List<PostEntity>> getUserPosts({required String userId}) async {
-    final res = await _dbService.getUserPosts(userId: userId);
+  Future<({DocumentSnapshot? lastDoc, List<PostEntity> posts, bool hasMore})>
+  getUserPostsNext({required String userId, DocumentSnapshot? lastDoc}) async {
+    final res = await _dbService.getUserPostsNext(
+      userId: userId,
+      lastDoc: lastDoc,
+    );
 
     switch (res) {
-      case Ok<List<PostEntity>>():
+      case Ok<
+        ({DocumentSnapshot? lastDoc, List<PostEntity> posts, bool hasMore})
+      >():
         return res.value;
-      case Failure<List<PostEntity>>():
+      case Failure<
+        ({DocumentSnapshot? lastDoc, List<PostEntity> posts, bool hasMore})
+      >():
         _log.warning('getUserPosts error: ${res.error}');
-        return [];
+        return (posts: <PostEntity>[], lastDoc: null, hasMore: true);
     }
   }
 

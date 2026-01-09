@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -19,6 +20,7 @@ final _log = Logger('ProfileBloc');
 class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   final AuthRepository _authRepository;
   final ProfileRepository _profileRepository;
+  DocumentSnapshot? _lastDoc;
 
   ProfileBloc({
     required AuthRepository authRepository,
@@ -30,8 +32,6 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       switch (event.runtimeType) {
         case const (_GetUserInfo):
           await _getUserInfo(event as _GetUserInfo, emit);
-        case const (_GetUserPosts):
-          await _getUserPosts(event as _GetUserPosts, emit);
         case const (_GetUserProfile):
           await _getUserProfile(event as _GetUserProfile, emit);
         case const (_FollowUser):
@@ -40,6 +40,8 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
           await _unfollowUser(event as _UnfollowUser, emit);
         case const (_SignOut):
           await _signOut(emit);
+        case const (_GetUserPostsNext):
+          await _getUserPostsNext(event as _GetUserPostsNext, emit);
       }
     }, transformer: sequential());
   }
@@ -94,19 +96,52 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     }
   }
 
-  Future<void> _getUserPosts(
-    _GetUserPosts event,
+  Future<void> _getUserPostsNext(
+    _GetUserPostsNext event,
     Emitter<ProfileState> emit,
   ) async {
-    emit(ProfileState.processing());
+    emit(
+      ProfileState.processing(
+        user: state.user,
+        followers: state.followers,
+        followings: state.followings,
+        isFollowed: state.isFollowed,
+        posts: state.posts,
+        hasMorePosts: state.hasMorePosts,
+      ),
+    );
 
     try {
-      final res = await _profileRepository.getUserPosts(userId: event.userId);
+      final res = await _profileRepository.getUserPostsNext(
+        userId: event.userId,
+        lastDoc: _lastDoc,
+      );
 
-      emit(ProfileState.success(posts: res));
+      _lastDoc = res.lastDoc;
+      var posts = res.posts;
+      posts.addAll(state.posts);
+
+      emit(
+        ProfileState.success(
+          user: state.user,
+          followers: state.followers,
+          followings: state.followings,
+          isFollowed: state.isFollowed,
+          posts: posts,
+          hasMorePosts: res.hasMore,
+        ),
+      );
     } catch (e) {
       _log.warning(e.toString());
-      emit(ProfileState.failed(posts: []));
+      emit(
+        ProfileState.failed(
+          posts: [],
+          user: state.user,
+          followers: state.followers,
+          followings: state.followings,
+          isFollowed: state.isFollowed,
+        ),
+      );
     }
   }
 
@@ -117,9 +152,12 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     emit(ProfileState.processing());
 
     try {
-      final List<PostEntity> posts = await _profileRepository.getUserPosts(
+      final res = await _profileRepository.getUserPostsNext(
         userId: event.userId,
       );
+
+      _lastDoc = res.lastDoc;
+
       final user = await _profileRepository.getUserInfo(userId: event.userId);
       final List<UserEntity> followers = await _profileRepository.getFollowers(
         userId: event.userId,
@@ -133,7 +171,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
 
       emit(
         ProfileState.success(
-          posts: posts,
+          posts: res.posts,
           user: user,
           followers: followers,
           followings: followings,

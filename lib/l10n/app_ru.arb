@@ -303,5 +303,9 @@
   "appErrorScreenText": "Что-то пошло не так.. Пожалуйста, попробуйте позже",
   "@appErrorScreenText": {
     "description": "This text shown on ArrError Screen when some error while initialization app occurred"
+  },
+  "noMorePostsText": "Больше нет постов",
+  "@noMorePostsText": {
+    "description": "This text shown on Profile Screen when user scrolls to see more posts but there are no more posts"
   }
 }

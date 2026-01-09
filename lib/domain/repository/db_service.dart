@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:social_media_app/data/model/user_model.dart';
 import 'package:social_media_app/domain/model/comment_entity.dart';
@@ -30,7 +31,10 @@ abstract class DbService {
     required String description,
   });
 
-  Future<Result<List<PostEntity>>> getUserPosts({required String userId});
+  Future<
+    Result<({List<PostEntity> posts, DocumentSnapshot? lastDoc, bool hasMore})>
+  >
+  getUserPostsNext({required String userId, DocumentSnapshot? lastDoc});
 
   Future<Result<PostEntity?>> getUserPost({required String postId});
 

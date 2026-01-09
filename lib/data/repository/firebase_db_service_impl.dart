@@ -163,7 +163,9 @@ class FirebaseDbServiceImpl implements DbService {
     try {
       final querySnapshot = await _postsRef
           .where('userId', isEqualTo: userId)
+          .limit(10)
           .get();
+
       List<PostEntity> posts = await _getPostEntitiesFromQuery(querySnapshot);
       return Result.ok(posts);
     } on Exception catch (e) {
@@ -689,39 +691,81 @@ class FirebaseDbServiceImpl implements DbService {
   }
 
   @override
-  Future<Result<PostEntity?>> getUserPost({required String postId}) async {
+  Future<
+    Result<
+      ({
+        bool hasMore,
+        DocumentSnapshot<Object?>? lastDoc,
+        List<PostEntity> posts,
+      })
+    >
+  >
+  getUserPostsNext({
+    required String userId,
+    DocumentSnapshot<Object?>? lastDoc,
+  }) async {
     try {
-      final postSnapshot = await _postsRef.doc(postId).get();
-      if (!postSnapshot.exists) {
-        return Result.error(Exception('No post found'));
+      Query query = _postsRef.where('userId', isEqualTo: userId).limit(9);
+
+      if (lastDoc != null) {
+        query = query.startAfterDocument(lastDoc);
       }
 
-      final postData = postSnapshot.data();
-      var userRef = postData?['userInfo'] as DocumentReference;
+      final querySnapshot = await query.get();
 
-      final userDoc = await userRef.get();
-      if (userDoc.exists) {
-        final userData = userDoc.data() as Map<String, dynamic>?;
-        final postEntity = PostEntity(
-          imageUrl: postData?['imageUrl'],
-          creationTimestamp: postData?['creationTimestamp'],
-          description: postData?['description'],
-          userId: userData?['id'],
-          userEntity: UserEntity(
-            id: userData?['id'],
-            email: userData?['email'],
-            username: userData?['username'],
-            bio: userData?['bio'],
-            creationTimestamp: userData?['creationTimestamp'],
-            photoUrl: userData?['photoUrl'],
-          ),
-        );
+      List<PostEntity> posts = [];
+      DocumentSnapshot? lastItem;
+      bool hasMoreToLoad = true;
 
-        return Result.ok(postEntity);
+      if (querySnapshot.docs.isNotEmpty) {
+        lastItem = querySnapshot.docs.last;
+      } else {
+        hasMoreToLoad = false;
       }
-      return Result.ok(null);
+
+      for (var docSnapshot in querySnapshot.docs) {
+        final data = docSnapshot.data() as Map<String, dynamic>?;
+
+        if (data == null) {
+          _log.info('_getPostEntitiesFromQuery data is null');
+          return Result.ok((
+            posts: posts,
+            lastDoc: lastItem,
+            hasMore: hasMoreToLoad,
+          ));
+        }
+
+        var userRef = data['userInfo'] as DocumentReference;
+
+        final userDoc = await userRef.get();
+        if (userDoc.exists) {
+          var userData = userDoc.data() as Map<String, dynamic>?;
+          posts.add(
+            PostEntity(
+              userEntity: UserEntity(
+                id: userData?['id'],
+                username: userData?['username'],
+                email: userData?['email'],
+                bio: userData?['bio'],
+                creationTimestamp: userData?['creationTimestamp'],
+                photoUrl: userData?['photoUrl'],
+              ),
+              userId: data['userId'],
+              imageUrl: data['imageUrl'],
+              description: data['description'],
+              creationTimestamp: data['creationTimestamp'],
+            ),
+          );
+        }
+      }
+
+      return Result.ok((
+        posts: posts,
+        lastDoc: lastItem,
+        hasMore: hasMoreToLoad,
+      ));
     } on Exception catch (e) {
-      _log.warning('getUserPost error: $e');
+      _log.warning('getUserPosts error: $e');
       return Result.error(e);
     }
   }

@@ -1,9 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:social_media_app/domain/model/post_entity.dart';
 import 'package:social_media_app/domain/model/user_entity.dart';
 
 abstract class ProfileRepository {
   // user
-  Future<List<PostEntity>> getUserPosts({required String userId});
+
+  Future<({List<PostEntity> posts, DocumentSnapshot? lastDoc, bool hasMore})>
+  getUserPostsNext({required String userId, DocumentSnapshot? lastDoc});
 
   Future<UserEntity?> getUserInfo({required String userId});
 

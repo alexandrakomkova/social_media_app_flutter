@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:social_media_app/domain/model/post_entity.dart';
 import 'package:social_media_app/domain/repository/auth/auth_repository.dart';
 import 'package:social_media_app/domain/repository/profile_repository.dart';
 import 'package:social_media_app/l10n/l10n.dart';
@@ -10,9 +9,9 @@ import 'package:social_media_app/presentation/pages/settings/settings_page.dart'
 import 'package:social_media_app/presentation/widget/bottom_sheet_followers_followings_list.dart';
 import 'package:social_media_app/presentation/widget/custom_alert_dialog.dart';
 import 'package:social_media_app/presentation/widget/custom_loader.dart';
+import 'package:social_media_app/presentation/widget/posts_list.dart';
 import 'package:social_media_app/presentation/widget/profile_avatar.dart';
 import 'package:social_media_app/presentation/widget/profile_info_card.dart';
-import 'package:social_media_app/presentation/widget/profile_post_tile.dart';
 import 'package:social_media_app/utils/firebase_service.dart';
 
 class ProfilePage extends StatelessWidget {
@@ -115,7 +114,7 @@ class _ProfileView extends StatelessWidget {
                     ),
 
                     SizedBox(height: 10.0),
-                    _postsGrid(context, state.posts),
+                    PostsList(userId: userId),
                   ],
                 ),
               ),
@@ -268,30 +267,5 @@ class _ProfileView extends StatelessWidget {
         ),
       ],
     );
-  }
-
-  Widget _postsGrid(BuildContext context, List<PostEntity> posts) {
-    return posts.isEmpty
-        ? Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Center(child: Text(context.l10n.profilePageNoPosts)),
-          )
-        : GridView.builder(
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
-              mainAxisSpacing: 10.0,
-              crossAxisSpacing: 10.0,
-              childAspectRatio: 1.0,
-            ),
-            physics: const NeverScrollableScrollPhysics(),
-            scrollDirection: Axis.vertical,
-            shrinkWrap: true,
-            itemCount: posts.length,
-            itemBuilder: (context, index) {
-              var post = posts[index];
-
-              return ProfilePostTile(postEntity: post);
-            },
-          );
   }
 }

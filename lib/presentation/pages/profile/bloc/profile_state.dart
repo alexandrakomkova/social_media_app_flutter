@@ -10,6 +10,7 @@ sealed class ProfileState with _$ProfileState {
     @Default([]) List<UserEntity> followers,
     @Default([]) List<UserEntity> followings,
     @Default(false) bool isFollowed,
+    @Default(true) hasMorePosts,
   }) = ProfileState$Idle;
 
   const factory ProfileState.processing({
@@ -18,6 +19,7 @@ sealed class ProfileState with _$ProfileState {
     @Default([]) List<UserEntity> followers,
     @Default([]) List<UserEntity> followings,
     @Default(false) bool isFollowed,
+    @Default(true) hasMorePosts,
   }) = ProfileState$Processing;
 
   const factory ProfileState.success({
@@ -26,6 +28,7 @@ sealed class ProfileState with _$ProfileState {
     @Default([]) List<UserEntity> followers,
     @Default([]) List<UserEntity> followings,
     @Default(false) bool isFollowed,
+    @Default(true) hasMorePosts,
   }) = ProfileState$Success;
 
   const factory ProfileState.failed({
@@ -35,5 +38,6 @@ sealed class ProfileState with _$ProfileState {
     @Default([]) List<UserEntity> followings,
     @Default(false) bool isFollowed,
     @Default('') String errorMessage,
+    @Default(true) hasMorePosts,
   }) = ProfileState$Failed;
 }
