@@ -7,21 +7,14 @@ import 'package:social_media_app/presentation/pages/post/post_page.dart';
 class ProfilePostTile extends StatelessWidget {
   final PostEntity postEntity;
 
-  const ProfilePostTile({
-    required this.postEntity,
-    super.key,
-  });
+  const ProfilePostTile({super.key, required this.postEntity});
 
   @override
   Widget build(BuildContext context) {
-    final l10n = context.l10n;
-
     return GestureDetector(
       onTap: () {
         Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => PostPage(postEntity: postEntity),
-          )
+          MaterialPageRoute(builder: (_) => PostPage(postEntity: postEntity)),
         );
       },
       child: SizedBox(
@@ -33,20 +26,19 @@ class ProfilePostTile extends StatelessWidget {
           ),
           elevation: 5,
           child: ClipRRect(
-            borderRadius: BorderRadius.all(
-              Radius.circular(3.0),
-            ),
+            borderRadius: BorderRadius.all(Radius.circular(3.0)),
             child: CachedNetworkImage(
               imageUrl: postEntity.imageUrl,
               fit: BoxFit.cover,
-              placeholder: (context, url) => Center(child: CircularProgressIndicator(),),
+              placeholder: (context, url) =>
+                  Center(child: CircularProgressIndicator()),
               errorWidget: (context, url, error) => Center(
                 child: Text(
-                  l10n.unableToLoadImageText,
+                  context.l10n.unableToLoadImageText,
                   style: TextStyle(fontSize: 10.0),
                 ),
               ),
-            )
+            ),
           ),
         ),
       ),

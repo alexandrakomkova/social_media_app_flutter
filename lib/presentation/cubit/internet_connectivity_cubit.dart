@@ -1,28 +1,28 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-part 'internet_connectivity__state.dart';
-part 'internet_connectivity__cubit.freezed.dart';
+part 'internet_connectivity_cubit.freezed.dart';
+part 'internet_connectivity_state.dart';
 
 class InternetConnectivityCubit extends Cubit<InternetConnectivityState> {
   final Connectivity connectivity;
-  StreamSubscription<List<ConnectivityResult>>? connectivityStreamSubscription;
+  StreamSubscription<List<ConnectivityResult>>? _connectivityStreamSubscription;
 
   InternetConnectivityCubit({required this.connectivity})
-      : super(const InternetConnectivityState.loading()) {
+    : super(const InternetConnectivityState.loading()) {
     monitorInternetConnection();
   }
 
   StreamSubscription<List<ConnectivityResult>> monitorInternetConnection() {
-    return connectivityStreamSubscription =
-        connectivity.onConnectivityChanged.listen((connectivityResult) {
-          if(connectivityResult.contains(ConnectivityResult.wifi)
-              || connectivityResult.contains(ConnectivityResult.mobile)) {
+    return _connectivityStreamSubscription = connectivity.onConnectivityChanged
+        .listen((connectivityResult) {
+          if (connectivityResult.contains(ConnectivityResult.wifi) ||
+              connectivityResult.contains(ConnectivityResult.mobile)) {
             _connected();
-          } else if(connectivityResult.contains(ConnectivityResult.none)) {
+          } else if (connectivityResult.contains(ConnectivityResult.none)) {
             _disconnected();
           }
         });
@@ -31,13 +31,14 @@ class InternetConnectivityCubit extends Cubit<InternetConnectivityState> {
   void _connected() {
     emit(state.copyWith(status: InternetStatus.connected));
   }
+
   void _disconnected() {
     emit(state.copyWith(status: InternetStatus.disconnected));
   }
 
   @override
   Future<void> close() {
-    connectivityStreamSubscription?.cancel();
+    _connectivityStreamSubscription?.cancel();
     return super.close();
   }
 }

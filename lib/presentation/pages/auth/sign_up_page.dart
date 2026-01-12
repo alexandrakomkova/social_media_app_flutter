@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:social_media_app/data/repository/auth/auth_repository_impl.dart';
+import 'package:social_media_app/domain/repository/auth/auth_repository.dart';
 import 'package:social_media_app/l10n/l10n.dart';
-import 'package:social_media_app/utils/validator.dart';
 import 'package:social_media_app/presentation/pages/auth/bloc/sign_up/sign_up_bloc.dart';
 import 'package:social_media_app/presentation/pages/auth/sign_in_page.dart';
-import 'package:social_media_app/presentation/widget/custom_text_form_field.dart';
+import 'package:social_media_app/utils/validator.dart';
 
 class SignUpPage extends StatelessWidget {
   const SignUpPage({super.key});
@@ -13,10 +12,8 @@ class SignUpPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<SignUpBloc>(
-      create: (signUpContext) =>
-          SignUpBloc(
-            authRepository: signUpContext.read<AuthRepositoryImpl>(),
-          ),
+      create: (context) =>
+          SignUpBloc(authRepository: context.read<AuthRepository>()),
       child: const _SignUpView(),
     );
   }
@@ -39,20 +36,19 @@ class _SignUpViewState extends State<_SignUpView> {
     return BlocListener<SignUpBloc, SignUpState>(
       listener: (context, state) {
         if (state is SignUpState$Failed) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.errorMessage)),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(state.errorMessage)));
         }
 
-        if(state is SignUpState$Success) {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(
-              builder: (_) => SignInPage(),
-            ),
-          );
+        if (state is SignUpState$Success) {
+          Navigator.of(
+            context,
+          ).pushReplacement(MaterialPageRoute(builder: (_) => SignInPage()));
         }
       },
-      listenWhen: (previous, current) => previous.status != current.status,
+      listenWhen: (previous, current) =>
+          previous.runtimeType != current.runtimeType,
       child: Scaffold(
         appBar: AppBar(),
         body: SizedBox(
@@ -65,12 +61,9 @@ class _SignUpViewState extends State<_SignUpView> {
                 children: [
                   Text(
                     l10n.signUpPageLabel,
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(height: 26,),
+                  SizedBox(height: 26),
                   Form(
                     key: _formKey,
                     child: Column(
@@ -78,63 +71,105 @@ class _SignUpViewState extends State<_SignUpView> {
                       children: [
                         BlocBuilder<SignUpBloc, SignUpState>(
                           builder: (signUpContext, state) {
-                            return CustomTextFormField(
-                              textFieldKey: const Key(
-                                  'signUpForm_username_textFormField'),
+                            return TextFormField(
+                              key: const Key(
+                                'signUpForm_username_textFormField',
+                              ),
+                              decoration: InputDecoration(
+                                hintText: l10n.usernameHintText,
+                                border: Theme.of(
+                                  context,
+                                ).inputDecorationTheme.border,
+                                errorStyle: Theme.of(
+                                  context,
+                                ).inputDecorationTheme.errorStyle,
+                              ),
                               initialValue: state.username,
-                              hintText: l10n.usernameHintText,
-                              validator: (value) => Validator.validateUsername(value),
-                              onChanged: (value) =>
-                                  signUpContext.read<SignUpBloc>().add(
-                                      SignUpEvent.usernameChanged(value)
-                                  ),
+                              validator: (value) => Validator(
+                                context: context,
+                              ).validateUsername(value),
+                              onChanged: (value) => signUpContext
+                                  .read<SignUpBloc>()
+                                  .add(SignUpEvent.usernameChanged(value)),
                             );
                           },
                         ),
                         const SizedBox(height: 15.0),
                         BlocBuilder<SignUpBloc, SignUpState>(
                           builder: (signUpContext, state) {
-                            return CustomTextFormField(
-                              textFieldKey: const Key(
-                                  'signUpForm_email_textFormField'),
+                            return TextFormField(
+                              key: const Key('signUpForm_email_textFormField'),
                               initialValue: state.email,
-                              hintText: l10n.emailHintText,
-                              validator: (value) => Validator.validateEmail(value),
-                              onChanged: (value) =>
-                                  signUpContext.read<SignUpBloc>().add(
-                                      SignUpEvent.emailChanged(value)
-                                  ),
+                              decoration: InputDecoration(
+                                hintText: l10n.emailHintText,
+                                border: Theme.of(
+                                  context,
+                                ).inputDecorationTheme.border,
+                                errorStyle: Theme.of(
+                                  context,
+                                ).inputDecorationTheme.errorStyle,
+                              ),
+                              validator: (value) => Validator(
+                                context: context,
+                              ).validateEmail(value),
+                              onChanged: (value) => signUpContext
+                                  .read<SignUpBloc>()
+                                  .add(SignUpEvent.emailChanged(value)),
                             );
                           },
                         ),
                         const SizedBox(height: 15.0),
                         BlocBuilder<SignUpBloc, SignUpState>(
                           builder: (signUpContext, state) {
-                            return CustomTextFormField(
-                              textFieldKey: const Key(
-                                  'signUpForm_password_textFormField'),
+                            return TextFormField(
+                              key: const Key(
+                                'signUpForm_password_textFormField',
+                              ),
                               initialValue: state.password,
-                              hintText: l10n.passwordHintText,
+                              decoration: InputDecoration(
+                                hintText: l10n.passwordHintText,
+                                border: Theme.of(
+                                  context,
+                                ).inputDecorationTheme.border,
+                                errorStyle: Theme.of(
+                                  context,
+                                ).inputDecorationTheme.errorStyle,
+                              ),
                               obscureText: true,
-                              validator: (value) => Validator.validatePassword(value),
-                              onChanged: (value) =>
-                                  signUpContext.read<SignUpBloc>().add(
-                                      SignUpEvent.passwordChanged(value)),
+                              validator: (value) => Validator(
+                                context: context,
+                              ).validatePassword(value),
+                              onChanged: (value) => signUpContext
+                                  .read<SignUpBloc>()
+                                  .add(SignUpEvent.passwordChanged(value)),
                             );
                           },
                         ),
                         const SizedBox(height: 15.0),
                         BlocBuilder<SignUpBloc, SignUpState>(
                           builder: (signUpContext, state) {
-                            return CustomTextFormField(
-                              textFieldKey: const Key(
-                                  'signUpForm_repeatPassword_textFormField'),
+                            return TextFormField(
+                              key: const Key(
+                                'signUpForm_repeatPassword_textFormField',
+                              ),
                               initialValue: state.repeatPassword,
-                              hintText: l10n.repeatPasswordHintText,
+                              decoration: InputDecoration(
+                                hintText: l10n.repeatPasswordHintText,
+                                border: Theme.of(
+                                  context,
+                                ).inputDecorationTheme.border,
+                                errorStyle: Theme.of(
+                                  context,
+                                ).inputDecorationTheme.errorStyle,
+                              ),
                               obscureText: true,
-                              validator: (value) => Validator.validateRepeatPassword(state.password, value),
+                              validator: (value) => Validator(
+                                context: context,
+                              ).validateRepeatPassword(state.password, value),
                               onChanged: (value) =>
-                                signUpContext.read<SignUpBloc>().add(SignUpEvent.repeatPasswordChanged(value)),
+                                  signUpContext.read<SignUpBloc>().add(
+                                    SignUpEvent.repeatPasswordChanged(value),
+                                  ),
                             );
                           },
                         ),
@@ -142,26 +177,22 @@ class _SignUpViewState extends State<_SignUpView> {
                         ElevatedButton(
                           onPressed: () {
                             if (_formKey.currentState?.validate() ?? false) {
-                              context.read<SignUpBloc>().add(const SignUpEvent.signUp());
+                              context.read<SignUpBloc>().add(
+                                const SignUpEvent.signUp(),
+                              );
                             }
                           },
-                          child: Text(
-                            l10n.signUpButton,
-                          ),
+                          child: Text(l10n.signUpButton),
                         ),
                         const SizedBox(height: 10.0),
                         TextButton(
                           onPressed: () {
                             Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                builder: (_) => SignInPage(),
-                              ),
+                              MaterialPageRoute(builder: (_) => SignInPage()),
                             );
                           },
-                          child: Text(
-                            l10n.alreadyHaveAccountTextButton,
-                          ),
-                        )
+                          child: Text(l10n.alreadyHaveAccountTextButton),
+                        ),
                       ],
                     ),
                   ),
@@ -174,4 +205,3 @@ class _SignUpViewState extends State<_SignUpView> {
     );
   }
 }
-

@@ -1,14 +1,15 @@
-
 class UserModel {
-  String? username;
+  final String username;
   final String email;
   final String password;
-  int? creationTimestamp;
+  final int creationTimestamp;
 
   UserModel({
-    this.username = '',
+    String? username,
     required this.email,
     required this.password,
-    this.creationTimestamp,
-  });
+    int? creationTimestamp,
+  }) : username = username ?? '',
+       creationTimestamp =
+           creationTimestamp ?? DateTime.now().millisecondsSinceEpoch;
 }

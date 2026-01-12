@@ -279,5 +279,29 @@
   "signInWithGoogleText": "Войти с помощью Google",
   "@signInWithGoogleText": {
     "description": "This text shown on Sign In Screen as google sign in  button"
+  },
+  "validationEmailEmpty": "Пожалуйста, введите ваш адрес почты",
+  "@validationEmailEmpty": {
+    "description": "This text shown on Sign In and Sign Up Screen if email text field is empty and sign in/sign up button is clicked"
+  },
+  "validationEmailInvalid": "Пожалуйста, введите валидный адрес почты",
+  "@validationEmailInvalid": {
+    "description": "This text shown on Sign In and Sign Up Screen if email is invalid and sign in/sign up button is clicked"
+  },
+  "validationPasswordLength": "Пароль должен содержать минимум 6 символов",
+  "@validationPasswordLength": {
+    "description": "This text shown on Sign In and Sign Up Screen if password is less than 6 symbols and sign in/sign up button is clicked"
+  },
+  "validationRepeatPasswordNotEqualToPassword": "Пароли должны быть одинаковыми",
+  "@validationRepeatPasswordNotEqualToPassword": {
+    "description": "This text shown on Sign Up Screen if repeat password is not equal to password and sign up button is clicked"
+  },
+  "validationUsernameLength": "Имя пользователя должно содержать минимум 3 символа",
+  "@validationUsernameLength": {
+    "description": "This text shown on Sign Up Screen if username is less than 3 symbols and sign up button is clicked"
+  },
+  "appErrorScreenText": "Что-то пошло не так.. Пожалуйста, попробуйте позже",
+  "@appErrorScreenText": {
+    "description": "This text shown on ArrError Screen when some error while initialization app occurred"
   }
 }

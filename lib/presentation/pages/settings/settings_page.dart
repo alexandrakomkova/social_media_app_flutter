@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:social_media_app/l10n/l10n.dart';
 import 'package:social_media_app/l10n/language_provider.dart';
 import 'package:social_media_app/presentation/pages/edit_profile/edit_profile_page.dart';
-import 'package:social_media_app/theme/theme.dart';
 import 'package:social_media_app/theme/theme_provider.dart';
 
 class SettingsPage extends StatelessWidget {
@@ -23,12 +22,7 @@ class _SettingsView extends StatelessWidget {
     final l10n = context.l10n;
 
     return Scaffold(
-      appBar: AppBar(
-        title:  Text(
-            l10n.settingsPageLabel,
-        ),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: Text(l10n.settingsPageLabel), centerTitle: true),
       body: Padding(
         padding: const EdgeInsets.all(10.0),
         child: Column(
@@ -38,21 +32,19 @@ class _SettingsView extends StatelessWidget {
             ListTile(
               title: Text(
                 l10n.editProfileLabel,
-                style: SocialMediaTheme.settingListTileTextStyle,
+                style: Theme.of(context).textTheme.titleLarge,
               ),
               trailing: Icon(Icons.edit),
               onTap: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) => EditProfilePage(),
-                  ),
-                );
+                Navigator.of(
+                  context,
+                ).push(MaterialPageRoute(builder: (_) => EditProfilePage()));
               },
             ),
             ListTile(
               title: Text(
                 l10n.darkModeLabel,
-                style: SocialMediaTheme.settingListTileTextStyle,
+                style: Theme.of(context).textTheme.titleLarge,
               ),
               trailing: Consumer<ThemeProvider>(
                 builder: (context, themeProvider, child) => Switch(
@@ -66,28 +58,24 @@ class _SettingsView extends StatelessWidget {
             ListTile(
               title: Text(
                 l10n.languageLabel,
-                style: SocialMediaTheme.settingListTileTextStyle,
+                style: Theme.of(context).textTheme.titleLarge,
               ),
               trailing: Consumer<LanguageProvider>(
-                builder: (context, languageProvider, child) =>
-                  Column(
-                    children: [
-                    Expanded(
-                      child: DropdownButton(
-                      value: languageProvider.locale,
-                          icon: const Icon(Icons.keyboard_arrow_down),
-                          items: languageProvider.supportedLocales.map((Locale item) {
-                            return DropdownMenuItem(value: item, child: Text(item.languageCode));
-                          }).toList(),
-                          onChanged: (Locale? newValue) {
-                            languageProvider.setLocale(newValue ?? Locale('en'));
-                          }
-                      ),
-                      )
-                    ]
-                  ),
+                builder: (context, languageProvider, child) => DropdownButton(
+                  value: languageProvider.locale,
+                  icon: const Icon(Icons.keyboard_arrow_down),
+                  items: languageProvider.supportedLocales.map((Locale item) {
+                    return DropdownMenuItem(
+                      value: item,
+                      child: Text(item.languageCode),
+                    );
+                  }).toList(),
+                  onChanged: (Locale? newValue) {
+                    languageProvider.setLocale(newValue ?? Locale('en'));
+                  },
                 ),
               ),
+            ),
           ],
         ),
       ),

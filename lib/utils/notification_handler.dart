@@ -23,7 +23,8 @@ class NotificationHandler {
       final type = data['type'];
       if ((type == 'follow' || type == 'unfollow') && data['userId'] != null) {
         _handleUserNavigation(data['userId']);
-      } else if ((type == 'comment' || type == 'like') && data['postEntity'] != null) {
+      } else if ((type == 'comment' || type == 'like') &&
+          data['postEntity'] != null) {
         _handlePostNavigation(data['postEntity']);
       }
     } catch (e, stack) {
@@ -60,21 +61,18 @@ class NotificationHandler {
     final userData = postData['userEntity'];
 
     final postEntity = PostEntity(
-        imageUrl: postData['imageUrl'].toString(),
-        description: postData['description'].toString(),
-        creationTimestamp: int.parse(postData['creationTimestamp'].toString()),
-        userId: postData['userId'].toString(),
-        userEntity: UserEntity(
-            bio: userData['bio'].toString(),
-            id: userData['id'].toString(),
-            email: userData['email'].toString(),
-            photoUrl: userData['photoUrl'].toString(),
-            username: userData['username'].toString(),
-            creationTimestamp: int.parse(userData['creationTime'].toString())
-        )
-    );
-    navigatorKey.currentState?.push(
-      MaterialPageRoute(builder: (_) => PostPage(postEntity: postEntity,)),
+      imageUrl: postData['imageUrl'].toString(),
+      description: postData['description'].toString(),
+      creationTimestamp: int.parse(postData['creationTimestamp'].toString()),
+      userId: postData['userId'].toString(),
+      userEntity: UserEntity(
+        bio: userData['bio'].toString(),
+        id: userData['id'].toString(),
+        email: userData['email'].toString(),
+        photoUrl: userData['photoUrl'].toString(),
+        username: userData['username'].toString(),
+        creationTimestamp: int.parse(userData['creationTime'].toString()),
+      ),
     );
     navigatorKey.currentState?.push(
       MaterialPageRoute(builder: (_) => PostPage(postEntity: postEntity)),
