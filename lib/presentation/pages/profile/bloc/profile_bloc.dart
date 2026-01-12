@@ -121,7 +121,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       );
 
       _lastDoc = res.lastDoc;
-      var posts = res.posts;
+      var posts = res.list;
       posts.addAll(state.posts);
 
       emit(
@@ -183,7 +183,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
 
       emit(
         ProfileState.success(
-          posts: res.posts,
+          posts: res.list,
           postsCount: postsCount,
           user: user,
           followers: followers,

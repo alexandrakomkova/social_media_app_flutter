@@ -4,10 +4,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:logging/logging.dart';
-import 'package:social_media_app/data/model/post_pagination_response.dart';
+import 'package:social_media_app/data/model/firebase_pagination_response.dart';
 import 'package:social_media_app/data/model/user_model.dart';
 import 'package:social_media_app/domain/model/comment_entity.dart';
 import 'package:social_media_app/domain/model/notification_entity.dart';
+import 'package:social_media_app/domain/model/pagination_response.dart';
 import 'package:social_media_app/domain/model/post_entity.dart';
 import 'package:social_media_app/domain/model/user_entity.dart';
 import 'package:social_media_app/domain/repository/db_service.dart';
@@ -712,7 +713,7 @@ class FirebaseDbServiceImpl implements DbService {
   }
 
   @override
-  Future<Result<PostPaginationResponse>> getUserPostsNext({
+  Future<Result<PaginationResponse<PostEntity>>> getUserPostsNext({
     required String userId,
     DocumentSnapshot<Object?>? lastDoc,
   }) async {
@@ -725,20 +726,14 @@ class FirebaseDbServiceImpl implements DbService {
 
       final querySnapshot = await query.get();
 
-      var postPaginationResponse = PostPaginationResponse(
-        hasMoreToLoad: true,
-        posts: <PostEntity>[],
-        lastDoc: null,
-      );
+      var paginationResponse = FirebasePaginationResponse<PostEntity>.empty();
 
       if (querySnapshot.docs.isNotEmpty) {
-        postPaginationResponse = postPaginationResponse.copyWith(
+        paginationResponse = paginationResponse.copyWith(
           lastDoc: querySnapshot.docs.last,
         );
       } else {
-        postPaginationResponse = postPaginationResponse.copyWith(
-          hasMoreToLoad: false,
-        );
+        paginationResponse = paginationResponse.copyWith(hasMoreToLoad: false);
       }
 
       for (var docSnapshot in querySnapshot.docs) {
@@ -746,7 +741,7 @@ class FirebaseDbServiceImpl implements DbService {
 
         if (data == null) {
           _log.info('_getPostEntitiesFromQuery data is null');
-          return Result.ok(postPaginationResponse);
+          return Result.ok(paginationResponse);
         }
 
         var userRef = data['userInfo'] as DocumentReference;
@@ -754,7 +749,7 @@ class FirebaseDbServiceImpl implements DbService {
         final userDoc = await userRef.get();
         if (userDoc.exists) {
           var userData = userDoc.data() as Map<String, dynamic>?;
-          var userPosts = postPaginationResponse.posts;
+          var userPosts = paginationResponse.list;
 
           userPosts.add(
             PostEntity(
@@ -773,13 +768,11 @@ class FirebaseDbServiceImpl implements DbService {
             ),
           );
 
-          postPaginationResponse = postPaginationResponse.copyWith(
-            posts: userPosts,
-          );
+          paginationResponse = paginationResponse.copyWith(list: userPosts);
         }
       }
 
-      return Result.ok(postPaginationResponse);
+      return Result.ok(paginationResponse);
     } on Exception catch (e) {
       _log.warning('getUserPosts error: $e');
       return Result.error(e);

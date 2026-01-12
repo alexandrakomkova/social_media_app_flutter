@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:logging/logging.dart';
 import 'package:social_media_app/data/db_provider.dart';
-import 'package:social_media_app/data/model/post_pagination_response.dart';
+import 'package:social_media_app/domain/model/pagination_response.dart';
 import 'package:social_media_app/domain/model/post_entity.dart';
 import 'package:social_media_app/domain/model/user_entity.dart';
 import 'package:social_media_app/domain/repository/db_service.dart';
@@ -18,7 +18,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
     : _dbService = dbService;
 
   @override
-  Future<PostPaginationResponse> getUserPostsNext({
+  Future<PaginationResponse<PostEntity>> getUserPostsNext({
     required String userId,
     DocumentSnapshot? lastDoc,
   }) async {
@@ -28,12 +28,12 @@ class ProfileRepositoryImpl implements ProfileRepository {
     );
 
     switch (res) {
-      case Ok<PostPaginationResponse>():
+      case Ok<PaginationResponse<PostEntity>>():
         return res.value;
-      case Failure<PostPaginationResponse>():
+      case Failure<PaginationResponse<PostEntity>>():
         _log.warning('getUserPosts error: ${res.error}');
-        return PostPaginationResponse(
-          posts: <PostEntity>[],
+        return PaginationResponse<PostEntity>(
+          list: <PostEntity>[],
           lastDoc: null,
           hasMoreToLoad: false,
         );

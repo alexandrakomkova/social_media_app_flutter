@@ -2,10 +2,10 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:social_media_app/data/model/post_pagination_response.dart';
 import 'package:social_media_app/data/model/user_model.dart';
 import 'package:social_media_app/domain/model/comment_entity.dart';
 import 'package:social_media_app/domain/model/notification_entity.dart';
+import 'package:social_media_app/domain/model/pagination_response.dart';
 import 'package:social_media_app/domain/model/post_entity.dart';
 import 'package:social_media_app/domain/model/user_entity.dart';
 import 'package:social_media_app/utils/result.dart';
@@ -34,7 +34,7 @@ abstract class DbService {
     required String description,
   });
 
-  Future<Result<PostPaginationResponse>> getUserPostsNext({
+  Future<Result<PaginationResponse<PostEntity>>> getUserPostsNext({
     required String userId,
     DocumentSnapshot? lastDoc,
   });

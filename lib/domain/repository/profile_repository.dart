@@ -1,11 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:social_media_app/data/model/post_pagination_response.dart';
+import 'package:social_media_app/domain/model/pagination_response.dart';
+import 'package:social_media_app/domain/model/post_entity.dart';
 import 'package:social_media_app/domain/model/user_entity.dart';
 
 abstract class ProfileRepository {
   // user
 
-  Future<PostPaginationResponse> getUserPostsNext({
+  Future<PaginationResponse<PostEntity>> getUserPostsNext({
     required String userId,
     DocumentSnapshot? lastDoc,
   });
