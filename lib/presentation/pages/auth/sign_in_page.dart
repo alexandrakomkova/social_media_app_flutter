@@ -72,14 +72,14 @@ class _SignInViewState extends State<_SignInView> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         BlocBuilder<SignInBloc, SignInState>(
-                          builder: (signInContext, state) {
+                          builder: (context, state) {
                             return TextFormField(
                               key: const Key('signInForm_email_textFormField'),
                               initialValue: state.email,
                               validator: (value) => Validator(
                                 context: context,
                               ).validateEmail(value),
-                              onChanged: (value) => signInContext
+                              onChanged: (value) => context
                                   .read<SignInBloc>()
                                   .add(SignInEvent.emailChanged(value)),
                               decoration: InputDecoration(
@@ -96,7 +96,7 @@ class _SignInViewState extends State<_SignInView> {
                         ),
                         const SizedBox(height: 15.0),
                         BlocBuilder<SignInBloc, SignInState>(
-                          builder: (signInContext, state) {
+                          builder: (context, state) {
                             return TextFormField(
                               key: const Key(
                                 'signInForm_password_textFormField',
@@ -115,7 +115,7 @@ class _SignInViewState extends State<_SignInView> {
                               validator: (value) => Validator(
                                 context: context,
                               ).validatePassword(value),
-                              onChanged: (value) => signInContext
+                              onChanged: (value) => context
                                   .read<SignInBloc>()
                                   .add(SignInEvent.passwordChanged(value)),
                             );

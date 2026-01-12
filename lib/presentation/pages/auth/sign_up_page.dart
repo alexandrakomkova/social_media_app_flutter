@@ -70,7 +70,7 @@ class _SignUpViewState extends State<_SignUpView> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         BlocBuilder<SignUpBloc, SignUpState>(
-                          builder: (signUpContext, state) {
+                          builder: (context, state) {
                             return TextFormField(
                               key: const Key(
                                 'signUpForm_username_textFormField',
@@ -88,7 +88,7 @@ class _SignUpViewState extends State<_SignUpView> {
                               validator: (value) => Validator(
                                 context: context,
                               ).validateUsername(value),
-                              onChanged: (value) => signUpContext
+                              onChanged: (value) => context
                                   .read<SignUpBloc>()
                                   .add(SignUpEvent.usernameChanged(value)),
                             );
@@ -96,7 +96,7 @@ class _SignUpViewState extends State<_SignUpView> {
                         ),
                         const SizedBox(height: 15.0),
                         BlocBuilder<SignUpBloc, SignUpState>(
-                          builder: (signUpContext, state) {
+                          builder: (context, state) {
                             return TextFormField(
                               key: const Key('signUpForm_email_textFormField'),
                               initialValue: state.email,
@@ -112,7 +112,7 @@ class _SignUpViewState extends State<_SignUpView> {
                               validator: (value) => Validator(
                                 context: context,
                               ).validateEmail(value),
-                              onChanged: (value) => signUpContext
+                              onChanged: (value) => context
                                   .read<SignUpBloc>()
                                   .add(SignUpEvent.emailChanged(value)),
                             );
@@ -120,7 +120,7 @@ class _SignUpViewState extends State<_SignUpView> {
                         ),
                         const SizedBox(height: 15.0),
                         BlocBuilder<SignUpBloc, SignUpState>(
-                          builder: (signUpContext, state) {
+                          builder: (context, state) {
                             return TextFormField(
                               key: const Key(
                                 'signUpForm_password_textFormField',
@@ -139,7 +139,7 @@ class _SignUpViewState extends State<_SignUpView> {
                               validator: (value) => Validator(
                                 context: context,
                               ).validatePassword(value),
-                              onChanged: (value) => signUpContext
+                              onChanged: (value) => context
                                   .read<SignUpBloc>()
                                   .add(SignUpEvent.passwordChanged(value)),
                             );
@@ -147,7 +147,7 @@ class _SignUpViewState extends State<_SignUpView> {
                         ),
                         const SizedBox(height: 15.0),
                         BlocBuilder<SignUpBloc, SignUpState>(
-                          builder: (signUpContext, state) {
+                          builder: (context, state) {
                             return TextFormField(
                               key: const Key(
                                 'signUpForm_repeatPassword_textFormField',
@@ -167,7 +167,7 @@ class _SignUpViewState extends State<_SignUpView> {
                                 context: context,
                               ).validateRepeatPassword(state.password, value),
                               onChanged: (value) =>
-                                  signUpContext.read<SignUpBloc>().add(
+                                  context.read<SignUpBloc>().add(
                                     SignUpEvent.repeatPasswordChanged(value),
                                   ),
                             );
