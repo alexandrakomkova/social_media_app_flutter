@@ -24,7 +24,7 @@ class PostsList extends StatelessWidget {
             onNotification: (scrollInfo) {
               if (scrollInfo.metrics.pixels >=
                       scrollInfo.metrics.maxScrollExtent - 200 &&
-                  state.hasMorePosts) {
+                  state.pagination.hasMoreToLoad) {
                 context.read<ProfileBloc>().add(
                   ProfileEvent.getUserPostsNext(userId: userId),
                 );
@@ -39,7 +39,7 @@ class PostsList extends StatelessWidget {
                 child: Column(
                   children: [
                     ...buildRows(context: context),
-                    if (!state.hasMorePosts)
+                    if (!state.pagination.hasMoreToLoad)
                       Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Center(
@@ -60,8 +60,8 @@ class PostsList extends StatelessWidget {
     final state = context.watch<ProfileBloc>().state;
     List<Widget> rows = [];
 
-    for (int i = 0; i < state.posts.length; i += 3) {
-      final rowPosts = state.posts.skip(i).take(3).toList();
+    for (int i = 0; i < state.pagination.list.length; i += 3) {
+      final rowPosts = state.pagination.list.skip(i).take(3).toList();
       rows.add(
         Row(
           children: List.generate(3, (j) {

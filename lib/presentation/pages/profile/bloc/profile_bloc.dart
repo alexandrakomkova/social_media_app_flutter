@@ -1,6 +1,5 @@
 import 'package:bloc/bloc.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -9,6 +8,7 @@ import 'package:social_media_app/domain/model/post_entity.dart';
 import 'package:social_media_app/domain/model/user_entity.dart';
 import 'package:social_media_app/domain/repository/auth/auth_repository.dart';
 import 'package:social_media_app/domain/repository/profile_repository.dart';
+import 'package:social_media_app/presentation/model/pagination.dart';
 import 'package:social_media_app/utils/firebase_service.dart';
 
 part 'profile_bloc.freezed.dart';
@@ -20,14 +20,13 @@ final _log = Logger('ProfileBloc');
 class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   final AuthRepository _authRepository;
   final ProfileRepository _profileRepository;
-  DocumentSnapshot? _lastDoc;
 
   ProfileBloc({
     required AuthRepository authRepository,
     required ProfileRepository profileRepository,
   }) : _authRepository = authRepository,
        _profileRepository = profileRepository,
-       super(const ProfileState.idle()) {
+       super(ProfileState.idle(pagination: Pagination<PostEntity>.empty())) {
     on<ProfileEvent>((event, emit) async {
       switch (event.runtimeType) {
         case const (_GetUserInfo):
@@ -58,7 +57,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   )..add(ProfileEvent.getUserProfile(userId: id));
 
   Future<void> _signOut(Emitter<ProfileState> emit) async {
-    emit(ProfileState.processing());
+    emit(ProfileState.processing(pagination: state.pagination));
 
     try {
       final res = await _authRepository.signOut();
@@ -68,17 +67,27 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
           final String errorMessage = onError.error is FirebaseAuthException
               ? (onError.error as FirebaseAuthException).message ?? ''
               : 'An unexpected error occurred';
-          emit(ProfileState.failed(errorMessage: errorMessage));
+          emit(
+            ProfileState.failed(
+              errorMessage: errorMessage,
+              pagination: state.pagination,
+            ),
+          );
         },
         (onOk) {
-          emit(ProfileState.success());
+          emit(ProfileState.success(pagination: state.pagination));
         },
       );
     } catch (e) {
       final String errorMessage = e is FirebaseAuthException
           ? e.message ?? ''
           : 'An unexpected error occurred';
-      emit(ProfileState.failed(errorMessage: errorMessage));
+      emit(
+        ProfileState.failed(
+          errorMessage: errorMessage,
+          pagination: state.pagination,
+        ),
+      );
     }
   }
 
@@ -86,15 +95,15 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     _GetUserInfo event,
     Emitter<ProfileState> emit,
   ) async {
-    emit(ProfileState.processing());
+    emit(ProfileState.processing(pagination: state.pagination));
 
     try {
       final user = await _profileRepository.getUserInfo(userId: event.userId);
 
-      emit(ProfileState.success(user: user));
+      emit(ProfileState.success(user: user, pagination: state.pagination));
     } catch (e) {
       _log.warning(e.toString());
-      emit(ProfileState.failed());
+      emit(ProfileState.failed(pagination: state.pagination));
     }
   }
 
@@ -108,21 +117,18 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         followers: state.followers,
         followings: state.followings,
         isFollowed: state.isFollowed,
-        posts: state.posts,
-        hasMorePosts: state.hasMorePosts,
         postsCount: state.postsCount,
+        pagination: state.pagination,
       ),
     );
 
     try {
       final res = await _profileRepository.getUserPostsNext(
         userId: event.userId,
-        lastDoc: _lastDoc,
+        lastDoc: state.pagination.lastDoc,
       );
 
-      _lastDoc = res.lastDoc;
-      var posts = res.list;
-      posts.addAll(state.posts);
+      state.pagination.addItemsToList(res.list);
 
       emit(
         ProfileState.success(
@@ -130,24 +136,28 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
           followers: state.followers,
           followings: state.followings,
           isFollowed: state.isFollowed,
-          posts: posts,
-          hasMorePosts: res.hasMoreToLoad,
+
           postsCount: state.postsCount,
+          pagination: state.pagination.copyWith(
+            hasMoreToLoad: res.hasMoreToLoad,
+            lastDoc: res.lastDoc,
+          ),
         ),
       );
 
-      _log.info('state: ${state.hasMorePosts} ${_lastDoc.toString()}');
+      _log.info(
+        'state: ${state.pagination.hasMoreToLoad} ${state.pagination.lastDoc.toString()}',
+      );
     } catch (e) {
       _log.warning(e.toString());
       emit(
         ProfileState.failed(
-          posts: [],
           user: state.user,
           followers: state.followers,
           followings: state.followings,
           isFollowed: state.isFollowed,
-          hasMorePosts: false,
           postsCount: state.postsCount,
+          pagination: state.pagination.copyWith(list: [], hasMoreToLoad: false),
         ),
       );
     }
@@ -157,7 +167,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     _GetUserProfile event,
     Emitter<ProfileState> emit,
   ) async {
-    emit(ProfileState.processing());
+    emit(ProfileState.processing(pagination: state.pagination));
 
     try {
       final res = await _profileRepository.getUserPostsNext(
@@ -167,8 +177,6 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       final postsCount = await _profileRepository.getPostsCount(
         userId: event.userId,
       );
-
-      _lastDoc = res.lastDoc;
 
       final user = await _profileRepository.getUserInfo(userId: event.userId);
       final List<UserEntity> followers = await _profileRepository.getFollowers(
@@ -183,17 +191,20 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
 
       emit(
         ProfileState.success(
-          posts: res.list,
           postsCount: postsCount,
           user: user,
           followers: followers,
           followings: followings,
           isFollowed: isFollowed,
+          pagination: state.pagination.copyWith(
+            list: res.list,
+            lastDoc: res.lastDoc,
+          ),
         ),
       );
     } catch (e) {
       _log.warning(e.toString());
-      emit(ProfileState.failed());
+      emit(ProfileState.failed(pagination: state.pagination));
     }
   }
 
@@ -212,24 +223,24 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
 
       emit(
         ProfileState.success(
-          posts: state.posts,
           user: state.user,
           followers: followers,
           followings: state.followings,
           isFollowed: !state.isFollowed,
           postsCount: state.postsCount,
+          pagination: state.pagination,
         ),
       );
     } catch (e) {
       _log.warning(e.toString());
       emit(
         ProfileState.failed(
-          posts: state.posts,
           user: state.user,
           followers: state.followers,
           followings: state.followings,
           isFollowed: state.isFollowed,
           postsCount: state.postsCount,
+          pagination: state.pagination,
         ),
       );
     }
@@ -250,24 +261,24 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
 
       emit(
         ProfileState.success(
-          posts: state.posts,
           user: state.user,
           followers: followers,
           followings: state.followings,
           isFollowed: !state.isFollowed,
           postsCount: state.postsCount,
+          pagination: state.pagination,
         ),
       );
     } catch (e) {
       _log.warning(e.toString());
       emit(
         ProfileState.failed(
-          posts: state.posts,
           user: state.user,
           followers: state.followers,
           followings: state.followings,
           isFollowed: state.isFollowed,
           postsCount: state.postsCount,
+          pagination: state.pagination,
         ),
       );
     }
@@ -281,12 +292,12 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       _log.warning(e.toString());
       emit(
         ProfileState.failed(
-          posts: state.posts,
           user: state.user,
           postsCount: 0,
           followers: state.followers,
           followings: state.followings,
           isFollowed: state.isFollowed,
+          pagination: state.pagination,
         ),
       );
     }
