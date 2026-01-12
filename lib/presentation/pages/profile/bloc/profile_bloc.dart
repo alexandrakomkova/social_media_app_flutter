@@ -34,6 +34,8 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
           await _getUserInfo(event as _GetUserInfo, emit);
         case const (_GetUserProfile):
           await _getUserProfile(event as _GetUserProfile, emit);
+        case const (_GetPostsCount):
+          await _getPostsCount(event as _GetPostsCount, emit);
         case const (_FollowUser):
           await _followUser(event as _FollowUser, emit);
         case const (_UnfollowUser):
@@ -43,7 +45,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         case const (_GetUserPostsNext):
           await _getUserPostsNext(event as _GetUserPostsNext, emit);
       }
-    }, transformer: sequential());
+    }, transformer: droppable());
   }
 
   factory ProfileBloc.getUserProfile({
@@ -108,6 +110,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         isFollowed: state.isFollowed,
         posts: state.posts,
         hasMorePosts: state.hasMorePosts,
+        postsCount: state.postsCount,
       ),
     );
 
@@ -128,9 +131,12 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
           followings: state.followings,
           isFollowed: state.isFollowed,
           posts: posts,
-          hasMorePosts: res.hasMore,
+          hasMorePosts: res.hasMoreToLoad,
+          postsCount: state.postsCount,
         ),
       );
+
+      _log.info('state: ${state.hasMorePosts} ${_lastDoc.toString()}');
     } catch (e) {
       _log.warning(e.toString());
       emit(
@@ -140,6 +146,8 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
           followers: state.followers,
           followings: state.followings,
           isFollowed: state.isFollowed,
+          hasMorePosts: false,
+          postsCount: state.postsCount,
         ),
       );
     }
@@ -153,6 +161,10 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
 
     try {
       final res = await _profileRepository.getUserPostsNext(
+        userId: event.userId,
+      );
+
+      final postsCount = await _profileRepository.getPostsCount(
         userId: event.userId,
       );
 
@@ -172,6 +184,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       emit(
         ProfileState.success(
           posts: res.posts,
+          postsCount: postsCount,
           user: user,
           followers: followers,
           followings: followings,
@@ -204,6 +217,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
           followers: followers,
           followings: state.followings,
           isFollowed: !state.isFollowed,
+          postsCount: state.postsCount,
         ),
       );
     } catch (e) {
@@ -215,6 +229,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
           followers: state.followers,
           followings: state.followings,
           isFollowed: state.isFollowed,
+          postsCount: state.postsCount,
         ),
       );
     }
@@ -240,6 +255,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
           followers: followers,
           followings: state.followings,
           isFollowed: !state.isFollowed,
+          postsCount: state.postsCount,
         ),
       );
     } catch (e) {
@@ -248,6 +264,26 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         ProfileState.failed(
           posts: state.posts,
           user: state.user,
+          followers: state.followers,
+          followings: state.followings,
+          isFollowed: state.isFollowed,
+          postsCount: state.postsCount,
+        ),
+      );
+    }
+  }
+
+  Future<void> _getPostsCount(
+    _GetPostsCount event,
+    Emitter<ProfileState> emit,
+  ) async {
+    try {} catch (e) {
+      _log.warning(e.toString());
+      emit(
+        ProfileState.failed(
+          posts: state.posts,
+          user: state.user,
+          postsCount: 0,
           followers: state.followers,
           followings: state.followings,
           isFollowed: state.isFollowed,

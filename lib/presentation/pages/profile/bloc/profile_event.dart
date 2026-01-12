@@ -12,6 +12,9 @@ abstract class ProfileEvent with _$ProfileEvent {
   const factory ProfileEvent.getUserPostsNext({required String userId}) =
       _GetUserPostsNext;
 
+  const factory ProfileEvent.getPostsCount({required String userId}) =
+      _GetPostsCount;
+
   const factory ProfileEvent.getUserProfile({required String userId}) =
       _GetUserProfile;
 

@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:logging/logging.dart';
+import 'package:social_media_app/data/model/post_pagination_response.dart';
 import 'package:social_media_app/data/model/user_model.dart';
 import 'package:social_media_app/domain/model/comment_entity.dart';
 import 'package:social_media_app/domain/model/notification_entity.dart';
@@ -152,24 +153,6 @@ class FirebaseDbServiceImpl implements DbService {
       return Result.ok(null);
     } on Exception catch (e) {
       _log.warning('createPost error: $e');
-      return Result.error(e);
-    }
-  }
-
-  @override
-  Future<Result<List<PostEntity>>> getUserPosts({
-    required String userId,
-  }) async {
-    try {
-      final querySnapshot = await _postsRef
-          .where('userId', isEqualTo: userId)
-          .limit(10)
-          .get();
-
-      List<PostEntity> posts = await _getPostEntitiesFromQuery(querySnapshot);
-      return Result.ok(posts);
-    } on Exception catch (e) {
-      _log.warning('getUserPosts error: $e');
       return Result.error(e);
     }
   }
@@ -691,21 +674,50 @@ class FirebaseDbServiceImpl implements DbService {
   }
 
   @override
-  Future<
-    Result<
-      ({
-        bool hasMore,
-        DocumentSnapshot<Object?>? lastDoc,
-        List<PostEntity> posts,
-      })
-    >
-  >
-  getUserPostsNext({
+  Future<Result<PostEntity?>> getUserPost({required String postId}) async {
+    try {
+      final postSnapshot = await _postsRef.doc(postId).get();
+      if (!postSnapshot.exists) {
+        return Result.error(Exception('No post found'));
+      }
+
+      final postData = postSnapshot.data();
+      var userRef = postData?['userInfo'] as DocumentReference;
+
+      final userDoc = await userRef.get();
+      if (userDoc.exists) {
+        final userData = userDoc.data() as Map<String, dynamic>?;
+        final postEntity = PostEntity(
+          imageUrl: postData?['imageUrl'],
+          creationTimestamp: postData?['creationTimestamp'],
+          description: postData?['description'],
+          userId: userData?['id'],
+          userEntity: UserEntity(
+            id: userData?['id'],
+            email: userData?['email'],
+            username: userData?['username'],
+            bio: userData?['bio'],
+            creationTimestamp: userData?['creationTimestamp'],
+            photoUrl: userData?['photoUrl'],
+          ),
+        );
+
+        return Result.ok(postEntity);
+      }
+      return Result.ok(null);
+    } on Exception catch (e) {
+      _log.warning('getUserPost error: $e');
+      return Result.error(e);
+    }
+  }
+
+  @override
+  Future<Result<PostPaginationResponse>> getUserPostsNext({
     required String userId,
     DocumentSnapshot<Object?>? lastDoc,
   }) async {
     try {
-      Query query = _postsRef.where('userId', isEqualTo: userId).limit(9);
+      Query query = _postsRef.where('userId', isEqualTo: userId).limit(3);
 
       if (lastDoc != null) {
         query = query.startAfterDocument(lastDoc);
@@ -713,14 +725,20 @@ class FirebaseDbServiceImpl implements DbService {
 
       final querySnapshot = await query.get();
 
-      List<PostEntity> posts = [];
-      DocumentSnapshot? lastItem;
-      bool hasMoreToLoad = true;
+      var postPaginationResponse = PostPaginationResponse(
+        hasMoreToLoad: true,
+        posts: <PostEntity>[],
+        lastDoc: null,
+      );
 
       if (querySnapshot.docs.isNotEmpty) {
-        lastItem = querySnapshot.docs.last;
+        postPaginationResponse = postPaginationResponse.copyWith(
+          lastDoc: querySnapshot.docs.last,
+        );
       } else {
-        hasMoreToLoad = false;
+        postPaginationResponse = postPaginationResponse.copyWith(
+          hasMoreToLoad: false,
+        );
       }
 
       for (var docSnapshot in querySnapshot.docs) {
@@ -728,11 +746,7 @@ class FirebaseDbServiceImpl implements DbService {
 
         if (data == null) {
           _log.info('_getPostEntitiesFromQuery data is null');
-          return Result.ok((
-            posts: posts,
-            lastDoc: lastItem,
-            hasMore: hasMoreToLoad,
-          ));
+          return Result.ok(postPaginationResponse);
         }
 
         var userRef = data['userInfo'] as DocumentReference;
@@ -740,7 +754,9 @@ class FirebaseDbServiceImpl implements DbService {
         final userDoc = await userRef.get();
         if (userDoc.exists) {
           var userData = userDoc.data() as Map<String, dynamic>?;
-          posts.add(
+          var userPosts = postPaginationResponse.posts;
+
+          userPosts.add(
             PostEntity(
               userEntity: UserEntity(
                 id: userData?['id'],
@@ -756,16 +772,32 @@ class FirebaseDbServiceImpl implements DbService {
               creationTimestamp: data['creationTimestamp'],
             ),
           );
+
+          postPaginationResponse = postPaginationResponse.copyWith(
+            posts: userPosts,
+          );
         }
       }
 
-      return Result.ok((
-        posts: posts,
-        lastDoc: lastItem,
-        hasMore: hasMoreToLoad,
-      ));
+      return Result.ok(postPaginationResponse);
     } on Exception catch (e) {
       _log.warning('getUserPosts error: $e');
+      return Result.error(e);
+    }
+  }
+
+  @override
+  Future<Result<int>> getPostsCount({required String userId}) async {
+    try {
+      AggregateQuerySnapshot snapshot = await _postsRef
+          .where('userId', isEqualTo: userId)
+          .count()
+          .get();
+      int postsCount = snapshot.count ?? 0;
+
+      return Result.ok(postsCount);
+    } on Exception catch (e) {
+      _log.warning('getPostsCount error: $e');
       return Result.error(e);
     }
   }

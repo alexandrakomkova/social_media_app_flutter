@@ -62,7 +62,7 @@ class PostRepositoryImpl implements PostRepository {
     required String commentText,
     required String postOwnerId,
   }) async {
-    debugPrint('--- PostRepositoryImpl addComment postOwnerId $postOwnerId');
+    _log.info('addComment postOwnerId $postOwnerId');
 
     final res = await _dbService.addComment(
       postId: postId,
@@ -71,9 +71,10 @@ class PostRepositoryImpl implements PostRepository {
     );
     switch (res) {
       case Ok<void>():
+        _log.info('addComment success');
         return;
       case Failure<void>():
-        debugPrint('--- PostRepositoryImpl addComment ${res.error}');
+        _log.warning('addComment ${res.error}');
         return;
     }
   }

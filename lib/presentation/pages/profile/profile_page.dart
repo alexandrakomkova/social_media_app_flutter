@@ -240,7 +240,7 @@ class _ProfileView extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         ProfileInfoCard(
-          value: state.posts.length.toString(),
+          value: state.postsCount.toString(),
           valueLabel: l10n.profileInfoCardPostsCount,
         ),
         ProfileInfoCard(

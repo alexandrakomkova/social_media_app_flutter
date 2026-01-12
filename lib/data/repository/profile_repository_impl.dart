@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:logging/logging.dart';
 import 'package:social_media_app/data/db_provider.dart';
+import 'package:social_media_app/data/model/post_pagination_response.dart';
 import 'package:social_media_app/domain/model/post_entity.dart';
 import 'package:social_media_app/domain/model/user_entity.dart';
 import 'package:social_media_app/domain/repository/db_service.dart';
@@ -17,23 +18,25 @@ class ProfileRepositoryImpl implements ProfileRepository {
     : _dbService = dbService;
 
   @override
-  Future<({DocumentSnapshot? lastDoc, List<PostEntity> posts, bool hasMore})>
-  getUserPostsNext({required String userId, DocumentSnapshot? lastDoc}) async {
+  Future<PostPaginationResponse> getUserPostsNext({
+    required String userId,
+    DocumentSnapshot? lastDoc,
+  }) async {
     final res = await _dbService.getUserPostsNext(
       userId: userId,
       lastDoc: lastDoc,
     );
 
     switch (res) {
-      case Ok<
-        ({DocumentSnapshot? lastDoc, List<PostEntity> posts, bool hasMore})
-      >():
+      case Ok<PostPaginationResponse>():
         return res.value;
-      case Failure<
-        ({DocumentSnapshot? lastDoc, List<PostEntity> posts, bool hasMore})
-      >():
+      case Failure<PostPaginationResponse>():
         _log.warning('getUserPosts error: ${res.error}');
-        return (posts: <PostEntity>[], lastDoc: null, hasMore: true);
+        return PostPaginationResponse(
+          posts: <PostEntity>[],
+          lastDoc: null,
+          hasMoreToLoad: false,
+        );
     }
   }
 
@@ -143,6 +146,20 @@ class ProfileRepositoryImpl implements ProfileRepository {
       case Failure<bool>():
         _log.warning('isFollowedByCurrentUser error: ${res.error}');
         return false;
+    }
+  }
+
+  @override
+  Future<int> getPostsCount({required String userId}) async {
+    final res = await _dbService.getPostsCount(userId: userId);
+
+    switch (res) {
+      case Ok<int>():
+        _log.info('getPostsCount ${res.value}');
+        return res.value;
+      case Failure<int>():
+        _log.warning('getPostsCount error: ${res.error}');
+        return 0;
     }
   }
 }
