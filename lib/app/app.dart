@@ -1,12 +1,7 @@
-import 'dart:convert';
-
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:logging/logging.dart';
 import 'package:provider/provider.dart';
 import 'package:social_media_app/data/repository/auth/auth_firebase_service_impl.dart';
 import 'package:social_media_app/data/repository/auth/auth_repository_impl.dart';
@@ -17,26 +12,33 @@ import 'package:social_media_app/data/repository/notification_repository_impl.da
 import 'package:social_media_app/data/repository/post_repository_impl.dart';
 import 'package:social_media_app/data/repository/profile_repository_impl.dart';
 import 'package:social_media_app/data/repository/search_repository_impl.dart';
+import 'package:social_media_app/domain/repository/auth/auth_firebase_service.dart';
+import 'package:social_media_app/domain/repository/auth/auth_repository.dart';
+import 'package:social_media_app/domain/repository/db_service.dart';
+import 'package:social_media_app/domain/repository/home_repository.dart';
+import 'package:social_media_app/domain/repository/image_service.dart';
+import 'package:social_media_app/domain/repository/notification_repository.dart';
+import 'package:social_media_app/domain/repository/post_repository.dart';
+import 'package:social_media_app/domain/repository/profile_repository.dart';
+import 'package:social_media_app/domain/repository/search_repository.dart';
+import 'package:social_media_app/initialization/dependencies.dart';
 import 'package:social_media_app/l10n/app_localizations.dart';
 import 'package:social_media_app/l10n/language_provider.dart';
-import 'package:social_media_app/main.dart';
-import 'package:social_media_app/presentation/cubit/internet_connectivity__cubit.dart';
+import 'package:social_media_app/presentation/cubit/internet_connectivity_cubit.dart';
 import 'package:social_media_app/presentation/pages/auth/sign_in_page.dart';
 import 'package:social_media_app/presentation/pages/main_screen/main_page.dart';
 import 'package:social_media_app/presentation/widget/checking_internet_connection.dart';
 import 'package:social_media_app/presentation/widget/no_internet_connection.dart';
 import 'package:social_media_app/theme/theme.dart';
 import 'package:social_media_app/theme/theme_provider.dart';
-import 'package:social_media_app/utils/notification_handler.dart';
-
-final _log = Logger('App widget');
-final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-final notificationHandler = NotificationHandler(_log, navigatorKey);
 
 class App extends StatefulWidget {
   final Connectivity connectivity;
+  final GlobalKey<NavigatorState> navigatorKey;
+
   const App({
     required this.connectivity,
+    required this.navigatorKey,
     super.key,
   });
 
@@ -44,57 +46,10 @@ class App extends StatefulWidget {
   State<App> createState() => _AppState();
 }
 
-void requestPermission() async {
-  FirebaseMessaging messaging = FirebaseMessaging.instance;
-
-  NotificationSettings settings = await messaging.requestPermission(
-    alert: true,
-    badge: true,
-    sound: true,
-  );
-
-  _log.info('User granted permission: ${settings.authorizationStatus}');
-}
-
 class _AppState extends State<App> {
   @override
   void initState() {
     super.initState();
-
-    requestPermission();
-
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      RemoteNotification? notification = message.notification;
-      AndroidNotification? android = message.notification?.android;
-
-      if (notification != null && android != null) {
-        flutterLocalNotificationsPlugin.show(
-          notification.hashCode,
-          notification.title,
-          notification.body,
-          NotificationDetails(
-            android: AndroidNotificationDetails(
-              'fireground_channel_id',
-              'Foreground Notifications',
-              channelDescription: 'Channel for foreground notifications',
-              importance: Importance.max,
-              priority: Priority.high,
-            ),
-          ),
-          payload: jsonEncode(message.data),
-        );
-      }
-    });
-
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      notificationHandler.handleMessageData(message.data);
-    });
-
-    FirebaseMessaging.instance.getInitialMessage().then((message) {
-      if (message != null) {
-        notificationHandler.handleMessageData(message.data);
-      }
-    });
   }
 
   @override
@@ -102,71 +57,70 @@ class _AppState extends State<App> {
     return MultiRepositoryProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (_) => ThemeProvider(),
+          create: (_) => ThemeProvider(
+            sharedPreferences: Dependencies.of(context).sharedPreferences,
+          ),
         ),
         ChangeNotifierProvider(
-          create: (_) => LanguageProvider(Locale('en'))
+          create: (_) => LanguageProvider(
+            locale: Locale('en'),
+            sharedPreferences: Dependencies.of(context).sharedPreferences,
+          ),
         ),
-        RepositoryProvider(create: (_) => AuthFirebaseServiceImpl()),
-        RepositoryProvider(create: (_) => FirebaseDbServiceImpl()),
-        RepositoryProvider(create:
-            (authRepositoryContext) => AuthRepositoryImpl(
-                authFirebaseService:  authRepositoryContext.read<AuthFirebaseServiceImpl>(),
-                firebaseDbService: authRepositoryContext.read<FirebaseDbServiceImpl>(),
-            )
+        RepositoryProvider<AuthFirebaseService>(
+          create: (_) =>
+              AuthFirebaseServiceImpl(firebaseAuth: FirebaseAuth.instance),
         ),
-        RepositoryProvider(create:
-            (homeContext) => HomeRepositoryImpl(
-                dbService: homeContext.read<FirebaseDbServiceImpl>()
-            )
+        RepositoryProvider<DbService>(create: (_) => FirebaseDbServiceImpl()),
+        RepositoryProvider<AuthRepository>(
+          create: (context) => AuthRepositoryImpl(
+            authFirebaseService: context.read<AuthFirebaseService>(),
+            firebaseDbService: context.read<DbService>(),
+          ),
         ),
-        RepositoryProvider(create:
-            (notificationContext) => NotificationRepositoryImpl(
-              dbService: notificationContext.read<FirebaseDbServiceImpl>()
-            )
+        RepositoryProvider<HomeRepository>(
+          create: (context) =>
+              HomeRepositoryImpl(dbService: context.read<DbService>()),
         ),
-        RepositoryProvider(create:
-          (searchContext) => SearchRepositoryImpl(
-              dbService: searchContext.read<FirebaseDbServiceImpl>(),
-          )
+        RepositoryProvider<NotificationRepository>(
+          create: (context) =>
+              NotificationRepositoryImpl(dbService: context.read<DbService>()),
         ),
-        RepositoryProvider(create:
-            (_) => ImageServiceImpl()
+        RepositoryProvider<SearchRepository>(
+          create: (context) =>
+              SearchRepositoryImpl(dbService: context.read<DbService>()),
         ),
-        RepositoryProvider(create:
-            (profileContext) => ProfileRepositoryImpl(
-              dbService: profileContext.read<FirebaseDbServiceImpl>(),
-            ),
+        RepositoryProvider<ImageService>(create: (_) => ImageServiceImpl()),
+        RepositoryProvider<ProfileRepository>(
+          create: (context) =>
+              ProfileRepositoryImpl(dbService: context.read<DbService>()),
         ),
-        RepositoryProvider(create:
-          (postContext) => PostRepositoryImpl(
-              dbService: postContext.read<FirebaseDbServiceImpl>()
-          )
+        RepositoryProvider<PostRepository>(
+          create: (context) =>
+              PostRepositoryImpl(dbService: context.read<DbService>()),
         ),
       ],
-      child:  BlocProvider(
-          create: (_) =>
-        InternetConnectivityCubit(connectivity: widget.connectivity),
-        child: const _AppView(),
-      )
+      child: BlocProvider(
+        create: (_) =>
+            InternetConnectivityCubit(connectivity: widget.connectivity),
+        child: _AppView(navigatorKey: widget.navigatorKey),
+      ),
     );
   }
 }
 
 class _AppView extends StatelessWidget {
-  const _AppView();
+  final GlobalKey<NavigatorState> navigatorKey;
+
+  const _AppView({required this.navigatorKey});
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<ThemeProvider>(
-      builder: (
-          context,
-          ThemeProvider themeProvider,
-          Widget? child,
-      ) {
-        return Consumer<LanguageProvider>(
-          builder: (
-            context,
+    return Consumer2<ThemeProvider, LanguageProvider>(
+      builder:
+          (
+            BuildContext context,
+            ThemeProvider themeProvider,
             LanguageProvider languageProvider,
             Widget? child,
           ) {
@@ -175,16 +129,13 @@ class _AppView extends StatelessWidget {
               debugShowCheckedModeBanner: false,
               localizationsDelegates: AppLocalizations.localizationsDelegates,
               locale: languageProvider.locale,
-              supportedLocales: [
-                Locale('en'),
-                Locale('ru'),
-              ],
-              theme: themeProvider.isDarkMode ? SocialMediaTheme.darkTheme : SocialMediaTheme.lightTheme,
+              supportedLocales: [Locale('en'), Locale('ru')],
+              theme: AppTheme.lightTheme,
+              darkTheme: AppTheme.darkTheme,
+              themeMode: themeProvider.themeMode,
               home: const _AppScreen(),
             );
-          }
-        );
-      }
+          },
     );
   }
 }
@@ -196,17 +147,15 @@ class _AppScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<InternetConnectivityCubit, InternetConnectivityState>(
       builder: (_, internetCubitState) {
-        return switch(internetCubitState.status) {
+        return switch (internetCubitState.status) {
           InternetStatus.loading => CheckingInternetConnection(),
           InternetStatus.disconnected => NoInternetConnection(),
           InternetStatus.connected => StreamBuilder(
             stream: FirebaseAuth.instance.authStateChanges(),
             builder: ((BuildContext context, snapshot) {
-              if (snapshot.hasData) {
-                return MainPage();
-              } else {
-                return SignInPage();
-              }
+              if (snapshot.hasData) return MainPage();
+
+              return SignInPage();
             }),
           ),
         };
@@ -214,5 +163,3 @@ class _AppScreen extends StatelessWidget {
     );
   }
 }
-
-

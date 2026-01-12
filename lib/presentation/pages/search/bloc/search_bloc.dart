@@ -4,38 +4,54 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:social_media_app/domain/model/user_entity.dart';
 import 'package:social_media_app/domain/repository/search_repository.dart';
 
+part 'search_bloc.freezed.dart';
 part 'search_event.dart';
 part 'search_state.dart';
-part 'search_bloc.freezed.dart';
 
 class SearchBloc extends Bloc<SearchEvent, SearchState> {
   final SearchRepository _searchRepository;
-  SearchBloc({
-    required SearchRepository searchRepository,
-}) : _searchRepository = searchRepository,
-     super(const SearchState.idle()) {
-    on<SearchEvent>((events, emit) async {
-      await events.map(
-        queryChanged: (event) => _queryChanged(event, emit),
-        searchUsers: (event) => _searchUsers(event, emit),
-      );
-    }, transformer: restartable()
-    );
+
+  SearchBloc({required SearchRepository searchRepository})
+    : _searchRepository = searchRepository,
+      super(const SearchState.idle()) {
+    on<SearchEvent>((event, emit) async {
+      switch (event.runtimeType) {
+        case const (_QueryChanged):
+          await _queryChanged(event as _QueryChanged, emit);
+        case const (_SearchUsers):
+          await _searchUsers(event as _SearchUsers, emit);
+      }
+    }, transformer: restartable());
   }
 
-  Future<void> _queryChanged(_QueryChanged event, Emitter<SearchState> emit) async {
+  Future<void> _queryChanged(
+    _QueryChanged event,
+    Emitter<SearchState> emit,
+  ) async {
     emit(state.copyWith(searchQuery: event.query));
   }
 
-  Future<void> _searchUsers(_SearchUsers event, Emitter<SearchState> emit) async {
+  Future<void> _searchUsers(
+    _SearchUsers event,
+    Emitter<SearchState> emit,
+  ) async {
     emit(SearchState.processing(searchQuery: state.searchQuery));
 
     try {
-      final res = await _searchRepository.searchUserByUsername(query: state.searchQuery);
+      final res = await _searchRepository.searchUserByUsername(
+        query: state.searchQuery,
+      );
 
-      emit(SearchState.success(searchResult: res, searchQuery: state.searchQuery));
-    } catch(e) {
-      emit(SearchState.failed(searchQuery: state.searchQuery));
+      emit(
+        SearchState.success(searchResult: res, searchQuery: state.searchQuery),
+      );
+    } catch (e) {
+      emit(
+        SearchState.failed(
+          searchQuery: state.searchQuery,
+          errorMessage: e.toString(),
+        ),
+      );
     }
   }
 }

@@ -9,39 +9,40 @@ void showBottomSheetCreationVariants({
   required List<UserEntity> users,
 }) {
   showModalBottomSheet(
-      shape: const RoundedRectangleBorder(
-        borderRadius:
-        BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      showDragHandle: true,
-      isScrollControlled: true,
-      context: context,
-      builder: (BuildContext context) {
-        return FractionallySizedBox(
-            heightFactor: .5,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                  child: Center(
-                    child: Text(
-                      bottomSheetTitle,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.secondary,
-                      ),
-                    ),
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    ),
+    showDragHandle: true,
+    isScrollControlled: true,
+    context: context,
+    builder: (BuildContext context) {
+      return FractionallySizedBox(
+        heightFactor: .5,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10.0),
+              child: Center(
+                child: Text(
+                  bottomSheetTitle,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.secondary,
                   ),
                 ),
+              ),
+            ),
 
-                Divider(),
+            Divider(),
 
-                Expanded(
-                    child: users.isEmpty
-                        ? Center( child: Text('No ${bottomSheetTitle.toLowerCase()} found'))
-                        : ListView.builder(
+            Expanded(
+              child: users.isEmpty
+                  ? Center(
+                      child: Text('No ${bottomSheetTitle.toLowerCase()} found'),
+                    )
+                  : ListView.builder(
                       physics: AlwaysScrollableScrollPhysics(),
                       shrinkWrap: true,
                       itemCount: users.length,
@@ -49,25 +50,23 @@ void showBottomSheetCreationVariants({
                         final user = users[index];
 
                         return UserCard(
-                            userEntity: user,
-                            onTap: () => _showUserProfile(context: context, id: user.id),
+                          entity: user,
+                          onTap: () =>
+                              _showUserProfile(context: context, id: user.id),
                         );
                       },
                     ),
-                ),
-              ],
             ),
-        );
-      },
+          ],
+        ),
+      );
+    },
   );
 }
-
 
 void _showUserProfile({required BuildContext context, required String id}) {
   Navigator.push(
     context,
-    MaterialPageRoute(
-      builder: (_) => ProfilePage(userId: id,),
-    ),
+    MaterialPageRoute(builder: (_) => ProfilePage(userId: id)),
   );
 }

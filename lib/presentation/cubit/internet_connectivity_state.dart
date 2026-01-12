@@ -1,10 +1,14 @@
-part of 'internet_connectivity__cubit.dart';
+part of 'internet_connectivity_cubit.dart';
 
 enum InternetStatus {
-  loading, connected, disconnected;
+  loading,
+  connected,
+  disconnected;
 
   bool get isLoading => this == InternetStatus.loading;
+
   bool get isConnected => this == InternetStatus.connected;
+
   bool get isDisconnected => this == InternetStatus.disconnected;
 }
 

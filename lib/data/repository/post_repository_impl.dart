@@ -1,51 +1,58 @@
 import 'package:flutter/cupertino.dart';
 import 'package:logging/logging.dart';
 import 'package:social_media_app/domain/model/comment_entity.dart';
-import 'package:social_media_app/domain/repository/post_repository.dart';
-import 'package:social_media_app/domain/repository/comment_repository.dart';
 import 'package:social_media_app/domain/repository/db_service.dart';
+import 'package:social_media_app/domain/repository/post_repository.dart';
 import 'package:social_media_app/utils/result.dart';
 
 final _log = Logger('PostRepositoryImpl');
-class PostRepositoryImpl implements PostRepository, CommentRepository {
+
+class PostRepositoryImpl implements PostRepository {
   final DbService _dbService;
 
-  const PostRepositoryImpl({
-    required DbService dbService,
-  }): _dbService = dbService;
+  const PostRepositoryImpl({required DbService dbService})
+    : _dbService = dbService;
 
   @override
-  Future<Map<String, int>> getLikesInfo({required String postId}) async {
+  Future<({int likesCount, bool isLiked})> getLikesInfo({
+    required String postId,
+  }) async {
     final res = await _dbService.getLikesInfo(postId: postId);
 
-    switch(res) {
-      case Ok<Map<String, int>>():
+    switch (res) {
+      case Ok<({int likesCount, bool isLiked})>():
         return res.value;
-      case Error<Map<String, int>>():
+      case Failure<({int likesCount, bool isLiked})>():
         _log.warning("${_log.name} getLikesInfo error: ${res.error}");
-        return {'likesCount': 0, 'isLiked': 0};
+        return (likesCount: 0, isLiked: false);
     }
   }
 
   @override
-  Future<void> addLike({required String postId, required String postOwnerId}) async {
-    final res =  await _dbService.addLike(postId: postId, postOwnerId: postOwnerId);
-    switch(res) {
+  Future<void> addLike({
+    required String postId,
+    required String postOwnerId,
+  }) async {
+    final res = await _dbService.addLike(
+      postId: postId,
+      postOwnerId: postOwnerId,
+    );
+    switch (res) {
       case Ok<void>():
         return res.value;
-      case Error<void>():
-        return ;
+      case Failure<void>():
+        return;
     }
   }
 
   @override
   Future<void> removeLike({required String postId}) async {
-    final res =  await _dbService.removeLike(postId: postId);
-    switch(res) {
+    final res = await _dbService.removeLike(postId: postId);
+    switch (res) {
       case Ok<void>():
         return res.value;
-      case Error<void>():
-        return ;
+      case Failure<void>():
+        return;
     }
   }
 
@@ -62,25 +69,23 @@ class PostRepositoryImpl implements PostRepository, CommentRepository {
       commentText: commentText,
       postOwnerId: postOwnerId,
     );
-    switch(res) {
+    switch (res) {
       case Ok<void>():
         return;
-      case Error<void>():
+      case Failure<void>():
         debugPrint('--- PostRepositoryImpl addComment ${res.error}');
         return;
     }
   }
 
   @override
-  Future<List<CommentEntity>> getComments({
-    required String postId,
-  }) async {
+  Future<List<CommentEntity>> getComments({required String postId}) async {
     final res = await _dbService.getComments(postId: postId);
 
-    switch(res) {
+    switch (res) {
       case Ok<List<CommentEntity>>():
         return res.value;
-      case Error<List<CommentEntity>>():
+      case Failure<List<CommentEntity>>():
         debugPrint(res.error.toString());
         return [];
     }
