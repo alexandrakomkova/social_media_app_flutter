@@ -6,21 +6,21 @@ sealed class CreatePostState with _$CreatePostState {
 
   const factory CreatePostState.idle({
     @Default('') String postDescription,
-    @Default(null) File? imageFile,
+    File? imageFile,
   }) = CreatePostState$Idle;
 
   const factory CreatePostState.processing({
     @Default('') String postDescription,
-    @Default(null) File? imageFile,
+    File? imageFile,
   }) = CreatePostState$Processing;
 
   const factory CreatePostState.success({
     @Default('') String postDescription,
-    @Default(null) File? imageFile,
+    File? imageFile,
   }) = CreatePostState$Success;
 
   const factory CreatePostState.failed({
     @Default('') String postDescription,
-    @Default(null) File? imageFile,
+    File? imageFile,
   }) = CreatePostState$Failed;
 }

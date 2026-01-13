@@ -5,7 +5,7 @@ sealed class ProfileState with _$ProfileState {
   const ProfileState._();
 
   const factory ProfileState.idle({
-    @Default(null) UserEntity? user,
+    UserEntity? user,
     @Default([]) List<UserEntity> followers,
     @Default([]) List<UserEntity> followings,
     @Default(0) int postsCount,
@@ -14,7 +14,7 @@ sealed class ProfileState with _$ProfileState {
   }) = ProfileState$Idle;
 
   const factory ProfileState.processing({
-    @Default(null) UserEntity? user,
+    UserEntity? user,
     @Default(0) int postsCount,
     @Default([]) List<UserEntity> followers,
     @Default([]) List<UserEntity> followings,
@@ -23,7 +23,7 @@ sealed class ProfileState with _$ProfileState {
   }) = ProfileState$Processing;
 
   const factory ProfileState.success({
-    @Default(null) UserEntity? user,
+    UserEntity? user,
     @Default(0) int postsCount,
     @Default([]) List<UserEntity> followers,
     @Default([]) List<UserEntity> followings,
@@ -32,7 +32,7 @@ sealed class ProfileState with _$ProfileState {
   }) = ProfileState$Success;
 
   const factory ProfileState.failed({
-    @Default(null) UserEntity? user,
+    UserEntity? user,
     @Default(0) int postsCount,
     @Default([]) List<UserEntity> followers,
     @Default([]) List<UserEntity> followings,
