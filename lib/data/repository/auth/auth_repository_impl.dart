@@ -58,15 +58,21 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Result<bool?>> signInWithGoogle() async {
     final userCredential = await _authFirebaseService.signInWithGoogle();
+    _log.info('userCredential result type is: ${userCredential.runtimeType}');
 
     switch (userCredential) {
-      case Ok<UserCredential>():
-        _log.info(
-          'signInWithGoogle success userId: ${userCredential.value.user?.uid}',
-        );
-        final user = userCredential.value.user!;
+      case Ok<UserCredential?>():
+        if (userCredential.value == null) {
+          _log.info('googleUser is null');
+          return Result.ok(null);
+        }
 
-        if (userCredential.value.additionalUserInfo!.isNewUser) {
+        _log.info(
+          'signInWithGoogle success userId: ${userCredential.value!.user?.uid}',
+        );
+        final user = userCredential.value!.user!;
+
+        if (userCredential.value!.additionalUserInfo!.isNewUser) {
           await _dbService.createUser(
             user: user,
             userModel: UserModel(

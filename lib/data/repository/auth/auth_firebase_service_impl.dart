@@ -54,6 +54,7 @@ class AuthFirebaseServiceImpl implements AuthFirebaseService {
       final googleUser = await _googleSignIn.signIn();
 
       if (googleUser == null) {
+        _log.info('googleUser is null');
         return Result.ok(null);
       }
 
@@ -70,6 +71,8 @@ class AuthFirebaseServiceImpl implements AuthFirebaseService {
         _log.warning('Cannot register user with google');
         return Result.error(Exception('Cannot register user with google'));
       }
+
+      _log.info('signInWithGoogle success: ${userCredential.credential}');
 
       return Result.ok(userCredential);
     } on FirebaseAuthException catch (e) {
