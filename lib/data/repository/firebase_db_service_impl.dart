@@ -705,7 +705,7 @@ class FirebaseDbServiceImpl implements DbService {
           .add({
             'postId': postId,
             'userInfo': _usersRef.doc(FirebaseService.currentUserId),
-            'type': type.typeName,
+            'type': type.name,
             'creationTimestamp': DateTime.now().millisecondsSinceEpoch,
           });
 
