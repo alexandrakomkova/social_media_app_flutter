@@ -85,9 +85,9 @@ class _SignUpViewState extends State<_SignUpView> {
                                 ).inputDecorationTheme.errorStyle,
                               ),
                               initialValue: state.username,
-                              validator: (value) => Validator(
+                              validator: Validator(
                                 context: context,
-                              ).validateUsername(value),
+                              ).validateUsername,
                               onChanged: (value) => context
                                   .read<SignUpBloc>()
                                   .add(SignUpEvent.usernameChanged(value)),
@@ -109,9 +109,9 @@ class _SignUpViewState extends State<_SignUpView> {
                                   context,
                                 ).inputDecorationTheme.errorStyle,
                               ),
-                              validator: (value) => Validator(
+                              validator: Validator(
                                 context: context,
-                              ).validateEmail(value),
+                              ).validateEmail,
                               onChanged: (value) => context
                                   .read<SignUpBloc>()
                                   .add(SignUpEvent.emailChanged(value)),
@@ -136,9 +136,9 @@ class _SignUpViewState extends State<_SignUpView> {
                                 ).inputDecorationTheme.errorStyle,
                               ),
                               obscureText: true,
-                              validator: (value) => Validator(
+                              validator: Validator(
                                 context: context,
-                              ).validatePassword(value),
+                              ).validatePassword,
                               onChanged: (value) => context
                                   .read<SignUpBloc>()
                                   .add(SignUpEvent.passwordChanged(value)),

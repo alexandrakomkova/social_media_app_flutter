@@ -126,8 +126,7 @@ class _EditProfileViewState extends State<_EditProfileView> {
                             EditProfileEvent.usernameChanged(value),
                           );
                         },
-                        validator: (value) =>
-                            Validator(context: context).validateUsername(value),
+                        validator: Validator(context: context).validateUsername,
                       );
                     },
                   ),

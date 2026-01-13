@@ -76,9 +76,9 @@ class _SignInViewState extends State<_SignInView> {
                             return TextFormField(
                               key: const Key('signInForm_email_textFormField'),
                               initialValue: state.email,
-                              validator: (value) => Validator(
+                              validator: Validator(
                                 context: context,
-                              ).validateEmail(value),
+                              ).validateEmail,
                               onChanged: (value) => context
                                   .read<SignInBloc>()
                                   .add(SignInEvent.emailChanged(value)),
@@ -112,9 +112,9 @@ class _SignInViewState extends State<_SignInView> {
                               ),
                               initialValue: state.password,
                               obscureText: true,
-                              validator: (value) => Validator(
+                              validator: Validator(
                                 context: context,
-                              ).validatePassword(value),
+                              ).validatePassword,
                               onChanged: (value) => context
                                   .read<SignInBloc>()
                                   .add(SignInEvent.passwordChanged(value)),
