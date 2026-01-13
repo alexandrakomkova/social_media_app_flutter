@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:social_media_app/presentation/pages/home/home_page.dart';
+import 'package:social_media_app/presentation/pages/main_screen/nav_item.dart';
+import 'package:social_media_app/presentation/pages/main_screen/screens.dart';
 import 'package:social_media_app/presentation/pages/notifications/notifications_page.dart';
 import 'package:social_media_app/presentation/pages/profile/profile_page.dart';
 import 'package:social_media_app/presentation/pages/search/search_page.dart';
@@ -23,37 +25,20 @@ class _MainView extends StatefulWidget {
 class _MainViewState extends State<_MainView> {
   int _currentPage = 0;
 
-  List pages = [
-    {
-      'title': 'Home',
-      'icon': Icons.home,
-      'page': HomePage(),
-      'index': 0,
-    },
-    {
-      'title': 'Search',
-      'icon': Icons.search,
-      'page': SearchPage(),
-      'index': 1,
-    },
-    {
-      'title': 'Add post',
-      'icon': Icons.add_circle,
-      'page': Text(''),
-      'index': 2,
-    },
-    {
-      'title': 'Notification',
-      'icon': Icons.notifications,
-      'page': NotificationsPage(),
-      'index': 3,
-    },
-    {
-      'title': 'Profile',
-      'icon': Icons.person,
-      'page': ProfilePage(userId: FirebaseService.currentUserId),
-      'index': 4,
-    },
+  List<NavItem> pages = [
+    NavItem(screen: Screens.home, icon: Icons.home, page: HomePage()),
+    NavItem(screen: Screens.search, icon: Icons.search, page: SearchPage()),
+    NavItem(screen: Screens.create, icon: Icons.add_circle, page: SizedBox()),
+    NavItem(
+      screen: Screens.notifications,
+      icon: Icons.notifications,
+      page: NotificationsPage(),
+    ),
+    NavItem(
+      screen: Screens.profile,
+      icon: Icons.person,
+      page: ProfilePage(userId: FirebaseService.currentUserId),
+    ),
   ];
 
   @override
@@ -68,34 +53,31 @@ class _MainViewState extends State<_MainView> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            for (Map item in pages)
+            for (NavItem item in pages)
               Padding(
                 padding: EdgeInsets.only(top: 5.0),
                 child: IconButton(
                   icon: Icon(
-                    item['icon'],
-                    size: _currentPage == item['index'] ? 38 : 24,
+                    item.icon,
+                    size: _currentPage == pages.indexOf(item) ? 38 : 24,
                   ),
                   onPressed: () {
-                     _navigationTapped(item['index'], context);
+                    _navigationTapped(item, context);
                   },
                 ),
               ),
           ],
         ),
       ),
-      body: pages[_currentPage]['page']
+      body: pages[_currentPage].page,
     );
   }
 
-  void _navigationTapped(int page, BuildContext context) {
-    setState(() {
-      if(page == 2) {
-        showBottomSheetCreationVariants(context);
-      } else {
-        _currentPage = page;
-      }
-    });
+  void _navigationTapped(NavItem item, BuildContext context) {
+    if (item.screen == Screens.create) {
+      return showBottomSheetCreationVariants(context);
+    }
+
+    setState(() => _currentPage = pages.indexOf(item));
   }
 }
-
