@@ -96,6 +96,10 @@
   "@homePageNoNews": {
     "description": "This text shown on Home screen when no news found"
   },
+  "homePageLoadMoreButton": "Загрузить еще",
+  "@homePageLoadMoreButton": {
+    "description": "This text shown on Home screen button when user wants to load more posts"
+  },
   "notificationsPageLabel": "Уведомления",
   "@notificationsPageLabel": {
     "description": "This text shown on Notifications screen as screen title"

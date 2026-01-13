@@ -32,6 +32,11 @@ class FirebaseDbServiceImpl implements DbService {
   late final _notificationsRef = firestore.collection('notifications');
   late final _userNotificationCollection = 'userNotification';
 
+  final int _postsPerPageLimit = 9;
+  final int _commentsPerPageLimit = 5;
+  final int _searchResultLimit = 5;
+  final int _homeNewPostsPerPageLimit = 2;
+
   @override
   Future<void> createUser({
     required User user,
@@ -102,6 +107,7 @@ class FirebaseDbServiceImpl implements DbService {
       final querySnapshot = await _usersRef
           .where('username', isGreaterThanOrEqualTo: username)
           .where('username', isLessThanOrEqualTo: '$username\uf7ff')
+          .limit(_searchResultLimit)
           .get();
 
       List<UserEntity> foundUsers = querySnapshot.docs.map((doc) {
@@ -307,7 +313,7 @@ class FirebaseDbServiceImpl implements DbService {
       Query query = _commentsRef
           .where('postId', isEqualTo: postId)
           .orderBy('createdAt', descending: true)
-          .limit(3);
+          .limit(_commentsPerPageLimit);
 
       if (lastDoc != null) {
         query = query.startAfterDocument(lastDoc);
@@ -553,25 +559,56 @@ class FirebaseDbServiceImpl implements DbService {
   }
 
   @override
-  Future<Result<List<PostEntity>>> getNewPosts({required String userId}) async {
+  Future<Result<PaginationResponse<PostEntity>>> getNewPosts({
+    required String userId,
+    DocumentSnapshot? lastDoc,
+  }) async {
     try {
       final followingsSnapshot = await _followingsRef
           .doc(userId)
           .collection(_userFollowingsCollection)
           .get();
 
-      if (followingsSnapshot.docs.isEmpty) return Result.ok([]);
+      var paginationResponse = FirebasePaginationResponse<PostEntity>.empty();
+
+      if (followingsSnapshot.docs.isEmpty) {
+        return Result.ok(
+          paginationResponse = paginationResponse.copyWith(
+            hasMoreToLoad: false,
+          ),
+        );
+      }
 
       List<String> followingUserIds = followingsSnapshot.docs
           .map((doc) => doc.id)
           .toList();
-      final querySnapshot = await _postsRef
+
+      Query query = _postsRef
           .where('userId', whereIn: followingUserIds)
-          .get();
+          .limit(_homeNewPostsPerPageLimit);
+
+      if (lastDoc != null) {
+        query = query.startAfterDocument(lastDoc);
+      }
+
+      final querySnapshot = await query.get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        paginationResponse = paginationResponse.copyWith(
+          lastDoc: querySnapshot.docs.last,
+        );
+      } else {
+        paginationResponse = paginationResponse.copyWith(hasMoreToLoad: false);
+      }
+
       List<PostEntity> posts = await _getPostEntitiesFromQuery(querySnapshot);
 
-      _log.info('getNewPosts success postList length: ${posts.length}');
-      return Result.ok(posts);
+      paginationResponse = paginationResponse.copyWith(list: posts);
+
+      _log.info(
+        'getNewPosts success postList length: ${paginationResponse.list.length}',
+      );
+      return Result.ok(paginationResponse);
     } on Exception catch (e) {
       _log.warning('getNewPosts error: $e');
       return Result.error(e);
@@ -744,7 +781,9 @@ class FirebaseDbServiceImpl implements DbService {
     DocumentSnapshot<Object?>? lastDoc,
   }) async {
     try {
-      Query query = _postsRef.where('userId', isEqualTo: userId).limit(3);
+      Query query = _postsRef
+          .where('userId', isEqualTo: userId)
+          .limit(_postsPerPageLimit);
 
       if (lastDoc != null) {
         query = query.startAfterDocument(lastDoc);

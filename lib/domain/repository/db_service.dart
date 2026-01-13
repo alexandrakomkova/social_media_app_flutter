@@ -87,7 +87,10 @@ abstract class DbService {
   });
 
   //home
-  Future<Result<List<PostEntity>>> getNewPosts({required String userId});
+  Future<Result<PaginationResponse<PostEntity>>> getNewPosts({
+    required String userId,
+    DocumentSnapshot<Object?>? lastDoc,
+  });
 
   // notifications
   Future<Result<List<NotificationEntity>>> getNotifications({

@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:social_media_app/domain/repository/home_repository.dart';
-import 'package:social_media_app/domain/repository/post_repository.dart';
 import 'package:social_media_app/l10n/l10n.dart';
 import 'package:social_media_app/presentation/pages/home/bloc/home_bloc.dart';
-import 'package:social_media_app/presentation/pages/post/bloc/comments/comments_bloc.dart';
-import 'package:social_media_app/presentation/pages/post/bloc/post/post_bloc.dart';
-import 'package:social_media_app/presentation/pages/post/post_page.dart';
 import 'package:social_media_app/presentation/widget/custom_loader.dart';
-import 'package:social_media_app/presentation/widget/post_card.dart';
+import 'package:social_media_app/presentation/widget/subscription_posts_list.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -47,58 +43,16 @@ class _HomeView extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Expanded(
-                      child: state.posts.isEmpty
-                          ? Center(
-                              child: Text(
-                                context.l10n.homePageNoNews,
-                                style: TextStyle(
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
+                    state.pagination.list.isEmpty
+                        ? Center(
+                            child: Text(
+                              context.l10n.homePageNoNews,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.primary,
                               ),
-                            )
-                          : ListView.builder(
-                              itemCount: state.posts.length,
-                              itemBuilder: (context, index) {
-                                var post = state.posts[index];
-                                return Padding(
-                                  padding: const EdgeInsets.only(bottom: 40.0),
-                                  child: MultiBlocProvider(
-                                    providers: [
-                                      BlocProvider<PostBloc>(
-                                        create: (postContext) =>
-                                            PostBloc.getLikesCount(
-                                              postEntity: post,
-                                              postRepository: postContext
-                                                  .read<PostRepository>(),
-                                            ),
-                                      ),
-                                      BlocProvider<CommentsBloc>(
-                                        create: (commentsContext) =>
-                                            CommentsBloc.getComments(
-                                              commentRepository: commentsContext
-                                                  .read<PostRepository>(),
-                                              postId: post.id.toString(),
-                                              postOwnerId: post.userId,
-                                            ),
-                                      ),
-                                    ],
-                                    child: PostCard(
-                                      postEntity: post,
-                                      onCommentsPressed: () {
-                                        Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                            builder: (_) =>
-                                                PostPage(postEntity: post),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                );
-                              },
                             ),
-                    ),
+                          )
+                        : SubscriptionPostsList(),
                   ],
                 ),
               ),
