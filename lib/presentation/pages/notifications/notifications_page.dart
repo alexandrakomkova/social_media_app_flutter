@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:social_media_app/domain/model/notification_entity.dart';
 import 'package:social_media_app/domain/repository/notification_repository.dart';
 import 'package:social_media_app/l10n/l10n.dart';
 import 'package:social_media_app/presentation/pages/notifications/bloc/notification_bloc.dart';
@@ -70,44 +71,47 @@ class _NotificationsView extends StatelessWidget {
         body: Padding(
           padding: const EdgeInsets.all(8.0),
           child: BlocBuilder<NotificationBloc, NotificationState>(
-            builder: (_, state) {
-              if (state is NotificationState$Idle) {
-                return SizedBox();
-              }
-
-              if (state is NotificationState$Processing) {
-                return CustomLoader();
-              }
-
-              return state.notifications.isEmpty
-                  ? Center(child: Text(l10n.notificationPageNoNotifications))
-                  : Column(
-                      children: [
-                        Expanded(
-                          child: ListView.builder(
-                            itemCount: state.notifications.length,
-                            itemBuilder: (BuildContext context, int index) {
-                              final notification = state.notifications[index];
-
-                              return NotificationCard(
-                                entity: notification,
-                                onTap: () {
-                                  context.read<NotificationBloc>().add(
-                                    NotificationEvent.getUserPost(
-                                      notification.postId,
-                                    ),
-                                  );
-                                },
-                              );
-                            },
-                          ),
-                        ),
-                      ],
-                    );
+            builder: (context, state) {
+              return switch (state) {
+                NotificationState$Idle() => SizedBox(),
+                NotificationState$Processing() => CustomLoader(),
+                _ when state.notifications.isEmpty => _emptyList(
+                  context: context,
+                ),
+                _ => _notificationList(notifications: state.notifications),
+              };
             },
           ),
         ),
       ),
+    );
+  }
+
+  Widget _emptyList({required BuildContext context}) {
+    return Center(child: Text(context.l10n.notificationPageNoNotifications));
+  }
+
+  Widget _notificationList({required List<NotificationEntity> notifications}) {
+    return Column(
+      children: [
+        Expanded(
+          child: ListView.builder(
+            itemCount: notifications.length,
+            itemBuilder: (BuildContext context, int index) {
+              final notification = notifications[index];
+
+              return NotificationCard(
+                entity: notification,
+                onTap: () {
+                  context.read<NotificationBloc>().add(
+                    NotificationEvent.getUserPost(notification.postId),
+                  );
+                },
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 }
