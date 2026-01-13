@@ -184,17 +184,15 @@ class _ProfileView extends StatelessWidget {
                       builder: (context, state) {
                         return ElevatedButton(
                           onPressed: () {
-                            state.isFollowed
-                                ? context.read<ProfileBloc>().add(
-                                    ProfileEvent.unfollowUser(
-                                      userIdToUnfollow: userId,
-                                    ),
+                            final event = state.isFollowed
+                                ? ProfileEvent.unfollowUser(
+                                    userIdToUnfollow: userId,
                                   )
-                                : context.read<ProfileBloc>().add(
-                                    ProfileEvent.followUser(
-                                      userIdToFollow: userId,
-                                    ),
+                                : ProfileEvent.followUser(
+                                    userIdToFollow: userId,
                                   );
+
+                            context.read<ProfileBloc>().add(event);
                           },
                           child: Text(
                             state.isFollowed
