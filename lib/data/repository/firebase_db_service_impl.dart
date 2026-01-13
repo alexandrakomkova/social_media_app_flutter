@@ -35,7 +35,7 @@ class FirebaseDbServiceImpl implements DbService {
   final int _postsPerPageLimit = 9;
   final int _commentsPerPageLimit = 5;
   final int _searchResultLimit = 5;
-  final int _homeNewPostsPerPageLimit = 2;
+  final int _homeNewPostsPerPageLimit = 5;
 
   @override
   Future<void> createUser({
@@ -112,14 +112,7 @@ class FirebaseDbServiceImpl implements DbService {
 
       List<UserEntity> foundUsers = querySnapshot.docs.map((doc) {
         final data = doc.data();
-        return UserEntity(
-          id: data['id'],
-          username: data['username'],
-          email: data['email'],
-          bio: data['bio'],
-          creationTimestamp: data['creationTimestamp'],
-          photoUrl: data['photoUrl'],
-        );
+        return UserEntity.fromMap(data);
       }).toList();
 
       return Result.ok(foundUsers);
@@ -264,7 +257,7 @@ class FirebaseDbServiceImpl implements DbService {
           .where('userId', isEqualTo: FirebaseService.currentUserId)
           .get();
 
-      for (var docSnapshot in querySnapshot.docs) {
+      for (final docSnapshot in querySnapshot.docs) {
         await docSnapshot.reference.delete();
       }
 
@@ -324,16 +317,17 @@ class FirebaseDbServiceImpl implements DbService {
       var paginationResponse =
           FirebasePaginationResponse<CommentEntity>.empty();
 
-      if (querySnapshot.docs.isNotEmpty) {
+      paginationResponse = paginationResponse.copyWith(
+        hasMoreToLoad: querySnapshot.docs.isNotEmpty,
+      );
+
+      if (paginationResponse.hasMoreToLoad) {
         paginationResponse = paginationResponse.copyWith(
           lastDoc: querySnapshot.docs.last,
         );
-      } else {
-        paginationResponse = paginationResponse.copyWith(hasMoreToLoad: false);
       }
 
-      for (var docSnapshot in querySnapshot.docs) {
-        // _log.info('${docSnapshot.id} => ${docSnapshot.data()}');
+      for (final docSnapshot in querySnapshot.docs) {
         var data = docSnapshot.data() as Map<String, dynamic>?;
 
         if (data == null) {
@@ -344,31 +338,25 @@ class FirebaseDbServiceImpl implements DbService {
         var userRef = data['userInfo'] as DocumentReference;
 
         var userDoc = await userRef.get();
-        if (userDoc.exists) {
-          if (userDoc.data() == null) {
-            return Result.ok(paginationResponse);
-          }
-          var user = userDoc.data() as Map<String, dynamic>?;
-
-          List<CommentEntity> comments = paginationResponse.list;
-
-          comments.add(
-            CommentEntity(
-              postId: data['postId'],
-              text: data['commentText'],
-              author: UserEntity(
-                id: user?['id'],
-                username: user?['username'],
-                email: user?['email'],
-                bio: user?['bio'],
-                creationTimestamp: user?['creationTimestamp'],
-                photoUrl: user?['photoUrl'],
-              ),
-              createdAt: data['createdAt'],
-            ),
-          );
-          paginationResponse = paginationResponse.copyWith(list: comments);
+        if (!userDoc.exists) continue;
+        if (userDoc.data() == null) {
+          return Result.ok(paginationResponse);
         }
+        var user = userDoc.data() as Map<String, dynamic>?;
+
+        List<CommentEntity> comments = paginationResponse.list;
+
+        if (user == null) continue;
+
+        comments.add(
+          CommentEntity(
+            postId: data['postId'],
+            text: data['commentText'],
+            author: UserEntity.fromMap(user),
+            createdAt: data['createdAt'],
+          ),
+        );
+        paginationResponse = paginationResponse.copyWith(list: comments);
       }
 
       _log.info(
@@ -443,7 +431,7 @@ class FirebaseDbServiceImpl implements DbService {
     QuerySnapshot querySnapshot,
   ) async {
     List<UserEntity> users = [];
-    for (var docSnapshot in querySnapshot.docs) {
+    for (final docSnapshot in querySnapshot.docs) {
       final data = docSnapshot.data() as Map<String, dynamic>?;
 
       if (data == null) {
@@ -454,20 +442,12 @@ class FirebaseDbServiceImpl implements DbService {
       var userRef = data['userInfo'] as DocumentReference;
       final userDoc = await userRef.get();
 
-      if (userDoc.exists) {
-        var userData = userDoc.data() as Map<String, dynamic>?;
+      if (!userDoc.exists) continue;
+      var userData = userDoc.data() as Map<String, dynamic>?;
 
-        users.add(
-          UserEntity(
-            id: userData?['id'],
-            username: userData?['username'],
-            email: userData?['email'],
-            bio: userData?['bio'],
-            creationTimestamp: userData?['creationTimestamp'],
-            photoUrl: userData?['photoUrl'],
-          ),
-        );
-      }
+      if (userData == null) continue;
+
+      users.add(UserEntity.fromMap(userData));
     }
     return users;
   }
@@ -524,7 +504,7 @@ class FirebaseDbServiceImpl implements DbService {
     QuerySnapshot querySnapshot,
   ) async {
     List<PostEntity> posts = [];
-    for (var docSnapshot in querySnapshot.docs) {
+    for (final docSnapshot in querySnapshot.docs) {
       final data = docSnapshot.data() as Map<String, dynamic>?;
 
       if (data == null) {
@@ -535,25 +515,21 @@ class FirebaseDbServiceImpl implements DbService {
       var userRef = data['userInfo'] as DocumentReference;
 
       final userDoc = await userRef.get();
-      if (userDoc.exists) {
-        var userData = userDoc.data() as Map<String, dynamic>?;
-        posts.add(
-          PostEntity(
-            userEntity: UserEntity(
-              id: userData?['id'],
-              username: userData?['username'],
-              email: userData?['email'],
-              bio: userData?['bio'],
-              creationTimestamp: userData?['creationTimestamp'],
-              photoUrl: userData?['photoUrl'],
-            ),
-            userId: data['userId'],
-            imageUrl: data['imageUrl'],
-            description: data['description'],
-            creationTimestamp: data['creationTimestamp'],
-          ),
-        );
-      }
+
+      if (!userDoc.exists) continue;
+
+      var userData = userDoc.data() as Map<String, dynamic>?;
+      if (userData == null) continue;
+
+      posts.add(
+        PostEntity(
+          userEntity: UserEntity.fromMap(userData),
+          userId: data['userId'],
+          imageUrl: data['imageUrl'],
+          description: data['description'],
+          creationTimestamp: data['creationTimestamp'],
+        ),
+      );
     }
     return posts;
   }
@@ -593,12 +569,14 @@ class FirebaseDbServiceImpl implements DbService {
 
       final querySnapshot = await query.get();
 
-      if (querySnapshot.docs.isNotEmpty) {
+      paginationResponse = paginationResponse.copyWith(
+        hasMoreToLoad: querySnapshot.docs.isNotEmpty,
+      );
+
+      if (paginationResponse.hasMoreToLoad) {
         paginationResponse = paginationResponse.copyWith(
           lastDoc: querySnapshot.docs.last,
         );
-      } else {
-        paginationResponse = paginationResponse.copyWith(hasMoreToLoad: false);
       }
 
       List<PostEntity> posts = await _getPostEntitiesFromQuery(querySnapshot);
@@ -650,7 +628,7 @@ class FirebaseDbServiceImpl implements DbService {
       if (notificationsSnapshot.docs.isEmpty) return Result.ok([]);
       List<NotificationEntity> notifications = [];
 
-      for (var docSnapshot in notificationsSnapshot.docs) {
+      for (final docSnapshot in notificationsSnapshot.docs) {
         final data = docSnapshot.data() as Map<String, dynamic>?;
 
         if (data == null) {
@@ -661,25 +639,21 @@ class FirebaseDbServiceImpl implements DbService {
         var userRef = data['userInfo'] as DocumentReference;
 
         final userDoc = await userRef.get();
-        if (userDoc.exists) {
-          final userData = userDoc.data() as Map<String, dynamic>?;
 
-          notifications.add(
-            NotificationEntity(
-              userEntity: UserEntity(
-                id: userData?['id'],
-                username: userData?['username'],
-                email: userData?['email'],
-                bio: userData?['bio'],
-                creationTimestamp: userData?['creationTimestamp'],
-                photoUrl: userData?['photoUrl'],
-              ),
-              postId: data['postId'],
-              type: data['type'].toString().toNotificationType,
-              creationTimestamp: data['creationTimestamp'],
-            ),
-          );
-        }
+        if (!userDoc.exists) continue;
+
+        final userData = userDoc.data() as Map<String, dynamic>?;
+
+        if (userData == null) continue;
+
+        notifications.add(
+          NotificationEntity(
+            userEntity: UserEntity.fromMap(userData),
+            postId: data['postId'],
+            type: data['type'].toString().toNotificationType,
+            creationTimestamp: data['creationTimestamp'],
+          ),
+        );
       }
 
       _log.info(
@@ -749,26 +723,27 @@ class FirebaseDbServiceImpl implements DbService {
       var userRef = postData?['userInfo'] as DocumentReference;
 
       final userDoc = await userRef.get();
-      if (userDoc.exists) {
-        final userData = userDoc.data() as Map<String, dynamic>?;
-        final postEntity = PostEntity(
-          imageUrl: postData?['imageUrl'],
-          creationTimestamp: postData?['creationTimestamp'],
-          description: postData?['description'],
-          userId: userData?['id'],
-          userEntity: UserEntity(
-            id: userData?['id'],
-            email: userData?['email'],
-            username: userData?['username'],
-            bio: userData?['bio'],
-            creationTimestamp: userData?['creationTimestamp'],
-            photoUrl: userData?['photoUrl'],
-          ),
-        );
 
-        return Result.ok(postEntity);
-      }
-      return Result.ok(null);
+      if (!userDoc.exists) return Result.ok(null);
+
+      final userData = userDoc.data() as Map<String, dynamic>?;
+
+      final postEntity = PostEntity(
+        imageUrl: postData?['imageUrl'],
+        creationTimestamp: postData?['creationTimestamp'],
+        description: postData?['description'],
+        userId: userData?['id'],
+        userEntity: UserEntity(
+          id: userData?['id'],
+          email: userData?['email'],
+          username: userData?['username'],
+          bio: userData?['bio'],
+          creationTimestamp: userData?['creationTimestamp'],
+          photoUrl: userData?['photoUrl'],
+        ),
+      );
+
+      return Result.ok(postEntity);
     } on Exception catch (e) {
       _log.warning('getUserPost error: $e');
       return Result.error(e);
@@ -793,15 +768,17 @@ class FirebaseDbServiceImpl implements DbService {
 
       var paginationResponse = FirebasePaginationResponse<PostEntity>.empty();
 
-      if (querySnapshot.docs.isNotEmpty) {
+      paginationResponse = paginationResponse.copyWith(
+        hasMoreToLoad: querySnapshot.docs.isNotEmpty,
+      );
+
+      if (paginationResponse.hasMoreToLoad) {
         paginationResponse = paginationResponse.copyWith(
           lastDoc: querySnapshot.docs.last,
         );
-      } else {
-        paginationResponse = paginationResponse.copyWith(hasMoreToLoad: false);
       }
 
-      for (var docSnapshot in querySnapshot.docs) {
+      for (final docSnapshot in querySnapshot.docs) {
         final data = docSnapshot.data() as Map<String, dynamic>?;
 
         if (data == null) {
@@ -812,29 +789,24 @@ class FirebaseDbServiceImpl implements DbService {
         var userRef = data['userInfo'] as DocumentReference;
 
         final userDoc = await userRef.get();
-        if (userDoc.exists) {
-          var userData = userDoc.data() as Map<String, dynamic>?;
-          var userPosts = paginationResponse.list;
+        if (!userDoc.exists) continue;
 
-          userPosts.add(
-            PostEntity(
-              userEntity: UserEntity(
-                id: userData?['id'],
-                username: userData?['username'],
-                email: userData?['email'],
-                bio: userData?['bio'],
-                creationTimestamp: userData?['creationTimestamp'],
-                photoUrl: userData?['photoUrl'],
-              ),
-              userId: data['userId'],
-              imageUrl: data['imageUrl'],
-              description: data['description'],
-              creationTimestamp: data['creationTimestamp'],
-            ),
-          );
+        var userData = userDoc.data() as Map<String, dynamic>?;
+        var userPosts = paginationResponse.list;
 
-          paginationResponse = paginationResponse.copyWith(list: userPosts);
-        }
+        if (userData == null) continue;
+
+        userPosts.add(
+          PostEntity(
+            userEntity: UserEntity.fromMap(userData),
+            userId: data['userId'],
+            imageUrl: data['imageUrl'],
+            description: data['description'],
+            creationTimestamp: data['creationTimestamp'],
+          ),
+        );
+
+        paginationResponse = paginationResponse.copyWith(list: userPosts);
       }
 
       return Result.ok(paginationResponse);
