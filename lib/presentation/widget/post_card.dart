@@ -101,7 +101,7 @@ class PostCard extends StatelessWidget {
               BlocBuilder<CommentsBloc, CommentsState>(
                 builder: (_, commentState) {
                   return Text(
-                    commentState.comments.length.toString(),
+                    commentState.commentsCount.toString(),
                     style: const TextStyle(fontSize: 14.0),
                   );
                 },

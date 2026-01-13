@@ -299,51 +299,77 @@ class FirebaseDbServiceImpl implements DbService {
   }
 
   @override
-  Future<Result<List<CommentEntity>>> getComments({
+  Future<Result<PaginationResponse<CommentEntity>>> getComments({
     required String postId,
+    DocumentSnapshot<Object?>? lastDoc,
   }) async {
-    List<CommentEntity> comments = [];
     try {
-      await _commentsRef
+      Query query = _commentsRef
           .where('postId', isEqualTo: postId)
           .orderBy('createdAt', descending: true)
-          .get()
-          .then((querySnapshot) async {
-            for (var docSnapshot in querySnapshot.docs) {
-              // _log.info('${docSnapshot.id} => ${docSnapshot.data()}');
-              var data = docSnapshot.data();
+          .limit(3);
 
-              var userRef = data['userInfo'] as DocumentReference;
+      if (lastDoc != null) {
+        query = query.startAfterDocument(lastDoc);
+      }
 
-              var userDoc = await userRef.get();
-              if (userDoc.exists) {
-                if (userDoc.data() == null) {
-                  return Result.ok([]);
-                }
-                var user = userDoc.data() as Map<String, dynamic>?;
+      final querySnapshot = await query.get();
 
-                comments.add(
-                  CommentEntity(
-                    postId: data['postId'],
-                    text: data['commentText'],
-                    author: UserEntity(
-                      id: user?['id'],
-                      username: user?['username'],
-                      email: user?['email'],
-                      bio: user?['bio'],
-                      creationTimestamp: user?['creationTimestamp'],
-                      photoUrl: user?['photoUrl'],
-                    ),
-                    createdAt: data['createdAt'],
-                  ),
-                );
-              }
-            }
-          });
+      var paginationResponse =
+          FirebasePaginationResponse<CommentEntity>.empty();
 
-      _log.info('getComments success commentsList length: ${comments.length}');
+      if (querySnapshot.docs.isNotEmpty) {
+        paginationResponse = paginationResponse.copyWith(
+          lastDoc: querySnapshot.docs.last,
+        );
+      } else {
+        paginationResponse = paginationResponse.copyWith(hasMoreToLoad: false);
+      }
 
-      return Result.ok(comments);
+      for (var docSnapshot in querySnapshot.docs) {
+        // _log.info('${docSnapshot.id} => ${docSnapshot.data()}');
+        var data = docSnapshot.data() as Map<String, dynamic>?;
+
+        if (data == null) {
+          _log.info('getComments data is null');
+          return Result.ok(paginationResponse);
+        }
+
+        var userRef = data['userInfo'] as DocumentReference;
+
+        var userDoc = await userRef.get();
+        if (userDoc.exists) {
+          if (userDoc.data() == null) {
+            return Result.ok(paginationResponse);
+          }
+          var user = userDoc.data() as Map<String, dynamic>?;
+
+          List<CommentEntity> comments = paginationResponse.list;
+
+          comments.add(
+            CommentEntity(
+              postId: data['postId'],
+              text: data['commentText'],
+              author: UserEntity(
+                id: user?['id'],
+                username: user?['username'],
+                email: user?['email'],
+                bio: user?['bio'],
+                creationTimestamp: user?['creationTimestamp'],
+                photoUrl: user?['photoUrl'],
+              ),
+              createdAt: data['createdAt'],
+            ),
+          );
+          paginationResponse = paginationResponse.copyWith(list: comments);
+        }
+      }
+
+      _log.info(
+        'getComments success commentsList length: ${paginationResponse.list.length}',
+      );
+
+      return Result.ok(paginationResponse);
     } on Exception catch (e) {
       _log.warning('getComments error: $e');
       return Result.error(e);
@@ -791,6 +817,24 @@ class FirebaseDbServiceImpl implements DbService {
       return Result.ok(postsCount);
     } on Exception catch (e) {
       _log.warning('getPostsCount error: $e');
+      return Result.error(e);
+    }
+  }
+
+  @override
+  Future<Result<int>> getCommentsCount({required String postId}) async {
+    try {
+      AggregateQuerySnapshot snapshot = await _commentsRef
+          .where('postId', isEqualTo: postId)
+          .count()
+          .get();
+      int commentsCount = snapshot.count ?? 0;
+
+      _log.info('getCommentsCount success comments count: $commentsCount');
+
+      return Result.ok(commentsCount);
+    } on Exception catch (e) {
+      _log.warning('getCommentsCount error: $e');
       return Result.error(e);
     }
   }

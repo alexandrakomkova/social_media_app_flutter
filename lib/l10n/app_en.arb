@@ -307,5 +307,9 @@
   "noMorePostsText": "No more posts",
   "@noMorePostsText": {
     "description": "This text shown on Profile Screen when user scrolls to see more posts but there are no more posts"
+  },
+  "noMoreCommentsText": "No more comments",
+  "@noMoreCommentsText": {
+    "description": "This text shown on Post Screen when user scrolls to see more comments but there are no more comments"
   }
 }

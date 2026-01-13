@@ -136,7 +136,6 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
           followers: state.followers,
           followings: state.followings,
           isFollowed: state.isFollowed,
-
           postsCount: state.postsCount,
           pagination: state.pagination.copyWith(
             hasMoreToLoad: res.hasMoreToLoad,

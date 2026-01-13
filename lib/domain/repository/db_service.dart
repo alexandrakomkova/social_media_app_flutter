@@ -54,7 +54,12 @@ abstract class DbService {
   Future<Result<void>> removeLike({required String postId});
 
   //comments
-  Future<Result<List<CommentEntity>>> getComments({required String postId});
+  Future<Result<PaginationResponse<CommentEntity>>> getComments({
+    required String postId,
+    DocumentSnapshot<Object?>? lastDoc,
+  });
+
+  Future<Result<int>> getCommentsCount({required String postId});
 
   Future<Result<void>> addComment({
     required String postId,

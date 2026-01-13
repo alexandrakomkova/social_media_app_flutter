@@ -25,8 +25,8 @@ class PostPage extends StatelessWidget {
           ),
         ),
         BlocProvider<CommentsBloc>(
-          create: (commentsContext) => CommentsBloc.getComments(
-            commentRepository: commentsContext.read<PostRepository>(),
+          create: (context) => CommentsBloc.getComments(
+            commentRepository: context.read<PostRepository>(),
             postId: postEntity.id.toString(),
             postOwnerId: postEntity.userId,
           ),
@@ -66,7 +66,7 @@ class _PostView extends StatelessWidget {
                           return Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Text(
-                              l10n.commentsCount(state.comments.length),
+                              l10n.commentsCount(state.commentsCount),
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 16.0,
@@ -100,13 +100,39 @@ class _PostView extends StatelessWidget {
           case CommentsState$Failed():
             return Center(child: Text(context.l10n.errorLoadingCommentText));
           case CommentsState$Success():
-            return ListView.builder(
-              physics: const NeverScrollableScrollPhysics(),
-              shrinkWrap: true,
-              itemCount: state.comments.length,
-              itemBuilder: (BuildContext context, int index) {
-                return CommentCard(entity: state.comments[index]);
+            return NotificationListener<ScrollNotification>(
+              onNotification: (scrollNotification) {
+                if (scrollNotification.metrics.pixels >=
+                        scrollNotification.metrics.maxScrollExtent - 200 &&
+                    state.pagination.hasMoreToLoad) {
+                  context.read<CommentsBloc>().add(CommentsEvent.getComments());
+                }
+                return false;
               },
+              child: Column(
+                children: [
+                  ListView.builder(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemCount: state.pagination.list.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return CommentCard(entity: state.pagination.list[index]);
+                    },
+                  ),
+                  if (!state.pagination.hasMoreToLoad)
+                    Padding(
+                      padding: const EdgeInsets.only(
+                        bottom: 16.0,
+                        left: 16.0,
+                        right: 16.0,
+                        top: 4.0,
+                      ),
+                      child: Center(
+                        child: Text(context.l10n.noMoreCommentsText),
+                      ),
+                    ),
+                ],
+              ),
             );
         }
       },

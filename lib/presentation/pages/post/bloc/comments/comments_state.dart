@@ -5,30 +5,34 @@ sealed class CommentsState with _$CommentsState {
   const CommentsState._();
 
   const factory CommentsState.idle({
-    @Default([]) List<CommentEntity> comments,
     @Default('') String commentText,
     @Default('') String postId,
     @Default('') String postOwnerId,
+    @Default(0) int commentsCount,
+    required Pagination<CommentEntity> pagination,
   }) = CommentsState$Idle;
 
   const factory CommentsState.processing({
-    @Default([]) List<CommentEntity> comments,
     @Default('') String commentText,
     @Default('') String postId,
     @Default('') String postOwnerId,
+    @Default(0) int commentsCount,
+    required Pagination<CommentEntity> pagination,
   }) = CommentsState$Processing;
 
   const factory CommentsState.success({
-    @Default([]) List<CommentEntity> comments,
     @Default('') String commentText,
     @Default('') String postId,
     @Default('') String postOwnerId,
+    @Default(0) int commentsCount,
+    required Pagination<CommentEntity> pagination,
   }) = CommentsState$Success;
 
   const factory CommentsState.failed({
-    @Default([]) List<CommentEntity> comments,
     @Default('') String commentText,
     @Default('') String postId,
     @Default('') String postOwnerId,
+    @Default(0) int commentsCount,
+    required Pagination<CommentEntity> pagination,
   }) = CommentsState$Failed;
 }
