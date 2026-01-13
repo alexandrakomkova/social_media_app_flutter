@@ -110,7 +110,7 @@ class _EditProfileViewState extends State<_EditProfileView> {
                   BlocBuilder<EditProfileBloc, EditProfileState>(
                     buildWhen: (previousState, state) =>
                         previousState.runtimeType != state.runtimeType,
-                    builder: (editProfileContext, state) {
+                    builder: (context, state) {
                       return TextFormField(
                         key: UniqueKey(),
                         initialValue: state.username,
@@ -122,7 +122,7 @@ class _EditProfileViewState extends State<_EditProfileView> {
                           ).inputDecorationTheme.errorStyle,
                         ),
                         onChanged: (value) {
-                          editProfileContext.read<EditProfileBloc>().add(
+                          context.read<EditProfileBloc>().add(
                             EditProfileEvent.usernameChanged(value),
                           );
                         },
@@ -135,7 +135,7 @@ class _EditProfileViewState extends State<_EditProfileView> {
                   BlocBuilder<EditProfileBloc, EditProfileState>(
                     buildWhen: (previousState, state) =>
                         previousState.runtimeType != state.runtimeType,
-                    builder: (editProfileContext, state) {
+                    builder: (context, state) {
                       return TextFormField(
                         key: UniqueKey(),
                         initialValue: state.bio,
@@ -147,7 +147,7 @@ class _EditProfileViewState extends State<_EditProfileView> {
                           ).inputDecorationTheme.errorStyle,
                         ),
                         onChanged: (value) {
-                          editProfileContext.read<EditProfileBloc>().add(
+                          context.read<EditProfileBloc>().add(
                             EditProfileEvent.bioChanged(value),
                           );
                         },
