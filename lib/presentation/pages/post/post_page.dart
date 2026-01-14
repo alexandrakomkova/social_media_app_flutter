@@ -109,29 +109,31 @@ class _PostView extends StatelessWidget {
                 }
                 return false;
               },
-              child: Column(
-                children: [
-                  ListView.builder(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    itemCount: state.pagination.list.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return CommentCard(entity: state.pagination.list[index]);
-                    },
-                  ),
-                  if (!state.pagination.hasMoreToLoad)
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        bottom: 16.0,
-                        left: 16.0,
-                        right: 16.0,
-                        top: 4.0,
-                      ),
-                      child: Center(
-                        child: Text(context.l10n.noMoreCommentsText),
-                      ),
-                    ),
-                ],
+              child: ListView.builder(
+                physics: const AlwaysScrollableScrollPhysics(),
+                shrinkWrap: true,
+                itemCount: state.pagination.list.length + 1,
+                itemBuilder: (BuildContext context, int index) {
+                  if (index == state.pagination.list.length) {
+                    if (!state.pagination.hasMoreToLoad) {
+                      return Padding(
+                        padding: const EdgeInsets.only(
+                          bottom: 16.0,
+                          left: 16.0,
+                          right: 16.0,
+                          top: 4.0,
+                        ),
+                        child: Center(
+                          child: Text(context.l10n.noMoreCommentsText),
+                        ),
+                      );
+                    } else {
+                      return SizedBox();
+                    }
+                  }
+
+                  return CommentCard(entity: state.pagination.list[index]);
+                },
               ),
             );
         }
