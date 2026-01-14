@@ -31,6 +31,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
          ProfileState.idle(
            pagination: Pagination<PostEntity>.empty(),
            followersPagination: Pagination<UserEntity>.empty(),
+           followingsPagination: Pagination<UserEntity>.empty(),
          ),
        ) {
     on<ProfileEvent>((event, emit) async {
@@ -47,6 +48,8 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
           await _getUserPostsNext(event as _GetUserPostsNext, emit);
         case const (_GetFollowers):
           await _getFollowers(event as _GetFollowers, emit);
+        case const (_GetFollowings):
+          await _getFollowings(event as _GetFollowings, emit);
       }
     }, transformer: droppable());
   }
@@ -65,6 +68,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       ProfileState.processing(
         pagination: state.pagination,
         followersPagination: state.followersPagination,
+        followingsPagination: state.followingsPagination,
       ),
     );
 
@@ -81,6 +85,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
               errorMessage: errorMessage,
               pagination: state.pagination,
               followersPagination: state.followersPagination,
+              followingsPagination: state.followingsPagination,
             ),
           );
         },
@@ -89,6 +94,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
             ProfileState.success(
               pagination: state.pagination,
               followersPagination: state.followersPagination,
+              followingsPagination: state.followingsPagination,
             ),
           );
         },
@@ -102,6 +108,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
           errorMessage: errorMessage,
           pagination: state.pagination,
           followersPagination: state.followersPagination,
+          followingsPagination: state.followingsPagination,
         ),
       );
     }
@@ -115,9 +122,11 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       ProfileState.processing(
         user: state.user,
         followersPagination: state.followersPagination,
-        followings: state.followings,
+        followingsPagination: state.followingsPagination,
         isFollowed: state.isFollowed,
         postsCount: state.postsCount,
+        followingsCount: state.followingsCount,
+        followersCount: state.followersCount,
         pagination: state.pagination,
       ),
     );
@@ -134,9 +143,11 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         ProfileState.success(
           user: state.user,
           followersPagination: state.followersPagination,
-          followings: state.followings,
+          followingsPagination: state.followingsPagination,
           isFollowed: state.isFollowed,
           postsCount: state.postsCount,
+          followingsCount: state.followingsCount,
+          followersCount: state.followersCount,
           pagination: state.pagination.copyWith(
             hasMoreToLoad: res.hasMoreToLoad,
             lastDoc: res.lastDoc,
@@ -153,6 +164,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         ProfileState.failed(
           errorMessage: e.toString(),
           followersPagination: state.followersPagination,
+          followingsPagination: state.followingsPagination,
           pagination: state.pagination.copyWith(list: [], hasMoreToLoad: false),
         ),
       );
@@ -167,6 +179,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       ProfileState.processing(
         pagination: state.pagination,
         followersPagination: state.followersPagination,
+        followingsPagination: state.followingsPagination,
       ),
     );
 
@@ -183,12 +196,23 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         userId: event.userId,
       );
 
+      final followingsCount = await _profileRepository.getFollowingsCount(
+        userId: event.userId,
+      );
+
       final user = await _profileRepository.getUserInfo(userId: event.userId);
 
       final PaginationResponse<UserEntity> followersRes =
-          await _profileRepository.getFollowers(userId: event.userId);
-      final List<UserEntity> followings = await _profileRepository
-          .getFollowings(userId: event.userId);
+          await _profileRepository.getFollowers(
+            userId: event.userId,
+            lastDoc: state.followersPagination.lastDoc,
+          );
+
+      final PaginationResponse<UserEntity> followingsRes =
+          await _profileRepository.getFollowings(
+            userId: event.userId,
+            lastDoc: state.followingsPagination.lastDoc,
+          );
 
       final bool isFollowed = await _profileRepository.isFollowedByCurrentUser(
         profileOwnerUserId: event.userId,
@@ -198,12 +222,16 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         ProfileState.success(
           postsCount: postsCount,
           followersCount: followersCount,
+          followingsCount: followingsCount,
           user: user,
           followersPagination: state.followersPagination.copyWith(
             list: followersRes.list,
             lastDoc: followersRes.lastDoc,
           ),
-          followings: followings,
+          followingsPagination: state.followingsPagination.copyWith(
+            list: followingsRes.list,
+            lastDoc: followingsRes.lastDoc,
+          ),
           isFollowed: isFollowed,
           pagination: state.pagination.copyWith(
             list: postsRes.list,
@@ -217,6 +245,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         ProfileState.failed(
           pagination: state.pagination,
           followersPagination: state.followersPagination,
+          followingsPagination: state.followingsPagination,
           errorMessage: e.toString(),
         ),
       );
@@ -242,11 +271,12 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
             list: followersRes.list,
             lastDoc: followersRes.lastDoc,
           ),
-          followings: state.followings,
+          followingsPagination: state.followingsPagination,
           isFollowed: !state.isFollowed,
           postsCount: state.postsCount,
           pagination: state.pagination,
           followersCount: state.followersCount,
+          followingsCount: state.followingsCount,
         ),
       );
     } catch (e) {
@@ -254,6 +284,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       emit(
         ProfileState.failed(
           followersPagination: state.followersPagination,
+          followingsPagination: state.followingsPagination,
           pagination: state.pagination,
           errorMessage: e.toString(),
         ),
@@ -280,10 +311,11 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
             list: followersRes.list,
             lastDoc: followersRes.lastDoc,
           ),
-          followings: state.followings,
+          followingsPagination: state.followingsPagination,
           isFollowed: !state.isFollowed,
           postsCount: state.postsCount,
           followersCount: state.followersCount,
+          followingsCount: state.followingsCount,
           pagination: state.pagination,
         ),
       );
@@ -291,6 +323,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       _log.warning(e.toString());
       emit(
         ProfileState.failed(
+          followingsPagination: state.followingsPagination,
           followersPagination: state.followersPagination,
           pagination: state.pagination,
           errorMessage: e.toString(),
@@ -307,10 +340,11 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       ProfileState.processing(
         user: state.user,
         followersPagination: state.followersPagination,
-        followings: state.followings,
+        followingsPagination: state.followingsPagination,
         isFollowed: state.isFollowed,
         postsCount: state.postsCount,
         followersCount: state.followersCount,
+        followingsCount: state.followingsCount,
         pagination: state.pagination,
       ),
     );
@@ -330,11 +364,12 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
             hasMoreToLoad: res.hasMoreToLoad,
             lastDoc: res.lastDoc,
           ),
-          followings: state.followings,
+          followingsPagination: state.followingsPagination,
           isFollowed: state.isFollowed,
           postsCount: state.postsCount,
           pagination: state.pagination,
           followersCount: state.followersCount,
+          followingsCount: state.followingsCount,
         ),
       );
 
@@ -346,10 +381,71 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       emit(
         ProfileState.failed(
           errorMessage: e.toString(),
+          followingsPagination: state.followingsPagination,
           followersPagination: state.followersPagination.copyWith(
             list: [],
             hasMoreToLoad: false,
           ),
+          pagination: state.pagination,
+        ),
+      );
+    }
+  }
+
+  Future<void> _getFollowings(
+    _GetFollowings event,
+    Emitter<ProfileState> emit,
+  ) async {
+    emit(
+      ProfileState.processing(
+        user: state.user,
+        followersPagination: state.followersPagination,
+        followingsPagination: state.followingsPagination,
+        isFollowed: state.isFollowed,
+        postsCount: state.postsCount,
+        followersCount: state.followersCount,
+        followingsCount: state.followingsCount,
+        pagination: state.pagination,
+      ),
+    );
+
+    try {
+      final res = await _profileRepository.getFollowings(
+        userId: event.userId,
+        lastDoc: state.followingsPagination.lastDoc,
+      );
+
+      state.followingsPagination.addItemsToList(res.list);
+
+      emit(
+        ProfileState.success(
+          user: state.user,
+          followersPagination: state.followersPagination,
+          followingsPagination: state.followingsPagination.copyWith(
+            hasMoreToLoad: res.hasMoreToLoad,
+            lastDoc: res.lastDoc,
+          ),
+          isFollowed: state.isFollowed,
+          postsCount: state.postsCount,
+          pagination: state.pagination,
+          followersCount: state.followersCount,
+          followingsCount: state.followingsCount,
+        ),
+      );
+
+      _log.info(
+        'state: ${state.followingsPagination.hasMoreToLoad} ${state.followingsPagination.lastDoc.toString()}',
+      );
+    } catch (e) {
+      _log.warning(e.toString());
+      emit(
+        ProfileState.failed(
+          errorMessage: e.toString(),
+          followingsPagination: state.followingsPagination.copyWith(
+            list: [],
+            hasMoreToLoad: false,
+          ),
+          followersPagination: state.followersPagination,
           pagination: state.pagination,
         ),
       );

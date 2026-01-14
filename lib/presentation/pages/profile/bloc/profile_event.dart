@@ -12,6 +12,9 @@ sealed class ProfileEvent with _$ProfileEvent {
   const factory ProfileEvent.getFollowers({required String userId}) =
       _GetFollowers;
 
+  const factory ProfileEvent.getFollowings({required String userId}) =
+      _GetFollowings;
+
   const factory ProfileEvent.getUserProfile({required String userId}) =
       _GetUserProfile;
 

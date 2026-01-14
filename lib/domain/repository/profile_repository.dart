@@ -34,12 +34,17 @@ abstract class ProfileRepository {
 
   Future<int> getFollowersCount({required String userId});
 
+  Future<int> getFollowingsCount({required String userId});
+
   Future<PaginationResponse<UserEntity>> getFollowers({
     required String userId,
     DocumentSnapshot? lastDoc,
   });
 
-  Future<List<UserEntity>> getFollowings({required String userId});
+  Future<PaginationResponse<UserEntity>> getFollowings({
+    required String userId,
+    DocumentSnapshot? lastDoc,
+  });
 
   Future<bool> isFollowedByCurrentUser({required String profileOwnerUserId});
 }

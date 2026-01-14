@@ -11,7 +11,7 @@ void showBottomSheetFollowersFollowings({
   required BuildContext context,
   required String bottomSheetTitle,
   required ProfileEvent event,
-  required Pagination<UserEntity> pagination,
+  required String noMoreItemsText,
 }) {
   showModalBottomSheet(
     shape: const RoundedRectangleBorder(
@@ -42,16 +42,29 @@ void showBottomSheetFollowersFollowings({
             ),
 
             Divider(),
-
-            pagination.list.isEmpty
-                ? Center(
-                    child: Text('No ${bottomSheetTitle.toLowerCase()} found'),
-                  )
-                : _usersList(
-                    pagination: pagination,
-                    event: event,
-                    context: context,
-                  ),
+            BlocBuilder<ProfileBloc, ProfileState>(
+              builder: (profileContext, state) {
+                final pagination =
+                    bottomSheetTitle.toLowerCase() ==
+                        context.l10n.bottomSheetFollowingsTitle
+                            .toString()
+                            .toLowerCase()
+                    ? state.followingsPagination
+                    : state.followersPagination;
+                return pagination.list.isEmpty
+                    ? Center(
+                        child: Text(
+                          'No ${bottomSheetTitle.toLowerCase()} found',
+                        ),
+                      )
+                    : _usersList(
+                        pagination: pagination,
+                        event: event,
+                        context: context,
+                        noMoreItemsText: noMoreItemsText,
+                      );
+              },
+            ),
           ],
         ),
       ),
@@ -70,6 +83,7 @@ Widget _usersList({
   required BuildContext context,
   required Pagination<UserEntity> pagination,
   required ProfileEvent event,
+  required String noMoreItemsText,
 }) {
   return NotificationListener<ScrollNotification>(
     onNotification: (scrollInfo) {
@@ -96,9 +110,7 @@ Widget _usersList({
                   right: 16.0,
                   top: 4.0,
                 ),
-                child: Center(
-                  child: Text(context.l10n.noMoreFollowersText),
-                ), // change
+                child: Center(child: Text(noMoreItemsText)),
               );
             } else {
               return SizedBox();

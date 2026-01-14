@@ -122,20 +122,30 @@ class ProfileRepositoryImpl implements ProfileRepository {
           lastDoc: null,
           hasMoreToLoad: false,
         );
-        ;
     }
   }
 
   @override
-  Future<List<UserEntity>> getFollowings({required String userId}) async {
-    final res = await _dbService.getFollowings(userId: userId);
+  Future<PaginationResponse<UserEntity>> getFollowings({
+    required String userId,
+    DocumentSnapshot? lastDoc,
+  }) async {
+    final res = await _dbService.getFollowings(
+      userId: userId,
+      lastDoc: lastDoc,
+    );
 
     switch (res) {
-      case Ok<List<UserEntity>>():
+      case Ok<PaginationResponse<UserEntity>>():
         return res.value;
-      case Failure<List<UserEntity>>():
+      case Failure<PaginationResponse<UserEntity>>():
         _log.warning('getFollowings error: ${res.error}');
-        return [];
+        return PaginationResponse<UserEntity>(
+          list: <UserEntity>[],
+          lastDoc: null,
+          hasMoreToLoad: false,
+        );
+        ;
     }
   }
 
@@ -181,6 +191,20 @@ class ProfileRepositoryImpl implements ProfileRepository {
         return res.value;
       case Failure<int>():
         _log.warning('getFollowersCount error: ${res.error}');
+        return 0;
+    }
+  }
+
+  @override
+  Future<int> getFollowingsCount({required String userId}) async {
+    final res = await _dbService.getFollowingsCount(userId: userId);
+
+    switch (res) {
+      case Ok<int>():
+        _log.info('getFollowingsCount ${res.value}');
+        return res.value;
+      case Failure<int>():
+        _log.warning('getFollowingsCount error: ${res.error}');
         return 0;
     }
   }

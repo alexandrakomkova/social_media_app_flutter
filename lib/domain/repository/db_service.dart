@@ -70,6 +70,8 @@ abstract class DbService {
   // followers and followings
   Future<Result<int>> getFollowersCount({required String userId});
 
+  Future<Result<int>> getFollowingsCount({required String userId});
+
   Future<void> followUser({
     required String userId,
     required String userIdToFollow,
@@ -85,7 +87,10 @@ abstract class DbService {
     DocumentSnapshot? lastDoc,
   });
 
-  Future<Result<List<UserEntity>>> getFollowings({required String userId});
+  Future<Result<PaginationResponse<UserEntity>>> getFollowings({
+    required String userId,
+    DocumentSnapshot? lastDoc,
+  });
 
   Future<Result<bool>> isFollowedByCurrentUser({
     required String profileOwnerUserId,

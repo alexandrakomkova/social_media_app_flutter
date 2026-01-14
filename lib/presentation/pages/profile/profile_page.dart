@@ -249,19 +249,19 @@ class _ProfileView extends StatelessWidget {
               context: context,
               bottomSheetTitle: l10n.bottomSheetFollowersTitle,
               event: ProfileEvent.getFollowers(userId: userId),
-              pagination: state.followersPagination,
+              noMoreItemsText: l10n.noMoreFollowersText,
             );
           },
         ),
         ProfileInfoCard(
-          value: state.followings.length.toString(),
+          value: state.followingsCount.toString(),
           valueLabel: l10n.profileInfoCardFollowingsCount,
           onTap: () {
             showBottomSheetFollowersFollowings(
               context: context,
               bottomSheetTitle: l10n.bottomSheetFollowingsTitle,
-              event: ProfileEvent.getFollowers(userId: userId), // change
-              pagination: state.followersPagination, // change
+              event: ProfileEvent.getFollowings(userId: userId),
+              noMoreItemsText: l10n.noMoreFollowingsText,
             );
           },
         ),

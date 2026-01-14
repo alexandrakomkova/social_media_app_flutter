@@ -323,5 +323,9 @@
   "noMoreFollowersText": "Больше нет подписчиков",
   "@noMoreFollowersText": {
     "description": "This text shown on Profile Screen when user scrolls to see more followers but there are no left"
+  },
+  "noMoreFollowingsText": "Больше нет подписок",
+  "@noMoreFollowingsText": {
+    "description": "This text shown on Profile Screen when user scrolls to see more followings but there are no left"
   }
 }
