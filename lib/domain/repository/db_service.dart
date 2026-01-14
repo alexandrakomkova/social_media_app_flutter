@@ -16,8 +16,6 @@ abstract class DbService {
 
   Future<Result<UserEntity>> getUserById({required String id});
 
-  Future<Result<int>> getPostsCount({required String userId});
-
   Future<Result<List<UserEntity>>> searchUserByUsername({
     required String username,
   });
@@ -29,6 +27,8 @@ abstract class DbService {
   });
 
   // posts
+  Future<Result<int>> getPostsCount({required String userId});
+
   Future<Result<void>> createPost({
     required File? image,
     required String description,
@@ -68,6 +68,8 @@ abstract class DbService {
   });
 
   // followers and followings
+  Future<Result<int>> getFollowersCount({required String userId});
+
   Future<void> followUser({
     required String userId,
     required String userIdToFollow,
@@ -78,7 +80,10 @@ abstract class DbService {
     required String userIdToUnfollow,
   });
 
-  Future<Result<List<UserEntity>>> getFollowers({required String userId});
+  Future<Result<PaginationResponse<UserEntity>>> getFollowers({
+    required String userId,
+    DocumentSnapshot? lastDoc,
+  });
 
   Future<Result<List<UserEntity>>> getFollowings({required String userId});
 

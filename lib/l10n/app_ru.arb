@@ -319,5 +319,9 @@
   "noMoreNotificationsText": "Больше нет уведомлений",
   "@noMoreNotificationsText": {
     "description": "This text shown on Notification Screen when user scrolls to see more notifications but there are no left"
+  },
+  "noMoreFollowersText": "Больше нет подписчиков",
+  "@noMoreFollowersText": {
+    "description": "This text shown on Profile Screen when user scrolls to see more followers but there are no left"
   }
 }

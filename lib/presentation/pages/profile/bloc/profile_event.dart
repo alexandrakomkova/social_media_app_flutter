@@ -6,14 +6,11 @@ sealed class ProfileEvent with _$ProfileEvent {
 
   const factory ProfileEvent.signOut() = _SignOut;
 
-  const factory ProfileEvent.getUserInfo({required String userId}) =
-      _GetUserInfo;
-
   const factory ProfileEvent.getUserPostsNext({required String userId}) =
       _GetUserPostsNext;
 
-  const factory ProfileEvent.getPostsCount({required String userId}) =
-      _GetPostsCount;
+  const factory ProfileEvent.getFollowers({required String userId}) =
+      _GetFollowers;
 
   const factory ProfileEvent.getUserProfile({required String userId}) =
       _GetUserProfile;

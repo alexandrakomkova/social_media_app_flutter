@@ -32,7 +32,12 @@ abstract class ProfileRepository {
     required String userIdToUnfollow,
   });
 
-  Future<List<UserEntity>> getFollowers({required String userId});
+  Future<int> getFollowersCount({required String userId});
+
+  Future<PaginationResponse<UserEntity>> getFollowers({
+    required String userId,
+    DocumentSnapshot? lastDoc,
+  });
 
   Future<List<UserEntity>> getFollowings({required String userId});
 

@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:social_media_app/domain/model/user_entity.dart';
+import 'package:social_media_app/l10n/l10n.dart';
+import 'package:social_media_app/presentation/model/pagination.dart';
+import 'package:social_media_app/presentation/pages/profile/bloc/profile_bloc.dart';
 import 'package:social_media_app/presentation/pages/profile/profile_page.dart';
 import 'package:social_media_app/presentation/widget/user_card.dart';
 
-void showBottomSheetCreationVariants({
+void showBottomSheetFollowersFollowings({
   required BuildContext context,
   required String bottomSheetTitle,
-  required List<UserEntity> users,
+  required ProfileEvent event,
+  required Pagination<UserEntity> pagination,
 }) {
   showModalBottomSheet(
     shape: const RoundedRectangleBorder(
@@ -15,8 +20,9 @@ void showBottomSheetCreationVariants({
     showDragHandle: true,
     isScrollControlled: true,
     context: context,
-    builder: (BuildContext context) {
-      return FractionallySizedBox(
+    builder: (BuildContext innerContext) => BlocProvider.value(
+      value: context.read<ProfileBloc>(),
+      child: FractionallySizedBox(
         heightFactor: .5,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -37,30 +43,19 @@ void showBottomSheetCreationVariants({
 
             Divider(),
 
-            Expanded(
-              child: users.isEmpty
-                  ? Center(
-                      child: Text('No ${bottomSheetTitle.toLowerCase()} found'),
-                    )
-                  : ListView.builder(
-                      physics: AlwaysScrollableScrollPhysics(),
-                      shrinkWrap: true,
-                      itemCount: users.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        final user = users[index];
-
-                        return UserCard(
-                          entity: user,
-                          onTap: () =>
-                              _showUserProfile(context: context, id: user.id),
-                        );
-                      },
-                    ),
-            ),
+            pagination.list.isEmpty
+                ? Center(
+                    child: Text('No ${bottomSheetTitle.toLowerCase()} found'),
+                  )
+                : _usersList(
+                    pagination: pagination,
+                    event: event,
+                    context: context,
+                  ),
           ],
         ),
-      );
-    },
+      ),
+    ),
   );
 }
 
@@ -68,5 +63,56 @@ void _showUserProfile({required BuildContext context, required String id}) {
   Navigator.push(
     context,
     MaterialPageRoute(builder: (_) => ProfilePage(userId: id)),
+  );
+}
+
+Widget _usersList({
+  required BuildContext context,
+  required Pagination<UserEntity> pagination,
+  required ProfileEvent event,
+}) {
+  return NotificationListener<ScrollNotification>(
+    onNotification: (scrollInfo) {
+      if (scrollInfo.metrics.pixels >=
+              scrollInfo.metrics.maxScrollExtent - 200 &&
+          pagination.hasMoreToLoad) {
+        context.read<ProfileBloc>().add(event);
+      }
+      return false;
+    },
+    child: Expanded(
+      child: ListView.builder(
+        physics: const AlwaysScrollableScrollPhysics(),
+        shrinkWrap: true,
+        // need to make text 'no more followers' a part of the this list
+        itemCount: pagination.list.length + 1,
+        itemBuilder: (BuildContext context, int index) {
+          if (index == pagination.list.length) {
+            if (!pagination.hasMoreToLoad) {
+              return Padding(
+                padding: const EdgeInsets.only(
+                  bottom: 16.0,
+                  left: 16.0,
+                  right: 16.0,
+                  top: 4.0,
+                ),
+                child: Center(
+                  child: Text(context.l10n.noMoreFollowersText),
+                ), // change
+              );
+            } else {
+              return SizedBox();
+            }
+          }
+
+          final user = pagination.list[index];
+
+          return UserCard(
+            entity: user,
+            onTap: () => _showUserProfile(context: context, id: user.id),
+          );
+        },
+      ),
+    ),
   );
 }

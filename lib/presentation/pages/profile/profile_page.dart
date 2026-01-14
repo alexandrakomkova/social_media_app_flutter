@@ -242,13 +242,14 @@ class _ProfileView extends StatelessWidget {
           valueLabel: l10n.profileInfoCardPostsCount,
         ),
         ProfileInfoCard(
-          value: state.followers.length.toString(),
+          value: state.followersCount.toString(),
           valueLabel: l10n.profileInfoCardFollowersCount,
           onTap: () {
-            showBottomSheetCreationVariants(
+            showBottomSheetFollowersFollowings(
               context: context,
               bottomSheetTitle: l10n.bottomSheetFollowersTitle,
-              users: state.followers,
+              event: ProfileEvent.getFollowers(userId: userId),
+              pagination: state.followersPagination,
             );
           },
         ),
@@ -256,10 +257,11 @@ class _ProfileView extends StatelessWidget {
           value: state.followings.length.toString(),
           valueLabel: l10n.profileInfoCardFollowingsCount,
           onTap: () {
-            showBottomSheetCreationVariants(
+            showBottomSheetFollowersFollowings(
               context: context,
               bottomSheetTitle: l10n.bottomSheetFollowingsTitle,
-              users: state.followings,
+              event: ProfileEvent.getFollowers(userId: userId), // change
+              pagination: state.followersPagination, // change
             );
           },
         ),

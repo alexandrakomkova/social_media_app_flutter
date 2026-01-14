@@ -6,9 +6,10 @@ sealed class ProfileState with _$ProfileState {
 
   const factory ProfileState.idle({
     UserEntity? user,
-    @Default([]) List<UserEntity> followers,
+    required Pagination<UserEntity> followersPagination,
     @Default([]) List<UserEntity> followings,
     @Default(0) int postsCount,
+    @Default(0) int followersCount,
     @Default(false) bool isFollowed,
     required Pagination<PostEntity> pagination,
   }) = ProfileState$Idle;
@@ -16,7 +17,8 @@ sealed class ProfileState with _$ProfileState {
   const factory ProfileState.processing({
     UserEntity? user,
     @Default(0) int postsCount,
-    @Default([]) List<UserEntity> followers,
+    @Default(0) int followersCount,
+    required Pagination<UserEntity> followersPagination,
     @Default([]) List<UserEntity> followings,
     @Default(false) bool isFollowed,
     required Pagination<PostEntity> pagination,
@@ -25,7 +27,8 @@ sealed class ProfileState with _$ProfileState {
   const factory ProfileState.success({
     UserEntity? user,
     @Default(0) int postsCount,
-    @Default([]) List<UserEntity> followers,
+    @Default(0) int followersCount,
+    required Pagination<UserEntity> followersPagination,
     @Default([]) List<UserEntity> followings,
     @Default(false) bool isFollowed,
     required Pagination<PostEntity> pagination,
@@ -34,10 +37,11 @@ sealed class ProfileState with _$ProfileState {
   const factory ProfileState.failed({
     UserEntity? user,
     @Default(0) int postsCount,
-    @Default([]) List<UserEntity> followers,
+    @Default(0) int followersCount,
     @Default([]) List<UserEntity> followings,
     @Default(false) bool isFollowed,
     @Default('') String errorMessage,
     required Pagination<PostEntity> pagination,
+    required Pagination<UserEntity> followersPagination,
   }) = ProfileState$Failed;
 }

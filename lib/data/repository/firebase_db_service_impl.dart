@@ -36,7 +36,8 @@ class FirebaseDbServiceImpl implements DbService {
   final int _commentsPerPageLimit = 5;
   final int _searchResultLimit = 5;
   final int _homeNewPostsPerPageLimit = 5;
-  final int _notificationPerPageLimit = 3;
+  final int _notificationPerPageLimit = 10;
+  final int _followersPerPageLimit = 1;
 
   @override
   Future<void> createUser({
@@ -454,23 +455,44 @@ class FirebaseDbServiceImpl implements DbService {
   }
 
   @override
-  Future<Result<List<UserEntity>>> getFollowers({
+  Future<Result<PaginationResponse<UserEntity>>> getFollowers({
     required String userId,
+    DocumentSnapshot? lastDoc,
   }) async {
     try {
-      final followersSnapshot = await _followersRef
+      Query query = await _followersRef
           .doc(userId)
           .collection(_userFollowersCollection)
-          .get();
-      if (followersSnapshot.docs.isEmpty) return Result.ok([]);
-      List<UserEntity> followers = await _getUserEntitiesFromQuery(
-        followersSnapshot,
+          .limit(_followersPerPageLimit);
+
+      if (lastDoc != null) {
+        query = query.startAfterDocument(lastDoc);
+      }
+
+      final querySnapshot = await query.get();
+
+      var paginationResponse = FirebasePaginationResponse<UserEntity>.empty();
+
+      paginationResponse = paginationResponse.copyWith(
+        hasMoreToLoad: querySnapshot.docs.isNotEmpty,
       );
 
-      _log.info(
-        'getFollowers success followerList length: ${followers.length}',
+      if (paginationResponse.hasMoreToLoad) {
+        paginationResponse = paginationResponse.copyWith(
+          lastDoc: querySnapshot.docs.last,
+        );
+      }
+
+      List<UserEntity> followers = await _getUserEntitiesFromQuery(
+        querySnapshot,
       );
-      return Result.ok(followers);
+
+      paginationResponse = paginationResponse.copyWith(list: followers);
+
+      _log.info(
+        'getFollowers success followerList length: ${paginationResponse.list.length}',
+      );
+      return Result.ok(paginationResponse);
     } on Exception catch (e) {
       _log.warning('getFollowers error: $e');
       return Result.error(e);
@@ -867,6 +889,26 @@ class FirebaseDbServiceImpl implements DbService {
       return Result.ok(commentsCount);
     } on Exception catch (e) {
       _log.warning('getCommentsCount error: $e');
+      return Result.error(e);
+    }
+  }
+
+  @override
+  Future<Result<int>> getFollowersCount({required String userId}) async {
+    try {
+      AggregateQuerySnapshot snapshot = await _followersRef
+          .doc(userId)
+          .collection(_userFollowersCollection)
+          .count()
+          .get();
+
+      int followersCount = snapshot.count ?? 0;
+
+      _log.info('getFollowersCount success followers count: $followersCount');
+
+      return Result.ok(followersCount);
+    } on Exception catch (e) {
+      _log.warning('getFollowersCount error: $e');
       return Result.error(e);
     }
   }
