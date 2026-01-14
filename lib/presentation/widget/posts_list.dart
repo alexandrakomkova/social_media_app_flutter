@@ -20,63 +20,70 @@ class PostsList extends StatelessWidget {
           ProfileState$Failed() => Center(
             child: Text(context.l10n.errorOccurredText(state.errorMessage)),
           ),
-          ProfileState$Success() => NotificationListener<ScrollNotification>(
-            onNotification: (scrollInfo) {
-              if (scrollInfo.metrics.pixels >=
-                      scrollInfo.metrics.maxScrollExtent - 200 &&
-                  state.pagination.hasMoreToLoad) {
-                context.read<ProfileBloc>().add(
-                  ProfileEvent.getUserPostsNext(userId: userId),
-                );
-              }
-              return false;
-            },
-            child: SingleChildScrollView(
-              scrollDirection: Axis.vertical,
-              physics: AlwaysScrollableScrollPhysics(),
-              child: SizedBox(
-                width: double.infinity,
-                child: Column(
-                  children: [
-                    ...buildRows(context: context),
-                    if (!state.pagination.hasMoreToLoad)
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Center(
-                          child: Text(context.l10n.noMorePostsText),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ),
-          ),
+          ProfileState$Success() => _PostsListView(userId: userId),
         };
       },
     );
   }
+}
 
-  List<Widget> buildRows({required BuildContext context}) {
+class _PostsListView extends StatelessWidget {
+  final String userId;
+
+  const _PostsListView({required this.userId});
+
+  @override
+  Widget build(BuildContext context) {
     final state = context.watch<ProfileBloc>().state;
-    List<Widget> rows = [];
 
-    for (int i = 0; i < state.pagination.list.length; i += 3) {
-      final rowPosts = state.pagination.list.skip(i).take(3).toList();
-      rows.add(
-        Row(
-          children: List.generate(3, (j) {
-            return Flexible(
-              child: j < rowPosts.length
-                  ? AspectRatio(
-                      aspectRatio: 1,
-                      child: ProfilePostTile(postEntity: rowPosts[j]),
-                    )
-                  : const SizedBox.shrink(),
-            );
-          }),
+    final rowCount = (state.pagination.list.length / 3).ceil();
+
+    return NotificationListener<ScrollNotification>(
+      onNotification: (scrollInfo) {
+        if (scrollInfo.metrics.pixels >=
+                scrollInfo.metrics.maxScrollExtent - 200 &&
+            state.pagination.hasMoreToLoad) {
+          context.read<ProfileBloc>().add(
+            ProfileEvent.getUserPostsNext(userId: userId),
+          );
+        }
+        return false;
+      },
+      child: Expanded(
+        child: ListView.builder(
+          // need to make text 'no more posts' a part of the this list
+          itemCount: rowCount + 1,
+          itemBuilder: (context, index) {
+            if (index < rowCount) {
+              final start = index * 3;
+              final rowPosts = state.pagination.list
+                  .skip(start)
+                  .take(3)
+                  .toList();
+              return Row(
+                children: List.generate(3, (colIdx) {
+                  if (colIdx < rowPosts.length) {
+                    return Flexible(
+                      child: AspectRatio(
+                        aspectRatio: 1,
+                        child: ProfilePostTile(postEntity: rowPosts[colIdx]),
+                      ),
+                    );
+                  } else {
+                    return const Flexible(child: SizedBox.shrink());
+                  }
+                }),
+              );
+            } else if (!state.pagination.hasMoreToLoad) {
+              return Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Center(child: Text(context.l10n.noMorePostsText)),
+              );
+            }
+            return const SizedBox.shrink();
+          },
         ),
-      );
-    }
-    return rows;
+      ),
+    );
   }
 }
