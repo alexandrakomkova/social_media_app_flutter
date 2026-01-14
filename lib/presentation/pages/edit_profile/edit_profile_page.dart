@@ -107,53 +107,44 @@ class _EditProfileViewState extends State<_EditProfileView> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  BlocBuilder<EditProfileBloc, EditProfileState>(
-                    buildWhen: (previousState, state) =>
-                        previousState.runtimeType != state.runtimeType,
-                    builder: (context, state) {
-                      return TextFormField(
-                        key: UniqueKey(),
-                        initialValue: state.username,
-                        decoration: InputDecoration(
-                          hintText: l10n.usernameHintText,
-                          border: Theme.of(context).inputDecorationTheme.border,
-                          errorStyle: Theme.of(
-                            context,
-                          ).inputDecorationTheme.errorStyle,
-                        ),
-                        onChanged: (value) {
-                          context.read<EditProfileBloc>().add(
-                            EditProfileEvent.usernameChanged(value),
-                          );
-                        },
-                        validator: Validator(context: context).validateUsername,
+                  TextFormField(
+                    key: UniqueKey(),
+                    initialValue: context
+                        .watch<EditProfileBloc>()
+                        .state
+                        .username,
+                    decoration: InputDecoration(
+                      hintText: l10n.usernameHintText,
+                      border: Theme.of(context).inputDecorationTheme.border,
+                      errorStyle: Theme.of(
+                        context,
+                      ).inputDecorationTheme.errorStyle,
+                    ),
+                    onChanged: (value) {
+                      context.read<EditProfileBloc>().add(
+                        EditProfileEvent.usernameChanged(value),
                       );
                     },
+                    validator: Validator(context: context).validateUsername,
                   ),
 
                   const SizedBox(height: 15.0),
-                  BlocBuilder<EditProfileBloc, EditProfileState>(
-                    buildWhen: (previousState, state) =>
-                        previousState.runtimeType != state.runtimeType,
-                    builder: (context, state) {
-                      return TextFormField(
-                        key: UniqueKey(),
-                        initialValue: state.bio,
-                        decoration: InputDecoration(
-                          hintText: l10n.bioHintText,
-                          border: Theme.of(context).inputDecorationTheme.border,
-                          errorStyle: Theme.of(
-                            context,
-                          ).inputDecorationTheme.errorStyle,
-                        ),
-                        onChanged: (value) {
-                          context.read<EditProfileBloc>().add(
-                            EditProfileEvent.bioChanged(value),
-                          );
-                        },
-                        maxLength: 20,
+                  TextFormField(
+                    key: UniqueKey(),
+                    initialValue: context.watch<EditProfileBloc>().state.bio,
+                    decoration: InputDecoration(
+                      hintText: l10n.bioHintText,
+                      border: Theme.of(context).inputDecorationTheme.border,
+                      errorStyle: Theme.of(
+                        context,
+                      ).inputDecorationTheme.errorStyle,
+                    ),
+                    onChanged: (value) {
+                      context.read<EditProfileBloc>().add(
+                        EditProfileEvent.bioChanged(value),
                       );
                     },
+                    maxLength: 20,
                   ),
                 ],
               ),

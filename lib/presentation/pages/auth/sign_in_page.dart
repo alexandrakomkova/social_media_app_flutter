@@ -71,55 +71,46 @@ class _SignInViewState extends State<_SignInView> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        BlocBuilder<SignInBloc, SignInState>(
-                          builder: (context, state) {
-                            return TextFormField(
-                              key: const Key('signInForm_email_textFormField'),
-                              initialValue: state.email,
-                              validator: Validator(
-                                context: context,
-                              ).validateEmail,
-                              onChanged: (value) => context
-                                  .read<SignInBloc>()
-                                  .add(SignInEvent.emailChanged(value)),
-                              decoration: InputDecoration(
-                                hintText: l10n.emailHintText,
-                                border: Theme.of(
-                                  context,
-                                ).inputDecorationTheme.border,
-                                errorStyle: Theme.of(
-                                  context,
-                                ).inputDecorationTheme.errorStyle,
-                              ),
-                            );
-                          },
+                        TextFormField(
+                          key: const Key('signInForm_email_textFormField'),
+                          initialValue: context.watch<SignInBloc>().state.email,
+                          validator: Validator(context: context).validateEmail,
+                          onChanged: (value) => context.read<SignInBloc>().add(
+                            SignInEvent.emailChanged(value),
+                          ),
+                          decoration: InputDecoration(
+                            hintText: l10n.emailHintText,
+                            border: Theme.of(
+                              context,
+                            ).inputDecorationTheme.border,
+                            errorStyle: Theme.of(
+                              context,
+                            ).inputDecorationTheme.errorStyle,
+                          ),
                         ),
                         const SizedBox(height: 15.0),
-                        BlocBuilder<SignInBloc, SignInState>(
-                          builder: (context, state) {
-                            return TextFormField(
-                              key: const Key(
-                                'signInForm_password_textFormField',
-                              ),
-                              decoration: InputDecoration(
-                                hintText: l10n.passwordHintText,
-                                border: Theme.of(
-                                  context,
-                                ).inputDecorationTheme.border,
-                                errorStyle: Theme.of(
-                                  context,
-                                ).inputDecorationTheme.errorStyle,
-                              ),
-                              initialValue: state.password,
-                              obscureText: true,
-                              validator: Validator(
-                                context: context,
-                              ).validatePassword,
-                              onChanged: (value) => context
-                                  .read<SignInBloc>()
-                                  .add(SignInEvent.passwordChanged(value)),
-                            );
-                          },
+                        TextFormField(
+                          key: const Key('signInForm_password_textFormField'),
+                          decoration: InputDecoration(
+                            hintText: l10n.passwordHintText,
+                            border: Theme.of(
+                              context,
+                            ).inputDecorationTheme.border,
+                            errorStyle: Theme.of(
+                              context,
+                            ).inputDecorationTheme.errorStyle,
+                          ),
+                          initialValue: context
+                              .watch<SignInBloc>()
+                              .state
+                              .password,
+                          obscureText: true,
+                          validator: Validator(
+                            context: context,
+                          ).validatePassword,
+                          onChanged: (value) => context.read<SignInBloc>().add(
+                            SignInEvent.passwordChanged(value),
+                          ),
                         ),
                         const SizedBox(height: 30.0),
                         ElevatedButton(

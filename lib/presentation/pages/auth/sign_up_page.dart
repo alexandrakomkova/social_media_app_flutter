@@ -32,6 +32,7 @@ class _SignUpViewState extends State<_SignUpView> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final state = context.watch<SignUpBloc>().state;
 
     return BlocListener<SignUpBloc, SignUpState>(
       listener: (context, state) {
@@ -69,109 +70,86 @@ class _SignUpViewState extends State<_SignUpView> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        BlocBuilder<SignUpBloc, SignUpState>(
-                          builder: (context, state) {
-                            return TextFormField(
-                              key: const Key(
-                                'signUpForm_username_textFormField',
-                              ),
-                              decoration: InputDecoration(
-                                hintText: l10n.usernameHintText,
-                                border: Theme.of(
-                                  context,
-                                ).inputDecorationTheme.border,
-                                errorStyle: Theme.of(
-                                  context,
-                                ).inputDecorationTheme.errorStyle,
-                              ),
-                              initialValue: state.username,
-                              validator: Validator(
-                                context: context,
-                              ).validateUsername,
-                              onChanged: (value) => context
-                                  .read<SignUpBloc>()
-                                  .add(SignUpEvent.usernameChanged(value)),
-                            );
-                          },
+                        TextFormField(
+                          key: const Key('signUpForm_username_textFormField'),
+                          decoration: InputDecoration(
+                            hintText: l10n.usernameHintText,
+                            border: Theme.of(
+                              context,
+                            ).inputDecorationTheme.border,
+                            errorStyle: Theme.of(
+                              context,
+                            ).inputDecorationTheme.errorStyle,
+                          ),
+                          initialValue: state.username,
+                          validator: Validator(
+                            context: context,
+                          ).validateUsername,
+                          onChanged: (value) => context.read<SignUpBloc>().add(
+                            SignUpEvent.usernameChanged(value),
+                          ),
                         ),
                         const SizedBox(height: 15.0),
-                        BlocBuilder<SignUpBloc, SignUpState>(
-                          builder: (context, state) {
-                            return TextFormField(
-                              key: const Key('signUpForm_email_textFormField'),
-                              initialValue: state.email,
-                              decoration: InputDecoration(
-                                hintText: l10n.emailHintText,
-                                border: Theme.of(
-                                  context,
-                                ).inputDecorationTheme.border,
-                                errorStyle: Theme.of(
-                                  context,
-                                ).inputDecorationTheme.errorStyle,
-                              ),
-                              validator: Validator(
-                                context: context,
-                              ).validateEmail,
-                              onChanged: (value) => context
-                                  .read<SignUpBloc>()
-                                  .add(SignUpEvent.emailChanged(value)),
-                            );
-                          },
+                        TextFormField(
+                          key: const Key('signUpForm_email_textFormField'),
+                          initialValue: state.email,
+                          decoration: InputDecoration(
+                            hintText: l10n.emailHintText,
+                            border: Theme.of(
+                              context,
+                            ).inputDecorationTheme.border,
+                            errorStyle: Theme.of(
+                              context,
+                            ).inputDecorationTheme.errorStyle,
+                          ),
+                          validator: Validator(context: context).validateEmail,
+                          onChanged: (value) => context.read<SignUpBloc>().add(
+                            SignUpEvent.emailChanged(value),
+                          ),
                         ),
                         const SizedBox(height: 15.0),
-                        BlocBuilder<SignUpBloc, SignUpState>(
-                          builder: (context, state) {
-                            return TextFormField(
-                              key: const Key(
-                                'signUpForm_password_textFormField',
-                              ),
-                              initialValue: state.password,
-                              decoration: InputDecoration(
-                                hintText: l10n.passwordHintText,
-                                border: Theme.of(
-                                  context,
-                                ).inputDecorationTheme.border,
-                                errorStyle: Theme.of(
-                                  context,
-                                ).inputDecorationTheme.errorStyle,
-                              ),
-                              obscureText: true,
-                              validator: Validator(
-                                context: context,
-                              ).validatePassword,
-                              onChanged: (value) => context
-                                  .read<SignUpBloc>()
-                                  .add(SignUpEvent.passwordChanged(value)),
-                            );
-                          },
+                        TextFormField(
+                          key: const Key('signUpForm_password_textFormField'),
+                          initialValue: state.password,
+                          decoration: InputDecoration(
+                            hintText: l10n.passwordHintText,
+                            border: Theme.of(
+                              context,
+                            ).inputDecorationTheme.border,
+                            errorStyle: Theme.of(
+                              context,
+                            ).inputDecorationTheme.errorStyle,
+                          ),
+                          obscureText: true,
+                          validator: Validator(
+                            context: context,
+                          ).validatePassword,
+                          onChanged: (value) => context.read<SignUpBloc>().add(
+                            SignUpEvent.passwordChanged(value),
+                          ),
                         ),
                         const SizedBox(height: 15.0),
-                        BlocBuilder<SignUpBloc, SignUpState>(
-                          builder: (context, state) {
-                            return TextFormField(
-                              key: const Key(
-                                'signUpForm_repeatPassword_textFormField',
-                              ),
-                              initialValue: state.repeatPassword,
-                              decoration: InputDecoration(
-                                hintText: l10n.repeatPasswordHintText,
-                                border: Theme.of(
-                                  context,
-                                ).inputDecorationTheme.border,
-                                errorStyle: Theme.of(
-                                  context,
-                                ).inputDecorationTheme.errorStyle,
-                              ),
-                              obscureText: true,
-                              validator: (value) => Validator(
-                                context: context,
-                              ).validateRepeatPassword(state.password, value),
-                              onChanged: (value) =>
-                                  context.read<SignUpBloc>().add(
-                                    SignUpEvent.repeatPasswordChanged(value),
-                                  ),
-                            );
-                          },
+                        TextFormField(
+                          key: const Key(
+                            'signUpForm_repeatPassword_textFormField',
+                          ),
+                          initialValue: state.repeatPassword,
+                          decoration: InputDecoration(
+                            hintText: l10n.repeatPasswordHintText,
+                            border: Theme.of(
+                              context,
+                            ).inputDecorationTheme.border,
+                            errorStyle: Theme.of(
+                              context,
+                            ).inputDecorationTheme.errorStyle,
+                          ),
+                          obscureText: true,
+                          validator: (value) => Validator(
+                            context: context,
+                          ).validateRepeatPassword(state.password, value),
+                          onChanged: (value) => context.read<SignUpBloc>().add(
+                            SignUpEvent.repeatPasswordChanged(value),
+                          ),
                         ),
                         const SizedBox(height: 30.0),
                         ElevatedButton(
