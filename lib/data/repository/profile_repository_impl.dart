@@ -145,7 +145,6 @@ class ProfileRepositoryImpl implements ProfileRepository {
           lastDoc: null,
           hasMoreToLoad: false,
         );
-        ;
     }
   }
 

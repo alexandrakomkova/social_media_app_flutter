@@ -37,8 +37,8 @@ class FirebaseDbServiceImpl implements DbService {
   final int _searchResultLimit = 5;
   final int _homeNewPostsPerPageLimit = 5;
   final int _notificationPerPageLimit = 10;
-  final int _followersPerPageLimit = 1;
-  final int _followingsPerPageLimit = 1;
+  final int _followersPerPageLimit = 10;
+  final int _followingsPerPageLimit = 10;
 
   @override
   Future<void> createUser({
