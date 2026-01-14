@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:social_media_app/domain/model/notification_entity.dart';
 import 'package:social_media_app/domain/repository/notification_repository.dart';
 import 'package:social_media_app/l10n/l10n.dart';
 import 'package:social_media_app/presentation/pages/notifications/bloc/notification_bloc.dart';
@@ -75,10 +74,10 @@ class _NotificationsView extends StatelessWidget {
               return switch (state) {
                 NotificationState$Idle() => SizedBox(),
                 NotificationState$Processing() => CustomLoader(),
-                _ when state.notifications.isEmpty => _emptyList(
+                _ when state.pagination.list.isEmpty => _emptyList(
                   context: context,
                 ),
-                _ => _notificationList(notifications: state.notifications),
+                _ => _notificationList(context: context),
               };
             },
           ),
@@ -91,27 +90,54 @@ class _NotificationsView extends StatelessWidget {
     return Center(child: Text(context.l10n.notificationPageNoNotifications));
   }
 
-  Widget _notificationList({required List<NotificationEntity> notifications}) {
-    return Column(
-      children: [
-        Expanded(
-          child: ListView.builder(
-            itemCount: notifications.length,
-            itemBuilder: (BuildContext context, int index) {
-              final notification = notifications[index];
+  Widget _notificationList({required BuildContext context}) {
+    final state = context.watch<NotificationBloc>().state;
 
-              return NotificationCard(
-                entity: notification,
-                onTap: () {
-                  context.read<NotificationBloc>().add(
-                    NotificationEvent.getUserPost(notification.postId),
-                  );
-                },
+    return NotificationListener<ScrollNotification>(
+      onNotification: (scrollNotification) {
+        if (scrollNotification.metrics.pixels >=
+                scrollNotification.metrics.maxScrollExtent - 200 &&
+            state.pagination.hasMoreToLoad) {
+          context.read<NotificationBloc>().add(
+            NotificationEvent.getNotifications(),
+          );
+        }
+        return false;
+      },
+      child: ListView.builder(
+        physics: const AlwaysScrollableScrollPhysics(),
+        itemCount: state.pagination.list.length + 1,
+        itemBuilder: (BuildContext context, int index) {
+          if (index == state.pagination.list.length) {
+            if (!state.pagination.hasMoreToLoad) {
+              return Padding(
+                padding: const EdgeInsets.only(
+                  bottom: 16.0,
+                  left: 16.0,
+                  right: 16.0,
+                  top: 14.0,
+                ),
+                child: Center(
+                  child: Text(context.l10n.noMoreNotificationsText),
+                ),
+              );
+            } else {
+              return SizedBox();
+            }
+          }
+
+          final notification = state.pagination.list[index];
+
+          return NotificationCard(
+            entity: notification,
+            onTap: () {
+              context.read<NotificationBloc>().add(
+                NotificationEvent.getUserPost(notification.postId),
               );
             },
-          ),
-        ),
-      ],
+          );
+        },
+      ),
     );
   }
 }

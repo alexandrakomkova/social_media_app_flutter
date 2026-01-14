@@ -5,28 +5,28 @@ sealed class NotificationState with _$NotificationState {
   const NotificationState._();
 
   const factory NotificationState.idle({
-    @Default([]) List<NotificationEntity> notifications,
+    required Pagination<NotificationEntity> pagination,
   }) = NotificationState$Idle;
 
   const factory NotificationState.processing({
-    @Default([]) List<NotificationEntity> notifications,
+    required Pagination<NotificationEntity> pagination,
   }) = NotificationState$Processing;
 
   const factory NotificationState.success({
-    @Default([]) List<NotificationEntity> notifications,
+    required Pagination<NotificationEntity> pagination,
   }) = NotificationState$Success;
 
   const factory NotificationState.failed({
-    @Default([]) List<NotificationEntity> notifications,
+    required Pagination<NotificationEntity> pagination,
     @Default('') String errorMessage,
   }) = NotificationState$Failed;
 
   const factory NotificationState.postLoading({
-    @Default([]) List<NotificationEntity> notifications,
+    required Pagination<NotificationEntity> pagination,
   }) = NotificationState$PostLoading;
 
   const factory NotificationState.postLoaded({
-    @Default([]) List<NotificationEntity> notifications,
+    required Pagination<NotificationEntity> pagination,
     @Default(null) PostEntity? postEntity,
   }) = NotificationState$PostLoaded;
 }

@@ -315,5 +315,9 @@
   "noMoreCommentsText": "No more comments",
   "@noMoreCommentsText": {
     "description": "This text shown on Post Screen when user scrolls to see more comments but there are no more comments"
+  },
+  "noMoreNotificationsText": "No more notifications",
+  "@noMoreNotificationsText": {
+    "description": "This text shown on Notification Screen when user scrolls to see more notifications but there are no left"
   }
 }

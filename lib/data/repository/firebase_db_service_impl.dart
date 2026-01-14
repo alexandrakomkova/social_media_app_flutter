@@ -36,6 +36,7 @@ class FirebaseDbServiceImpl implements DbService {
   final int _commentsPerPageLimit = 5;
   final int _searchResultLimit = 5;
   final int _homeNewPostsPerPageLimit = 5;
+  final int _notificationPerPageLimit = 3;
 
   @override
   Future<void> createUser({
@@ -615,25 +616,44 @@ class FirebaseDbServiceImpl implements DbService {
   }
 
   @override
-  Future<Result<List<NotificationEntity>>> getNotifications({
+  Future<Result<PaginationResponse<NotificationEntity>>> getNotifications({
     required String userId,
+    DocumentSnapshot? lastDoc,
   }) async {
     try {
-      final notificationsSnapshot = await _notificationsRef
+      Query query = _notificationsRef
           .doc(userId)
           .collection(_userNotificationCollection)
           .orderBy('creationTimestamp', descending: true)
-          .get();
+          .limit(_notificationPerPageLimit);
 
-      if (notificationsSnapshot.docs.isEmpty) return Result.ok([]);
+      if (lastDoc != null) {
+        query = query.startAfterDocument(lastDoc);
+      }
+
+      final querySnapshot = await query.get();
+
+      var paginationResponse =
+          FirebasePaginationResponse<NotificationEntity>.empty();
+
+      paginationResponse = paginationResponse.copyWith(
+        hasMoreToLoad: querySnapshot.docs.isNotEmpty,
+      );
+
+      if (paginationResponse.hasMoreToLoad) {
+        paginationResponse = paginationResponse.copyWith(
+          lastDoc: querySnapshot.docs.last,
+        );
+      }
+
       List<NotificationEntity> notifications = [];
 
-      for (final docSnapshot in notificationsSnapshot.docs) {
+      for (final docSnapshot in querySnapshot.docs) {
         final data = docSnapshot.data() as Map<String, dynamic>?;
 
         if (data == null) {
           _log.info('getNotifications data is null');
-          return Result.ok([]);
+          return Result.ok(paginationResponse);
         }
 
         var userRef = data['userInfo'] as DocumentReference;
@@ -655,11 +675,12 @@ class FirebaseDbServiceImpl implements DbService {
           ),
         );
       }
+      paginationResponse = paginationResponse.copyWith(list: notifications);
 
       _log.info(
-        'getNotifications success notificationList length: ${notifications.length}',
+        'getNotifications success notificationList length: ${paginationResponse.list.length}',
       );
-      return Result.ok(notifications);
+      return Result.ok(paginationResponse);
     } on Exception catch (e) {
       _log.warning('getNotifications error: $e');
       return Result.error(e);

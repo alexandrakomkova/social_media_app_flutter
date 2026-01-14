@@ -5,6 +5,7 @@ import 'package:logging/logging.dart';
 import 'package:social_media_app/domain/model/notification_entity.dart';
 import 'package:social_media_app/domain/model/post_entity.dart';
 import 'package:social_media_app/domain/repository/notification_repository.dart';
+import 'package:social_media_app/presentation/model/pagination.dart';
 import 'package:social_media_app/utils/firebase_service.dart';
 
 part 'notification_bloc.freezed.dart';
@@ -18,7 +19,11 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
 
   NotificationBloc({required NotificationRepository notificationRepository})
     : _notificationRepository = notificationRepository,
-      super(NotificationState.idle()) {
+      super(
+        NotificationState.idle(
+          pagination: Pagination<NotificationEntity>.empty(),
+        ),
+      ) {
     on<NotificationEvent>((event, emit) async {
       switch (event.runtimeType) {
         case const (_GetNotifications):
@@ -38,31 +43,57 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
         ..add(NotificationEvent.getNotifications());
 
   Future<void> _getNotifications(Emitter<NotificationState> emit) async {
-    emit(NotificationState.processing());
+    emit(NotificationState.processing(pagination: state.pagination));
 
     try {
-      final notifications = await _notificationRepository.getNotifications(
+      final res = await _notificationRepository.getNotifications(
         userId: FirebaseService.currentUserId,
+        lastDoc: state.pagination.lastDoc,
       );
 
-      emit(NotificationState.success(notifications: notifications));
+      state.pagination.addItemsToList(res.list);
+
+      _log.info('_getNotifications success');
+
+      emit(
+        NotificationState.success(
+          pagination: state.pagination.copyWith(
+            lastDoc: res.lastDoc,
+            hasMoreToLoad: res.hasMoreToLoad,
+          ),
+        ),
+      );
     } catch (e) {
       _log.warning(e.toString());
-      emit(NotificationState.failed(errorMessage: e.toString()));
+      emit(
+        NotificationState.failed(
+          errorMessage: e.toString(),
+          pagination: state.pagination.copyWith(hasMoreToLoad: false),
+        ),
+      );
     }
   }
 
   Future<void> _deleteAll(Emitter<NotificationState> emit) async {
-    emit(NotificationState.processing());
+    emit(NotificationState.processing(pagination: state.pagination));
     try {
       await _notificationRepository.deleteAll(
         userId: FirebaseService.currentUserId,
       );
 
-      emit(NotificationState.success(notifications: []));
+      emit(
+        NotificationState.success(
+          pagination: state.pagination.copyWith(list: [], hasMoreToLoad: false),
+        ),
+      );
     } catch (e) {
       _log.warning(e.toString());
-      emit(NotificationState.failed(errorMessage: e.toString()));
+      emit(
+        NotificationState.failed(
+          errorMessage: e.toString(),
+          pagination: state.pagination,
+        ),
+      );
     }
   }
 
@@ -70,7 +101,7 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     _GetUserPost event,
     Emitter<NotificationState> emit,
   ) async {
-    emit(NotificationState.postLoading(notifications: state.notifications));
+    emit(NotificationState.postLoading(pagination: state.pagination));
 
     try {
       final res = await _notificationRepository.getUserPost(
@@ -84,7 +115,12 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
               : 'An unexpected error occurred';
 
           _log.warning('-- ${onError.error.toString()}');
-          emit(NotificationState.failed(errorMessage: errorMessage));
+          emit(
+            NotificationState.failed(
+              errorMessage: errorMessage,
+              pagination: state.pagination,
+            ),
+          );
         },
         (onOk) {
           final post = onOk.value;
@@ -92,13 +128,13 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
             emit(
               NotificationState.failed(
                 errorMessage: 'No post found',
-                notifications: state.notifications,
+                pagination: state.pagination,
               ),
             );
           } else {
             emit(
               NotificationState.postLoaded(
-                notifications: state.notifications,
+                pagination: state.pagination,
                 postEntity: post,
               ),
             );
@@ -107,7 +143,12 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
       );
     } catch (e) {
       _log.warning(e.toString());
-      emit(NotificationState.failed(errorMessage: e.toString()));
+      emit(
+        NotificationState.failed(
+          errorMessage: e.toString(),
+          pagination: state.pagination,
+        ),
+      );
     }
   }
 }

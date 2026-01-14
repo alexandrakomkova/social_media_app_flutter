@@ -93,8 +93,9 @@ abstract class DbService {
   });
 
   // notifications
-  Future<Result<List<NotificationEntity>>> getNotifications({
+  Future<Result<PaginationResponse<NotificationEntity>>> getNotifications({
     required String userId,
+    DocumentSnapshot? lastDoc,
   });
 
   Future<Result<void>> addNotification({

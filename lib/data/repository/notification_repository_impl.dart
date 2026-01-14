@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:logging/logging.dart';
 import 'package:social_media_app/domain/model/notification_entity.dart';
+import 'package:social_media_app/domain/model/pagination_response.dart';
 import 'package:social_media_app/domain/model/post_entity.dart';
 import 'package:social_media_app/domain/repository/db_service.dart';
 import 'package:social_media_app/domain/repository/notification_repository.dart';
@@ -14,18 +16,26 @@ class NotificationRepositoryImpl implements NotificationRepository {
     : _dbService = dbService;
 
   @override
-  Future<List<NotificationEntity>> getNotifications({
+  Future<PaginationResponse<NotificationEntity>> getNotifications({
     required String userId,
+    DocumentSnapshot<Object?>? lastDoc,
   }) async {
-    final notifications = await _dbService.getNotifications(userId: userId);
+    final res = await _dbService.getNotifications(
+      userId: userId,
+      lastDoc: lastDoc,
+    );
 
-    switch (notifications) {
-      case Ok<List<NotificationEntity>>():
+    switch (res) {
+      case Ok<PaginationResponse<NotificationEntity>>():
         _log.info('getNotifications success');
-        return notifications.value;
-      case Failure<List<NotificationEntity>>():
-        _log.warning('getNotifications error: ${notifications.error}');
-        return [];
+        return res.value;
+      case Failure<PaginationResponse<NotificationEntity>>():
+        _log.warning('getNotifications error: ${res.error}');
+        return PaginationResponse<NotificationEntity>(
+          list: <NotificationEntity>[],
+          lastDoc: null,
+          hasMoreToLoad: false,
+        );
     }
   }
 
