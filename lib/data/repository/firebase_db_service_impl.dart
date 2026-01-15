@@ -88,16 +88,7 @@ class FirebaseDbServiceImpl implements DbService {
         return Result.error(Exception('Empty user data'));
       }
 
-      return Result.ok(
-        UserEntity(
-          id: userData['id'],
-          email: userData['email'],
-          username: userData['username'],
-          bio: userData['bio'],
-          photoUrl: userData['photoUrl'],
-          creationTimestamp: userData['creationTimestamp'],
-        ),
-      );
+      return Result.ok(UserEntity.fromMap(userData));
     } on Exception catch (e) {
       _log.warning('getUserById error: $e');
       return Result.error(e);
@@ -346,9 +337,9 @@ class FirebaseDbServiceImpl implements DbService {
         final userDoc = await userRef.get();
         if (!userDoc.exists) continue;
 
-        final user = userDoc.data() as Map<String, dynamic>?;
+        final user = userDoc.data();
 
-        if (user == null) continue;
+        if (user is! Map<String, dynamic>) continue;
 
         final List<CommentEntity> comments = paginationResponse.list;
 
@@ -448,9 +439,8 @@ class FirebaseDbServiceImpl implements DbService {
 
       if (!userDoc.exists) continue;
 
-      final userData = userDoc.data() as Map<String, dynamic>?;
-
-      if (userData == null) continue;
+      final userData = userDoc.data();
+      if (userData is! Map<String, dynamic>) continue;
 
       users.add(UserEntity.fromMap(userData));
     }
@@ -565,9 +555,9 @@ class FirebaseDbServiceImpl implements DbService {
 
       if (!userDoc.exists) continue;
 
-      final userData = userDoc.data() as Map<String, dynamic>?;
+      final userData = userDoc.data();
 
-      if (userData == null) continue;
+      if (userData is! Map<String, dynamic>) continue;
 
       posts.add(
         PostEntity(
@@ -713,9 +703,9 @@ class FirebaseDbServiceImpl implements DbService {
 
         if (!userDoc.exists) continue;
 
-        final userData = userDoc.data() as Map<String, dynamic>?;
+        final userData = userDoc.data();
 
-        if (userData == null) continue;
+        if (userData is! Map<String, dynamic>) continue;
 
         notifications.add(
           NotificationEntity(
@@ -792,27 +782,29 @@ class FirebaseDbServiceImpl implements DbService {
       }
 
       final postData = postSnapshot.data();
-      final userRef = postData?['userInfo'] as DocumentReference;
+
+      if (postData is! Map<String, dynamic>) {
+        return Result.ok(null);
+      }
+
+      final userRef = postData['userInfo'] as DocumentReference;
 
       final userDoc = await userRef.get();
 
       if (!userDoc.exists) return Result.ok(null);
 
-      final userData = userDoc.data() as Map<String, dynamic>?;
+      final userData = userDoc.data();
+
+      if (userData is! Map<String, dynamic>) {
+        return Result.ok(null);
+      }
 
       final PostEntity postEntity = PostEntity(
-        imageUrl: postData?['imageUrl'],
-        creationTimestamp: postData?['creationTimestamp'],
-        description: postData?['description'],
-        userId: userData?['id'],
-        userEntity: UserEntity(
-          id: userData?['id'],
-          email: userData?['email'],
-          username: userData?['username'],
-          bio: userData?['bio'],
-          creationTimestamp: userData?['creationTimestamp'],
-          photoUrl: userData?['photoUrl'],
-        ),
+        imageUrl: postData['imageUrl'],
+        creationTimestamp: postData['creationTimestamp'],
+        description: postData['description'],
+        userId: userData['id'],
+        userEntity: UserEntity.fromMap(userData),
       );
 
       return Result.ok(postEntity);
@@ -863,9 +855,10 @@ class FirebaseDbServiceImpl implements DbService {
         final userDoc = await userRef.get();
         if (!userDoc.exists) continue;
 
-        final userData = userDoc.data() as Map<String, dynamic>?;
+        final userData = userDoc.data();
 
-        if (userData == null) continue;
+        if (userData is! Map<String, dynamic>) continue;
+
         final userPosts = paginationResponse.list;
 
         userPosts.add(
