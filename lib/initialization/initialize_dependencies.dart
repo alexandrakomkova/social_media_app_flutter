@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'package:bloc/bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:logging/logging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -77,9 +76,6 @@ final Map<String, _InitializationStep> _initializationSteps =
     <String, _InitializationStep>{
       'Observer state management': (_, _, _) =>
           Bloc.observer = const AppBlocObserver(),
-      'Dotenv initialization': (dependencies, _, _) async {
-        final _ = await dotenv.load(fileName: ".env");
-      },
       'Firebase services initialization':
           (
             dependencies,

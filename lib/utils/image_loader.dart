@@ -12,7 +12,7 @@ abstract class ImageLoader {
       if (image.path.isEmpty) return '';
 
       Reference storageReference = FirebaseStorage.instanceFor(
-        bucket: Environment.firebaseStorageBucketName,
+        bucket: Environment.firebaseStorageBucket,
       ).ref().child('images/$imageId');
 
       UploadTask uploadTask = storageReference.putFile(File(image.path));
@@ -24,6 +24,9 @@ abstract class ImageLoader {
       return imageUrl;
     } on FirebaseException catch (e) {
       _log.warning('getImageUrl error: ${e.code} ${e.message}');
+      return '';
+    } on Exception catch (e) {
+      _log.warning('getImageUrl error: $e');
       return '';
     }
   }

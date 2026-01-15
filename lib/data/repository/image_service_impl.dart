@@ -17,7 +17,10 @@ class ImageServiceImpl implements ImageService {
         source: isCamera ? ImageSource.camera : ImageSource.gallery,
       );
 
-      if (pickedFile == null) return null;
+      if (pickedFile == null) {
+        _log.info('pickedImage is null');
+        return null;
+      }
 
       CroppedFile? croppedFile = await ImageCropper().cropImage(
         sourcePath: pickedFile.path,
@@ -31,7 +34,12 @@ class ImageServiceImpl implements ImageService {
         ],
       );
 
-      return File(croppedFile!.path);
+      if (croppedFile == null) {
+        _log.info('croppedFile is null');
+        return null;
+      }
+
+      return File(croppedFile.path);
     } catch (e) {
       _log.warning('pickImage error: $e');
       return null;
