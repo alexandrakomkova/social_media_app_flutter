@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart'
     as material
-    show WidgetsFlutterBinding, GlobalKey, NavigatorState, WidgetsBinding;
+    show WidgetsFlutterBinding, WidgetsBinding, GlobalKey, NavigatorState;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:logging/logging.dart';
 import 'package:social_media_app/initialization/dependencies.dart';
@@ -12,7 +12,7 @@ final _log = Logger('initializeApp');
 Future<void> $initializeApp({
   required Future<void> Function(Dependencies dependencies)? onSuccess,
   void Function(Object error)? onError,
-  required NotificationHandler notificationHandler,
+  required material.GlobalKey<material.NavigatorState> navigatorKey,
   required FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin,
 }) async {
   late final material.WidgetsBinding binding;
@@ -21,9 +21,9 @@ Future<void> $initializeApp({
     binding = material.WidgetsFlutterBinding.ensureInitialized()
       ..deferFirstFrame();
 
-    final material.GlobalKey<material.NavigatorState> navigatorKey =
-        material.GlobalKey<material.NavigatorState>();
-    final notificationHandler = NotificationHandler(_log, navigatorKey);
+    final NotificationHandler notificationHandler = NotificationHandler(
+      navigatorKey,
+    );
 
     final dependencies = await $initializeDependencies(
       notificationHandler: notificationHandler,

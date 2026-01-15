@@ -7,11 +7,12 @@ import 'package:social_media_app/domain/model/user_entity.dart';
 import 'package:social_media_app/presentation/pages/post/post_page.dart';
 import 'package:social_media_app/presentation/pages/profile/profile_page.dart';
 
+final _log = Logger('NotificationHandler');
+
 class NotificationHandler {
-  final Logger _log;
   final GlobalKey<NavigatorState> navigatorKey;
 
-  NotificationHandler(this._log, this.navigatorKey);
+  NotificationHandler(this.navigatorKey);
 
   void handleMessageData(dynamic rawData) {
     try {
@@ -28,7 +29,7 @@ class NotificationHandler {
         _handlePostNavigation(data['postEntity']);
       }
     } catch (e, stack) {
-      _log.warning('NotificationHandler error: $e\n$stack');
+      _log.warning('handleMessageData error: $e\n$stack');
     }
   }
 
@@ -59,6 +60,11 @@ class NotificationHandler {
       return;
     }
     final userData = postData['userEntity'];
+
+    if (userData == null) {
+      _log.warning('userData is not a Map or JSON: $postRaw');
+      return;
+    }
 
     final postEntity = PostEntity(
       imageUrl: postData['imageUrl'].toString(),

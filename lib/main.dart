@@ -9,9 +9,7 @@ import 'package:social_media_app/app/app.dart';
 import 'package:social_media_app/app/app_error.dart';
 import 'package:social_media_app/initialization/initialization.dart'
     as initialization;
-import 'package:social_media_app/utils/notification_handler.dart';
 
-final _log = Logger('Main');
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 
@@ -54,7 +52,6 @@ Future<void> main() async {
   });
 
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-  final notificationHandler = NotificationHandler(_log, navigatorKey);
 
   initialization.$initializeApp(
     onSuccess: (dependencies) async => runApp(
@@ -63,7 +60,7 @@ Future<void> main() async {
       ),
     ),
     onError: (error) async => runApp(AppError(error: error)),
-    notificationHandler: notificationHandler,
+    navigatorKey: navigatorKey,
     flutterLocalNotificationsPlugin: flutterLocalNotificationsPlugin,
   );
 }
