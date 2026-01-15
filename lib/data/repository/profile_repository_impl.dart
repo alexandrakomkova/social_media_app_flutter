@@ -49,7 +49,11 @@ class ProfileRepositoryImpl implements ProfileRepository {
         _log.info(
           'getUserInfo success userInfo: ${res.value.id} ${res.value.username}',
         );
-        await DbProvider.db.updateUser(res.value);
+
+        if (FirebaseService.currentUserId == res.value.id) {
+          final _ = await DbProvider.db.updateUser(res.value);
+        }
+
         return res.value;
       case Failure<UserEntity>():
         _log.warning('getUserInfo error: ${res.error}');
@@ -70,7 +74,9 @@ class ProfileRepositoryImpl implements ProfileRepository {
     );
     switch (res) {
       case Ok<void>():
-        var user = await DbProvider.db.getClient(FirebaseService.currentUserId);
+        final user = await DbProvider.db.getClient(
+          FirebaseService.currentUserId,
+        );
 
         await DbProvider.db.updateUser(
           user.copyWith(username: username, bio: bio, photoUrl: imageUrl),
