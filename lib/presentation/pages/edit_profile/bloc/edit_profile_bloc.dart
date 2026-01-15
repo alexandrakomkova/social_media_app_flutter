@@ -24,18 +24,18 @@ class EditProfileBloc extends Bloc<EditProfileEvent, EditProfileState> {
        _profileRepository = profileRepository,
        super(EditProfileState.idle()) {
     on<EditProfileEvent>((event, emit) async {
-      switch (event.runtimeType) {
-        case const (_UsernameChanged):
-          await _usernameChanged(event as _UsernameChanged, emit);
-        case const (_BioChanged):
-          await _bioChanged(event as _BioChanged, emit);
-        case const (_SelectImage):
-          await _selectImage(event as _SelectImage, emit);
-        case const (_DeleteImage):
+      switch (event) {
+        case _UsernameChanged():
+          await _usernameChanged(event, emit);
+        case _BioChanged():
+          await _bioChanged(event, emit);
+        case _SelectImage():
+          await _selectImage(event, emit);
+        case _DeleteImage():
           await _deleteImage(emit);
-        case const (_GetUserInfo):
+        case _GetUserInfo():
           await _getUserInfo(emit);
-        case const (_SaveProfile):
+        case _SaveProfile():
           await _saveProfile(emit);
       }
     });

@@ -29,14 +29,14 @@ class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
          ),
        ) {
     on<CommentsEvent>((event, emit) async {
-      switch (event.runtimeType) {
-        case const (_GetComments):
+      switch (event) {
+        case _GetComments():
           await _getComments(emit);
-        case const (_AddComment):
+        case _AddComment():
           await _addComment(emit);
-        case const (_CommentTextChanged):
-          await _commentTextChanged(event as _CommentTextChanged, emit);
-        case const (_GetCommentsInfo):
+        case _CommentTextChanged():
+          await _commentTextChanged(event, emit);
+        case _GetCommentsInfo():
           await _getCommentsInfo(emit);
       }
     }, transformer: droppable());

@@ -18,8 +18,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     : _homeRepository = homeRepository,
       super(HomeState.idle(pagination: Pagination<PostEntity>.empty())) {
     on<HomeEvent>((event, emit) async {
-      switch (event.runtimeType) {
-        case const (_GetNewPosts):
+      switch (event) {
+        case _GetNewPosts():
           await _getNewPosts(emit);
       }
     }, transformer: droppable());

@@ -15,11 +15,11 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     : _searchRepository = searchRepository,
       super(const SearchState.idle()) {
     on<SearchEvent>((event, emit) async {
-      switch (event.runtimeType) {
-        case const (_QueryChanged):
-          await _queryChanged(event as _QueryChanged, emit);
-        case const (_SearchUsers):
-          await _searchUsers(event as _SearchUsers, emit);
+      switch (event) {
+        case _QueryChanged():
+          await _queryChanged(event, emit);
+        case _SearchUsers():
+          await _searchUsers(event, emit);
       }
     }, transformer: restartable());
   }

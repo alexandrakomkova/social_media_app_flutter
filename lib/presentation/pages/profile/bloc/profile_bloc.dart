@@ -35,21 +35,21 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
          ),
        ) {
     on<ProfileEvent>((event, emit) async {
-      switch (event.runtimeType) {
-        case const (_GetUserProfile):
-          await _getUserProfile(event as _GetUserProfile, emit);
-        case const (_FollowUser):
-          await _followUser(event as _FollowUser, emit);
-        case const (_UnfollowUser):
-          await _unfollowUser(event as _UnfollowUser, emit);
-        case const (_SignOut):
+      switch (event) {
+        case _GetUserProfile():
+          await _getUserProfile(event, emit);
+        case _FollowUser():
+          await _followUser(event, emit);
+        case _UnfollowUser():
+          await _unfollowUser(event, emit);
+        case _SignOut():
           await _signOut(emit);
-        case const (_GetUserPostsNext):
-          await _getUserPostsNext(event as _GetUserPostsNext, emit);
-        case const (_GetFollowers):
-          await _getFollowers(event as _GetFollowers, emit);
-        case const (_GetFollowings):
-          await _getFollowings(event as _GetFollowings, emit);
+        case _GetUserPostsNext():
+          await _getUserPostsNext(event, emit);
+        case _GetFollowers():
+          await _getFollowers(event, emit);
+        case _GetFollowings():
+          await _getFollowings(event, emit);
       }
     }, transformer: droppable());
   }

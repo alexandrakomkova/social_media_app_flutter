@@ -50,27 +50,20 @@ class _CreatePostView extends StatelessWidget {
           _selectImageBox(context: context),
           SizedBox(height: 20.0),
 
-          BlocBuilder<CreatePostBloc, CreatePostState>(
-            builder: (createPostContext, state) {
-              return TextFormField(
-                initialValue: state.postDescription,
-                decoration: InputDecoration(
-                  hintText: createPostContext.l10n.postDescriptionHintText,
-                  hintStyle: TextStyle(
-                    fontSize: 15.0,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12.0),
-                  ),
-                  errorStyle: TextStyle(fontSize: 12.0),
-                ),
-                maxLines: null,
-                onChanged: (value) => createPostContext
-                    .read<CreatePostBloc>()
-                    .add(CreatePostEvent.postDescriptionChanged(value)),
-              );
-            },
+          TextFormField(
+            initialValue: context.watch<CreatePostBloc>().state.postDescription,
+            decoration: InputDecoration(
+              hintText: context.l10n.postDescriptionHintText,
+              hintStyle: TextStyle(fontSize: 15.0, fontWeight: FontWeight.w600),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12.0),
+              ),
+              errorStyle: TextStyle(fontSize: 12.0),
+            ),
+            maxLines: null,
+            onChanged: (value) => context.read<CreatePostBloc>().add(
+              CreatePostEvent.postDescriptionChanged(value),
+            ),
           ),
         ],
       ),

@@ -15,16 +15,16 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
     : _authRepository = authRepository,
       super(const SignUpState.idle()) {
     on<SignUpEvent>((event, emit) async {
-      switch (event.runtimeType) {
-        case const (_UsernameChanged):
-          await _usernameChanged(event as _UsernameChanged, emit);
-        case const (_EmailChanged):
-          await _emailChanged(event as _EmailChanged, emit);
-        case const (_PasswordChanged):
-          await _passwordChanged(event as _PasswordChanged, emit);
-        case const (_RepeatPasswordChanged):
-          await _repeatPasswordChanged(event as _RepeatPasswordChanged, emit);
-        case const (_SignUp):
+      switch (event) {
+        case _UsernameChanged():
+          await _usernameChanged(event, emit);
+        case _EmailChanged():
+          await _emailChanged(event, emit);
+        case _PasswordChanged():
+          await _passwordChanged(event, emit);
+        case _RepeatPasswordChanged():
+          await _repeatPasswordChanged(event, emit);
+        case _SignUp():
           await _signUp(emit);
       }
     });

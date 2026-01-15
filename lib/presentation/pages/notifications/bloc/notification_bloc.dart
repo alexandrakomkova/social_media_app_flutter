@@ -25,13 +25,13 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
         ),
       ) {
     on<NotificationEvent>((event, emit) async {
-      switch (event.runtimeType) {
-        case const (_GetNotifications):
+      switch (event) {
+        case _GetNotifications():
           await _getNotifications(emit);
-        case const (_DeleteAll):
+        case _DeleteAll():
           await _deleteAll(emit);
-        case const (_GetUserPost):
-          await _getUserPost(event as _GetUserPost, emit);
+        case _GetUserPost():
+          await _getUserPost(event, emit);
       }
     });
   }
