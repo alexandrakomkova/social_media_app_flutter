@@ -346,15 +346,11 @@ class FirebaseDbServiceImpl implements DbService {
         final userDoc = await userRef.get();
         if (!userDoc.exists) continue;
 
-        // if (userDoc.data() == null) {
-        //   return Result.ok(paginationResponse);
-        // }
-
         final user = userDoc.data() as Map<String, dynamic>?;
 
-        List<CommentEntity> comments = paginationResponse.list;
-
         if (user == null) continue;
+
+        final List<CommentEntity> comments = paginationResponse.list;
 
         comments.add(
           CommentEntity(
@@ -448,7 +444,7 @@ class FirebaseDbServiceImpl implements DbService {
       }
 
       final userRef = data['userInfo'] as DocumentReference;
-      final userDoc = await userRef.get();
+      final DocumentSnapshot userDoc = await userRef.get();
 
       if (!userDoc.exists) continue;
 
