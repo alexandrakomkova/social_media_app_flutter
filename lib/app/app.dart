@@ -152,11 +152,11 @@ class _AppScreen extends StatelessWidget {
           InternetStatus.disconnected => NoInternetConnection(),
           InternetStatus.connected => StreamBuilder(
             stream: FirebaseAuth.instance.authStateChanges(),
-            builder: ((BuildContext context, snapshot) {
+            builder: (BuildContext context, snapshot) {
               if (snapshot.hasData) return MainPage();
 
               return SignInPage();
-            }),
+            },
           ),
         };
       },

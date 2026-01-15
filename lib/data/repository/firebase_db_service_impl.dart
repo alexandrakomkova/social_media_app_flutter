@@ -77,7 +77,9 @@ class FirebaseDbServiceImpl implements DbService {
   @override
   Future<Result<UserEntity>> getUserById({required String id}) async {
     try {
-      final docSnap = await _usersRef.doc(id).get();
+      final DocumentSnapshot<Map<String, dynamic>> docSnap = await _usersRef
+          .doc(id)
+          .get();
 
       final Map<String, dynamic>? userData = docSnap.data();
 
@@ -107,13 +109,13 @@ class FirebaseDbServiceImpl implements DbService {
     required String username,
   }) async {
     try {
-      final querySnapshot = await _usersRef
+      final QuerySnapshot<Map<String, dynamic>> querySnapshot = await _usersRef
           .where('username', isGreaterThanOrEqualTo: username)
           .where('username', isLessThanOrEqualTo: '$username\uf7ff')
           .limit(_searchResultLimit)
           .get();
 
-      List<UserEntity> foundUsers = querySnapshot.docs.map((doc) {
+      final List<UserEntity> foundUsers = querySnapshot.docs.map((doc) {
         final data = doc.data();
         return UserEntity.fromMap(data);
       }).toList();
@@ -169,7 +171,10 @@ class FirebaseDbServiceImpl implements DbService {
     try {
       final int creationTimestamp = DateTime.now().millisecondsSinceEpoch;
 
-      String url = await _getImageUrl(imageUrl, creationTimestamp.toString());
+      final String url = await _getImageUrl(
+        imageUrl,
+        creationTimestamp.toString(),
+      );
       _log.info('_getImageUrl $url');
       _log.info('updateUserInfo current id: ${FirebaseService.currentUserId}');
 
@@ -204,16 +209,14 @@ class FirebaseDbServiceImpl implements DbService {
     required String postId,
   }) async {
     try {
-      final querySnapshot = await _likesRef
+      final QuerySnapshot<Map<String, dynamic>> querySnapshot = await _likesRef
           .where('postId', isEqualTo: postId)
           .get();
-      int likesCount = querySnapshot.docs.length;
-      bool isLiked =
-          querySnapshot.docs.any(
-            (doc) => doc['userId'] == FirebaseService.currentUserId,
-          )
-          ? true
-          : false;
+
+      final int likesCount = querySnapshot.docs.length;
+      final bool isLiked = querySnapshot.docs.any(
+        (doc) => doc['userId'] == FirebaseService.currentUserId,
+      );
 
       _log.info(
         'getLikesInfo success {likeCount: $likesCount, isLiked: $isLiked}',
@@ -255,7 +258,7 @@ class FirebaseDbServiceImpl implements DbService {
   @override
   Future<Result<void>> removeLike({required String postId}) async {
     try {
-      final querySnapshot = await _likesRef
+      final QuerySnapshot<Map<String, dynamic>> querySnapshot = await _likesRef
           .where('postId', isEqualTo: postId)
           .where('userId', isEqualTo: FirebaseService.currentUserId)
           .get();
@@ -315,7 +318,7 @@ class FirebaseDbServiceImpl implements DbService {
         query = query.startAfterDocument(lastDoc);
       }
 
-      final querySnapshot = await query.get();
+      final QuerySnapshot<Object?> querySnapshot = await query.get();
 
       var paginationResponse =
           FirebasePaginationResponse<CommentEntity>.empty();
@@ -331,21 +334,23 @@ class FirebaseDbServiceImpl implements DbService {
       }
 
       for (final docSnapshot in querySnapshot.docs) {
-        var data = docSnapshot.data() as Map<String, dynamic>?;
+        final data = docSnapshot.data() as Map<String, dynamic>?;
 
         if (data == null) {
           _log.info('getComments data is null');
           return Result.ok(paginationResponse);
         }
 
-        var userRef = data['userInfo'] as DocumentReference;
+        final userRef = data['userInfo'] as DocumentReference;
 
-        var userDoc = await userRef.get();
+        final userDoc = await userRef.get();
         if (!userDoc.exists) continue;
-        if (userDoc.data() == null) {
-          return Result.ok(paginationResponse);
-        }
-        var user = userDoc.data() as Map<String, dynamic>?;
+
+        // if (userDoc.data() == null) {
+        //   return Result.ok(paginationResponse);
+        // }
+
+        final user = userDoc.data() as Map<String, dynamic>?;
 
         List<CommentEntity> comments = paginationResponse.list;
 
@@ -433,7 +438,7 @@ class FirebaseDbServiceImpl implements DbService {
   Future<List<UserEntity>> _getUserEntitiesFromQuery(
     QuerySnapshot querySnapshot,
   ) async {
-    List<UserEntity> users = [];
+    final List<UserEntity> users = [];
     for (final docSnapshot in querySnapshot.docs) {
       final data = docSnapshot.data() as Map<String, dynamic>?;
 
@@ -442,11 +447,12 @@ class FirebaseDbServiceImpl implements DbService {
         return users;
       }
 
-      var userRef = data['userInfo'] as DocumentReference;
+      final userRef = data['userInfo'] as DocumentReference;
       final userDoc = await userRef.get();
 
       if (!userDoc.exists) continue;
-      var userData = userDoc.data() as Map<String, dynamic>?;
+
+      final userData = userDoc.data() as Map<String, dynamic>?;
 
       if (userData == null) continue;
 
@@ -461,7 +467,7 @@ class FirebaseDbServiceImpl implements DbService {
     DocumentSnapshot? lastDoc,
   }) async {
     try {
-      Query query = await _followersRef
+      Query query = _followersRef
           .doc(userId)
           .collection(_userFollowersCollection)
           .limit(_followersPerPageLimit);
@@ -470,7 +476,7 @@ class FirebaseDbServiceImpl implements DbService {
         query = query.startAfterDocument(lastDoc);
       }
 
-      final querySnapshot = await query.get();
+      final QuerySnapshot querySnapshot = await query.get();
 
       var paginationResponse = FirebasePaginationResponse<UserEntity>.empty();
 
@@ -484,7 +490,7 @@ class FirebaseDbServiceImpl implements DbService {
         );
       }
 
-      List<UserEntity> followers = await _getUserEntitiesFromQuery(
+      final List<UserEntity> followers = await _getUserEntitiesFromQuery(
         querySnapshot,
       );
 
@@ -515,7 +521,7 @@ class FirebaseDbServiceImpl implements DbService {
         query = query.startAfterDocument(lastDoc);
       }
 
-      final querySnapshot = await query.get();
+      final QuerySnapshot querySnapshot = await query.get();
 
       var paginationResponse = FirebasePaginationResponse<UserEntity>.empty();
 
@@ -529,7 +535,7 @@ class FirebaseDbServiceImpl implements DbService {
         );
       }
 
-      List<UserEntity> followings = await _getUserEntitiesFromQuery(
+      final List<UserEntity> followings = await _getUserEntitiesFromQuery(
         querySnapshot,
       );
 
@@ -557,13 +563,14 @@ class FirebaseDbServiceImpl implements DbService {
         return posts;
       }
 
-      var userRef = data['userInfo'] as DocumentReference;
+      final userRef = data['userInfo'] as DocumentReference;
 
-      final userDoc = await userRef.get();
+      final DocumentSnapshot userDoc = await userRef.get();
 
       if (!userDoc.exists) continue;
 
-      var userData = userDoc.data() as Map<String, dynamic>?;
+      final userData = userDoc.data() as Map<String, dynamic>?;
+
       if (userData == null) continue;
 
       posts.add(
@@ -585,10 +592,11 @@ class FirebaseDbServiceImpl implements DbService {
     DocumentSnapshot? lastDoc,
   }) async {
     try {
-      final followingsSnapshot = await _followingsRef
-          .doc(userId)
-          .collection(_userFollowingsCollection)
-          .get();
+      final QuerySnapshot<Map<String, dynamic>> followingsSnapshot =
+          await _followingsRef
+              .doc(userId)
+              .collection(_userFollowingsCollection)
+              .get();
 
       var paginationResponse = FirebasePaginationResponse<PostEntity>.empty();
 
@@ -600,7 +608,7 @@ class FirebaseDbServiceImpl implements DbService {
         );
       }
 
-      List<String> followingUserIds = followingsSnapshot.docs
+      final List<String> followingUserIds = followingsSnapshot.docs
           .map((doc) => doc.id)
           .toList();
 
@@ -612,7 +620,7 @@ class FirebaseDbServiceImpl implements DbService {
         query = query.startAfterDocument(lastDoc);
       }
 
-      final querySnapshot = await query.get();
+      final QuerySnapshot querySnapshot = await query.get();
 
       paginationResponse = paginationResponse.copyWith(
         hasMoreToLoad: querySnapshot.docs.isNotEmpty,
@@ -624,7 +632,9 @@ class FirebaseDbServiceImpl implements DbService {
         );
       }
 
-      List<PostEntity> posts = await _getPostEntitiesFromQuery(querySnapshot);
+      final List<PostEntity> posts = await _getPostEntitiesFromQuery(
+        querySnapshot,
+      );
 
       paginationResponse = paginationResponse.copyWith(list: posts);
 
@@ -643,12 +653,13 @@ class FirebaseDbServiceImpl implements DbService {
     required String profileOwnerUserId,
   }) async {
     try {
-      final querySnapshot = await _followingsRef
-          .doc(FirebaseService.currentUserId)
-          .collection(_userFollowingsCollection)
-          .get();
+      final QuerySnapshot<Map<String, dynamic>> querySnapshot =
+          await _followingsRef
+              .doc(FirebaseService.currentUserId)
+              .collection(_userFollowingsCollection)
+              .get();
 
-      bool isFollowed = querySnapshot.docs.any(
+      final bool isFollowed = querySnapshot.docs.any(
         (docSnapshot) => docSnapshot.id == profileOwnerUserId,
       );
       _log.info('isFollowedByCurrentUser success isFollowed: $isFollowed');
@@ -675,7 +686,7 @@ class FirebaseDbServiceImpl implements DbService {
         query = query.startAfterDocument(lastDoc);
       }
 
-      final querySnapshot = await query.get();
+      final QuerySnapshot querySnapshot = await query.get();
 
       var paginationResponse =
           FirebasePaginationResponse<NotificationEntity>.empty();
@@ -700,7 +711,7 @@ class FirebaseDbServiceImpl implements DbService {
           return Result.ok(paginationResponse);
         }
 
-        var userRef = data['userInfo'] as DocumentReference;
+        final userRef = data['userInfo'] as DocumentReference;
 
         final userDoc = await userRef.get();
 
@@ -785,7 +796,7 @@ class FirebaseDbServiceImpl implements DbService {
       }
 
       final postData = postSnapshot.data();
-      var userRef = postData?['userInfo'] as DocumentReference;
+      final userRef = postData?['userInfo'] as DocumentReference;
 
       final userDoc = await userRef.get();
 
@@ -793,7 +804,7 @@ class FirebaseDbServiceImpl implements DbService {
 
       final userData = userDoc.data() as Map<String, dynamic>?;
 
-      final postEntity = PostEntity(
+      final PostEntity postEntity = PostEntity(
         imageUrl: postData?['imageUrl'],
         creationTimestamp: postData?['creationTimestamp'],
         description: postData?['description'],
@@ -829,7 +840,7 @@ class FirebaseDbServiceImpl implements DbService {
         query = query.startAfterDocument(lastDoc);
       }
 
-      final querySnapshot = await query.get();
+      final QuerySnapshot querySnapshot = await query.get();
 
       var paginationResponse = FirebasePaginationResponse<PostEntity>.empty();
 
@@ -851,15 +862,15 @@ class FirebaseDbServiceImpl implements DbService {
           return Result.ok(paginationResponse);
         }
 
-        var userRef = data['userInfo'] as DocumentReference;
+        final userRef = data['userInfo'] as DocumentReference;
 
         final userDoc = await userRef.get();
         if (!userDoc.exists) continue;
 
-        var userData = userDoc.data() as Map<String, dynamic>?;
-        var userPosts = paginationResponse.list;
+        final userData = userDoc.data() as Map<String, dynamic>?;
 
         if (userData == null) continue;
+        final userPosts = paginationResponse.list;
 
         userPosts.add(
           PostEntity(
@@ -884,11 +895,11 @@ class FirebaseDbServiceImpl implements DbService {
   @override
   Future<Result<int>> getPostsCount({required String userId}) async {
     try {
-      AggregateQuerySnapshot snapshot = await _postsRef
+      final AggregateQuerySnapshot snapshot = await _postsRef
           .where('userId', isEqualTo: userId)
           .count()
           .get();
-      int postsCount = snapshot.count ?? 0;
+      final int postsCount = snapshot.count ?? 0;
 
       return Result.ok(postsCount);
     } on Exception catch (e) {
@@ -900,11 +911,11 @@ class FirebaseDbServiceImpl implements DbService {
   @override
   Future<Result<int>> getCommentsCount({required String postId}) async {
     try {
-      AggregateQuerySnapshot snapshot = await _commentsRef
+      final AggregateQuerySnapshot snapshot = await _commentsRef
           .where('postId', isEqualTo: postId)
           .count()
           .get();
-      int commentsCount = snapshot.count ?? 0;
+      final int commentsCount = snapshot.count ?? 0;
 
       _log.info('getCommentsCount success comments count: $commentsCount');
 
@@ -918,13 +929,13 @@ class FirebaseDbServiceImpl implements DbService {
   @override
   Future<Result<int>> getFollowersCount({required String userId}) async {
     try {
-      AggregateQuerySnapshot snapshot = await _followersRef
+      final AggregateQuerySnapshot snapshot = await _followersRef
           .doc(userId)
           .collection(_userFollowersCollection)
           .count()
           .get();
 
-      int followersCount = snapshot.count ?? 0;
+      final int followersCount = snapshot.count ?? 0;
 
       _log.info('getFollowersCount success followers count: $followersCount');
 
@@ -938,13 +949,13 @@ class FirebaseDbServiceImpl implements DbService {
   @override
   Future<Result<int>> getFollowingsCount({required String userId}) async {
     try {
-      AggregateQuerySnapshot snapshot = await _followingsRef
+      final AggregateQuerySnapshot snapshot = await _followingsRef
           .doc(userId)
           .collection(_userFollowingsCollection)
           .count()
           .get();
 
-      int followingsCount = snapshot.count ?? 0;
+      final int followingsCount = snapshot.count ?? 0;
 
       _log.info('getFollowingsCount success followers count: $followingsCount');
 
