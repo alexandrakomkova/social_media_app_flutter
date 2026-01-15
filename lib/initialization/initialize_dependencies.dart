@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:bloc/bloc.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -9,11 +10,30 @@ import 'package:logging/logging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:social_media_app/app/app_bloc_observer.dart';
 import 'package:social_media_app/data/db_provider.dart';
+import 'package:social_media_app/data/repository/auth/auth_firebase_service_impl.dart';
+import 'package:social_media_app/data/repository/auth/auth_repository_impl.dart';
+import 'package:social_media_app/data/repository/firebase_db_service_impl.dart';
+import 'package:social_media_app/data/repository/home_repository_impl.dart';
+import 'package:social_media_app/data/repository/image_service_impl.dart';
+import 'package:social_media_app/data/repository/post_repository_impl.dart';
+import 'package:social_media_app/data/repository/profile_repository_impl.dart';
+import 'package:social_media_app/data/repository/search_repository_impl.dart';
+import 'package:social_media_app/domain/repository/auth/auth_firebase_service.dart';
+import 'package:social_media_app/domain/repository/auth/auth_repository.dart';
+import 'package:social_media_app/domain/repository/db_service.dart';
+import 'package:social_media_app/domain/repository/home_repository.dart';
+import 'package:social_media_app/domain/repository/image_service.dart';
+import 'package:social_media_app/domain/repository/notification_repository.dart';
+import 'package:social_media_app/domain/repository/post_repository.dart';
+import 'package:social_media_app/domain/repository/profile_repository.dart';
+import 'package:social_media_app/domain/repository/search_repository.dart';
 import 'package:social_media_app/initialization/dependencies.dart';
 import 'package:social_media_app/main.dart'
     show firebaseMessagingBackgroundHandler;
 import 'package:social_media_app/utils/firebase_service.dart';
 import 'package:social_media_app/utils/notification_handler.dart';
+
+import '../data/repository/notification_repository_impl.dart';
 
 final _log = Logger('initializeDependencies');
 
@@ -61,17 +81,75 @@ final Map<String, _InitializationStep> _initializationSteps =
         final _ = await dotenv.load(fileName: ".env");
       },
       'Firebase services initialization':
-          (_, notificationHandler, flutterLocalNotificationsPlugin) async =>
-              _initializeFirebase(
-                notificationHandler,
-                flutterLocalNotificationsPlugin,
-              ),
+          (
+            dependencies,
+            notificationHandler,
+            flutterLocalNotificationsPlugin,
+          ) async {
+            final _ = await _initializeFirebase(
+              notificationHandler,
+              flutterLocalNotificationsPlugin,
+            );
+
+            final firebaseAuth = FirebaseAuth.instance;
+            dependencies.firebaseAuth = firebaseAuth;
+          },
       'Database initialization': (_, _, _) async {
         final _ = await DbProvider.db.initDb();
       },
       'SharedPreferences initialization': (dependencies, _, _) async {
         final sharedPrefs = await SharedPreferences.getInstance();
         dependencies.sharedPreferences = sharedPrefs;
+      },
+      'DbService initialization': (dependencies, _, _) {
+        final DbService dbService = FirebaseDbServiceImpl();
+        dependencies.dbService = dbService;
+      },
+      'ImageService initialization': (dependencies, _, _) {
+        final ImageService imageService = ImageServiceImpl();
+        dependencies.imageService = imageService;
+      },
+      'AuthFirebaseService initialization': (dependencies, _, _) {
+        final AuthFirebaseService authFirebaseService = AuthFirebaseServiceImpl(
+          firebaseAuth: dependencies.firebaseAuth,
+        );
+        dependencies.authFirebaseService = authFirebaseService;
+      },
+      'AuthRepository initialization': (dependencies, _, _) {
+        final AuthRepository authRepository = AuthRepositoryImpl(
+          authFirebaseService: dependencies.authFirebaseService,
+          firebaseDbService: dependencies.dbService,
+        );
+        dependencies.authRepository = authRepository;
+      },
+      'HomeRepository initialization': (dependencies, _, _) {
+        final HomeRepository homeRepository = HomeRepositoryImpl(
+          dbService: dependencies.dbService,
+        );
+        dependencies.homeRepository = homeRepository;
+      },
+      'NotificationRepository initialization': (dependencies, _, _) {
+        final NotificationRepository notificationRepository =
+            NotificationRepositoryImpl(dbService: dependencies.dbService);
+        dependencies.notificationRepository = notificationRepository;
+      },
+      'SearchRepository initialization': (dependencies, _, _) {
+        final SearchRepository searchRepository = SearchRepositoryImpl(
+          dbService: dependencies.dbService,
+        );
+        dependencies.searchRepository = searchRepository;
+      },
+      'ProfileRepository initialization': (dependencies, _, _) {
+        final ProfileRepository profileRepository = ProfileRepositoryImpl(
+          dbService: dependencies.dbService,
+        );
+        dependencies.profileRepository = profileRepository;
+      },
+      'PostRepository initialization': (dependencies, _, _) {
+        final PostRepository postRepository = PostRepositoryImpl(
+          dbService: dependencies.dbService,
+        );
+        dependencies.postRepository = postRepository;
       },
     };
 

@@ -3,15 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
-import 'package:social_media_app/data/repository/auth/auth_firebase_service_impl.dart';
-import 'package:social_media_app/data/repository/auth/auth_repository_impl.dart';
-import 'package:social_media_app/data/repository/firebase_db_service_impl.dart';
-import 'package:social_media_app/data/repository/home_repository_impl.dart';
-import 'package:social_media_app/data/repository/image_service_impl.dart';
-import 'package:social_media_app/data/repository/notification_repository_impl.dart';
-import 'package:social_media_app/data/repository/post_repository_impl.dart';
-import 'package:social_media_app/data/repository/profile_repository_impl.dart';
-import 'package:social_media_app/data/repository/search_repository_impl.dart';
 import 'package:social_media_app/domain/repository/auth/auth_firebase_service.dart';
 import 'package:social_media_app/domain/repository/auth/auth_repository.dart';
 import 'package:social_media_app/domain/repository/db_service.dart';
@@ -54,50 +45,44 @@ class _AppState extends State<App> {
 
   @override
   Widget build(BuildContext context) {
+    final Dependencies dependencies = Dependencies.of(context);
+
     return MultiRepositoryProvider(
       providers: [
         ChangeNotifierProvider(
-          create: (_) => ThemeProvider(
-            sharedPreferences: Dependencies.of(context).sharedPreferences,
-          ),
+          create: (_) =>
+              ThemeProvider(sharedPreferences: dependencies.sharedPreferences),
         ),
         ChangeNotifierProvider(
           create: (_) => LanguageProvider(
             locale: Locale('en'),
-            sharedPreferences: Dependencies.of(context).sharedPreferences,
+            sharedPreferences: dependencies.sharedPreferences,
           ),
         ),
         RepositoryProvider<AuthFirebaseService>(
-          create: (_) =>
-              AuthFirebaseServiceImpl(firebaseAuth: FirebaseAuth.instance),
+          create: (_) => dependencies.authFirebaseService,
         ),
-        RepositoryProvider<DbService>(create: (_) => FirebaseDbServiceImpl()),
+        RepositoryProvider<DbService>(create: (_) => dependencies.dbService),
         RepositoryProvider<AuthRepository>(
-          create: (context) => AuthRepositoryImpl(
-            authFirebaseService: context.read<AuthFirebaseService>(),
-            firebaseDbService: context.read<DbService>(),
-          ),
+          create: (_) => dependencies.authRepository,
         ),
         RepositoryProvider<HomeRepository>(
-          create: (context) =>
-              HomeRepositoryImpl(dbService: context.read<DbService>()),
+          create: (_) => dependencies.homeRepository,
         ),
         RepositoryProvider<NotificationRepository>(
-          create: (context) =>
-              NotificationRepositoryImpl(dbService: context.read<DbService>()),
+          create: (_) => dependencies.notificationRepository,
         ),
         RepositoryProvider<SearchRepository>(
-          create: (context) =>
-              SearchRepositoryImpl(dbService: context.read<DbService>()),
+          create: (_) => dependencies.searchRepository,
         ),
-        RepositoryProvider<ImageService>(create: (_) => ImageServiceImpl()),
+        RepositoryProvider<ImageService>(
+          create: (_) => dependencies.imageService,
+        ),
         RepositoryProvider<ProfileRepository>(
-          create: (context) =>
-              ProfileRepositoryImpl(dbService: context.read<DbService>()),
+          create: (_) => dependencies.profileRepository,
         ),
         RepositoryProvider<PostRepository>(
-          create: (context) =>
-              PostRepositoryImpl(dbService: context.read<DbService>()),
+          create: (_) => dependencies.postRepository,
         ),
       ],
       child: BlocProvider(
