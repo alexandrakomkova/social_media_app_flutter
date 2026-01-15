@@ -5,6 +5,7 @@ import 'package:social_media_app/domain/model/post_entity.dart';
 import 'package:social_media_app/presentation/pages/post/bloc/comments/comments_bloc.dart';
 import 'package:social_media_app/presentation/pages/post/bloc/post/post_bloc.dart';
 import 'package:social_media_app/presentation/widget/profile_avatar.dart';
+import 'package:social_media_app/utils/datetime_formatter.dart';
 
 class PostCard extends StatelessWidget {
   final PostEntity postEntity;
@@ -82,7 +83,9 @@ class PostCard extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            state.postEntity.formattedCreationTimestamp,
+            DateTimeFormatter(context: context).ddMMyyyyHHmm(
+              dateTime: state.postEntity.creationTimestampDateTime,
+            ),
             style: Theme.of(context).textTheme.bodySmall,
           ),
           const SizedBox(width: 8.0),
