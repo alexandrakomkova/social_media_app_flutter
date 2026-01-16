@@ -60,7 +60,6 @@ class _CreatePostView extends StatelessWidget {
               ),
               errorStyle: TextStyle(fontSize: 12.0),
             ),
-            maxLines: null,
             onChanged: (value) => context.read<CreatePostBloc>().add(
               CreatePostEvent.postDescriptionChanged(value),
             ),

@@ -58,14 +58,14 @@ class CreatePostBloc extends Bloc<CreatePostEvent, CreatePostState> {
 
       switch (res) {
         case Ok<void>():
-          emit(CreatePostState.success(postDescription: '', imageFile: null));
+          emit(CreatePostState.success());
         case Failure<void>():
           _log.warning(res.error.toString());
-          emit(CreatePostState.failed());
+          emit(CreatePostState.failed(errorMessage: res.error.toString()));
       }
     } catch (e) {
       _log.warning(e.toString());
-      emit(CreatePostState.failed());
+      emit(CreatePostState.failed(errorMessage: e.toString()));
     }
   }
 
@@ -81,7 +81,7 @@ class CreatePostBloc extends Bloc<CreatePostEvent, CreatePostState> {
       emit(CreatePostState.success(imageFile: res));
     } catch (e) {
       _log.warning(e.toString());
-      emit(CreatePostState.failed());
+      emit(CreatePostState.failed(errorMessage: e.toString()));
     }
   }
 }

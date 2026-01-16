@@ -20,6 +20,7 @@ sealed class CreatePostState with _$CreatePostState {
   }) = CreatePostState$Success;
 
   const factory CreatePostState.failed({
+    @Default('') String errorMessage,
     @Default('') String postDescription,
     File? imageFile,
   }) = CreatePostState$Failed;
