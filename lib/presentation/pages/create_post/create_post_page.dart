@@ -44,27 +44,42 @@ class _CreatePostView extends StatelessWidget {
           );
         },
       ),
-      body: ListView(
-        padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 4.0),
-        children: [
-          _selectImageBox(context: context),
-          SizedBox(height: 20.0),
+      body: BlocListener<CreatePostBloc, CreatePostState>(
+        listener: (context, state) {
+          if (state is CreatePostState$Failed) {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.errorMessage)));
+          }
+        },
+        listenWhen: (previous, current) =>
+            previous.runtimeType != current.runtimeType,
+        child: ListView(
+          padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 4.0),
+          children: [
+            _selectImageBox(context: context),
+            SizedBox(height: 20.0),
 
-          TextFormField(
-            initialValue: context.watch<CreatePostBloc>().state.postDescription,
-            decoration: InputDecoration(
-              hintText: context.l10n.postDescriptionHintText,
-              hintStyle: TextStyle(fontSize: 15.0, fontWeight: FontWeight.w600),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12.0),
+            TextFormField(
+              initialValue: context
+                  .watch<CreatePostBloc>()
+                  .state
+                  .postDescription,
+              decoration: InputDecoration(
+                hintText: context.l10n.postDescriptionHintText,
+                hintStyle: TextStyle(
+                  fontSize: 15.0,
+                  fontWeight: FontWeight.w600,
+                ),
+                border: Theme.of(context).inputDecorationTheme.border,
+                errorStyle: Theme.of(context).inputDecorationTheme.errorStyle,
               ),
-              errorStyle: TextStyle(fontSize: 12.0),
+              onChanged: (value) => context.read<CreatePostBloc>().add(
+                CreatePostEvent.postDescriptionChanged(value),
+              ),
             ),
-            onChanged: (value) => context.read<CreatePostBloc>().add(
-              CreatePostEvent.postDescriptionChanged(value),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -119,19 +134,17 @@ class _CreatePostView extends StatelessWidget {
             border: Border.all(color: Theme.of(context).colorScheme.secondary),
           ),
           child: BlocBuilder<CreatePostBloc, CreatePostState>(
-            builder: (createPostContext, state) {
+            builder: (context, state) {
               if (state.imageFile == null) {
-                return Center(
-                  child: Text(createPostContext.l10n.uploadPhotoText),
-                );
-              } else {
-                return Image.file(
-                  state.imageFile!,
-                  width: MediaQuery.sizeOf(createPostContext).width * 0.5,
-                  height: MediaQuery.sizeOf(createPostContext).width * 0.5,
-                  fit: BoxFit.cover,
-                );
+                return Center(child: Text(context.l10n.uploadPhotoText));
               }
+
+              return Image.file(
+                state.imageFile!,
+                width: MediaQuery.sizeOf(context).width * 0.5,
+                height: MediaQuery.sizeOf(context).width * 0.5,
+                fit: BoxFit.cover,
+              );
             },
           ),
         ),

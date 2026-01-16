@@ -61,11 +61,23 @@ class CreatePostBloc extends Bloc<CreatePostEvent, CreatePostState> {
           emit(CreatePostState.success());
         case Failure<void>():
           _log.warning(res.error.toString());
-          emit(CreatePostState.failed(errorMessage: res.error.toString()));
+          emit(
+            CreatePostState.failed(
+              errorMessage: res.error.toString(),
+              postDescription: state.postDescription,
+              imageFile: state.imageFile,
+            ),
+          );
       }
     } catch (e) {
       _log.warning(e.toString());
-      emit(CreatePostState.failed(errorMessage: e.toString()));
+      emit(
+        CreatePostState.failed(
+          errorMessage: e.toString(),
+          postDescription: state.postDescription,
+          imageFile: state.imageFile,
+        ),
+      );
     }
   }
 
@@ -78,10 +90,21 @@ class CreatePostBloc extends Bloc<CreatePostEvent, CreatePostState> {
     try {
       final res = await _imageService.pickImage(isCamera: event.isCamera);
 
-      emit(CreatePostState.success(imageFile: res));
+      emit(
+        CreatePostState.success(
+          imageFile: res,
+          postDescription: state.postDescription,
+        ),
+      );
     } catch (e) {
       _log.warning(e.toString());
-      emit(CreatePostState.failed(errorMessage: e.toString()));
+      emit(
+        CreatePostState.failed(
+          errorMessage: e.toString(),
+          postDescription: state.postDescription,
+          imageFile: state.imageFile,
+        ),
+      );
     }
   }
 }
