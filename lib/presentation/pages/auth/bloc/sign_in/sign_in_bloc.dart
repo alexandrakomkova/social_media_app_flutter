@@ -114,7 +114,7 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
           );
         },
         (onOk) {
-          if (onOk.value != null) {
+          if (onOk.value) {
             emit(
               SignInState.success(email: state.email, password: state.password),
             );
