@@ -12,4 +12,7 @@ class CommentEntity {
   final String text;
   final int createdAt;
   final UserEntity author;
+
+  DateTime get createdAtDateTime =>
+      DateTime.fromMillisecondsSinceEpoch(createdAt);
 }

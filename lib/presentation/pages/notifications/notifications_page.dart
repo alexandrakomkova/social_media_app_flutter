@@ -6,7 +6,6 @@ import 'package:social_media_app/presentation/pages/notifications/bloc/notificat
 import 'package:social_media_app/presentation/pages/post/post_page.dart';
 import 'package:social_media_app/presentation/widget/custom_loader.dart';
 import 'package:social_media_app/presentation/widget/notification_card.dart';
-import 'package:social_media_app/theme/theme.dart';
 
 class NotificationsPage extends StatelessWidget {
   const NotificationsPage({super.key});
@@ -61,7 +60,7 @@ class _NotificationsView extends StatelessWidget {
                 padding: const EdgeInsets.all(10.0),
                 child: Text(
                   l10n.deleteAllButton,
-                  style: AppTheme.appBarActionsTextStyle,
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
               ),
             ),

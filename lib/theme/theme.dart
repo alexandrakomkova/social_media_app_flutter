@@ -30,6 +30,7 @@ abstract class AppTheme {
       titleMedium: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w600),
       bodyMedium: TextStyle(fontSize: 16.0),
       bodySmall: TextStyle(fontSize: 14.0),
+      displaySmall: TextStyle(fontSize: 12.0, color: Colors.blueGrey),
     ),
     inputDecorationTheme: InputDecorationTheme(
       errorStyle: const TextStyle(fontSize: 12.0),
@@ -37,21 +38,11 @@ abstract class AppTheme {
     ),
   );
 
-  static TextStyle appBarActionsTextStyle = TextStyle(
-    fontSize: 15.0,
-    fontWeight: FontWeight.w600,
-  );
-
-  static TextStyle settingListTileTextStyle = TextStyle(
-    fontSize: 18.0,
-    fontWeight: FontWeight.w600,
-  );
-
   static ThemeData darkTheme = ThemeData(
     colorScheme: ColorScheme.fromSeed(
       brightness: Brightness.dark,
       seedColor: Colors.blue,
-      surface: darkBG, //Colors.black
+      surface: darkBG,
     ),
     iconTheme: const IconThemeData(color: Colors.white),
     snackBarTheme: const SnackBarThemeData(behavior: SnackBarBehavior.floating),
@@ -70,6 +61,7 @@ abstract class AppTheme {
       titleMedium: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w600),
       bodyMedium: TextStyle(fontSize: 16.0),
       bodySmall: TextStyle(fontSize: 14.0),
+      displaySmall: TextStyle(fontSize: 12.0, color: Colors.blueGrey),
     ),
     inputDecorationTheme: InputDecorationTheme(
       errorStyle: const TextStyle(fontSize: 12.0),

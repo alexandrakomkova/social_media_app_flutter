@@ -12,4 +12,11 @@ class DateTimeFormatter {
       Localizations.localeOf(_context).toString(),
     ).format(dateTime);
   }
+
+  String ddMMyyHHmm({required DateTime dateTime}) {
+    return DateFormat(
+      'dd/MM/yy HH:mm',
+      Localizations.localeOf(_context).toString(),
+    ).format(dateTime);
+  }
 }

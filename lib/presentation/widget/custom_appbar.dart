@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:social_media_app/theme/theme.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String appBarTitle;
@@ -31,7 +30,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           onTap: onActionTap,
           child: Padding(
             padding: const EdgeInsets.all(10.0),
-            child: Text(actionTitle, style: AppTheme.appBarActionsTextStyle),
+            child: Text(
+              actionTitle,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
           ),
         ),
       ],

@@ -1,4 +1,3 @@
-import 'package:intl/intl.dart';
 import 'package:social_media_app/domain/model/user_entity.dart';
 
 class PostEntity {
@@ -18,9 +17,6 @@ class PostEntity {
 
   DateTime get creationTimestampDateTime =>
       DateTime.fromMillisecondsSinceEpoch(creationTimestamp);
-
-  String get formattedCreationTimestamp =>
-      DateFormat('dd/MM/yyyy HH:mm').format(creationTimestampDateTime);
 
   int get id => creationTimestamp;
 }
