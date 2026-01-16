@@ -600,6 +600,7 @@ class FirebaseDbServiceImpl implements DbService {
 
       Query query = _postsRef
           .where('userId', whereIn: followingUserIds)
+          .orderBy('creationTimestamp', descending: true)
           .limit(_homeNewPostsPerPageLimit);
 
       if (lastDoc != null) {
@@ -822,6 +823,7 @@ class FirebaseDbServiceImpl implements DbService {
     try {
       Query query = _postsRef
           .where('userId', isEqualTo: userId)
+          .orderBy('creationTimestamp', descending: true)
           .limit(_postsPerPageLimit);
 
       if (lastDoc != null) {
