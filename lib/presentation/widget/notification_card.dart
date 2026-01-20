@@ -43,6 +43,7 @@ class NotificationCard extends StatelessWidget {
     required void Function()? onTap,
   }) {
     return ListTile(
+      key: ValueKey(notificationEntity.creationTimestamp),
       leading: Icon(notificationEntity.type.icon),
       title: Text(
         context.l10n.notificationOnLikeText(
@@ -64,6 +65,7 @@ class NotificationCard extends StatelessWidget {
     required void Function()? onTap,
   }) {
     return ListTile(
+      key: ValueKey(notificationEntity.creationTimestamp),
       leading: Icon(notificationEntity.type.icon),
       title: Text(
         context.l10n.notificationOnCommentText(
@@ -84,6 +86,7 @@ class NotificationCard extends StatelessWidget {
     required NotificationEntity notificationEntity,
   }) {
     return ListTile(
+      key: ValueKey(notificationEntity.creationTimestamp),
       leading: Icon(notificationEntity.type.icon),
       title: Text(
         context.l10n.notificationOnFollowText(
@@ -111,6 +114,7 @@ class NotificationCard extends StatelessWidget {
     required NotificationEntity notificationEntity,
   }) {
     return ListTile(
+      key: ValueKey(notificationEntity.creationTimestamp),
       leading: Icon(notificationEntity.type.icon),
       title: Text(
         context.l10n.notificationOnUnfollowText(
@@ -135,6 +139,7 @@ class NotificationCard extends StatelessWidget {
     required NotificationEntity notificationEntity,
   }) {
     return ListTile(
+      key: ValueKey(notificationEntity.creationTimestamp),
       leading: Icon(notificationEntity.type.icon),
       title: Text(
         notificationEntity.userEntity.username,

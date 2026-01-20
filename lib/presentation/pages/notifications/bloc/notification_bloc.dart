@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:logging/logging.dart';
@@ -19,11 +20,7 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
 
   NotificationBloc({required NotificationRepository notificationRepository})
     : _notificationRepository = notificationRepository,
-      super(
-        NotificationState.idle(
-          pagination: Pagination<NotificationEntity>.empty(),
-        ),
-      ) {
+      super(NotificationState.idle()) {
     on<NotificationEvent>((event, emit) async {
       switch (event) {
         case _GetNotifications():
@@ -33,7 +30,7 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
         case _GetUserPost():
           await _getUserPost(event, emit);
       }
-    });
+    }, transformer: droppable());
   }
 
   factory NotificationBloc.getNotifications({
@@ -43,21 +40,28 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
         ..add(NotificationEvent.getNotifications());
 
   Future<void> _getNotifications(Emitter<NotificationState> emit) async {
-    emit(NotificationState.processing(pagination: state.pagination));
+    final currentPagination = state.maybeWhen(
+      success: (pagination) => pagination,
+      failed: (pagination, _) => pagination,
+      orElse: () => Pagination<NotificationEntity>.empty(),
+    );
+    emit(NotificationState.processing());
 
     try {
       final res = await _notificationRepository.getNotifications(
         userId: FirebaseService.currentUserId,
-        lastDoc: state.pagination.lastDoc,
+        lastDoc: currentPagination.lastDoc,
       );
 
-      state.pagination.addItemsToList(res.list);
+      currentPagination.addItemsToList(res.list);
 
-      _log.info('_getNotifications success');
+      _log.info(
+        '_getNotifications success ${currentPagination.hasMoreToLoad} ${currentPagination.list.length}',
+      );
 
       emit(
         NotificationState.success(
-          pagination: state.pagination.copyWith(
+          pagination: currentPagination.copyWith(
             lastDoc: res.lastDoc,
             hasMoreToLoad: res.hasMoreToLoad,
           ),
@@ -68,14 +72,21 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
       emit(
         NotificationState.failed(
           errorMessage: e.toString(),
-          pagination: state.pagination.copyWith(hasMoreToLoad: false),
+          pagination: currentPagination.copyWith(hasMoreToLoad: false),
         ),
       );
     }
   }
 
   Future<void> _deleteAll(Emitter<NotificationState> emit) async {
-    emit(NotificationState.processing(pagination: state.pagination));
+    final currentPagination = state.maybeWhen(
+      success: (pagination) => pagination,
+      failed: (pagination, _) => pagination,
+      orElse: () => Pagination<NotificationEntity>.empty(),
+    );
+
+    emit(NotificationState.processing());
+
     try {
       await _notificationRepository.deleteAll(
         userId: FirebaseService.currentUserId,
@@ -83,7 +94,10 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
 
       emit(
         NotificationState.success(
-          pagination: state.pagination.copyWith(list: [], hasMoreToLoad: false),
+          pagination: currentPagination.copyWith(
+            list: [],
+            hasMoreToLoad: false,
+          ),
         ),
       );
     } catch (e) {
@@ -91,7 +105,7 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
       emit(
         NotificationState.failed(
           errorMessage: e.toString(),
-          pagination: state.pagination,
+          pagination: currentPagination,
         ),
       );
     }
@@ -101,7 +115,13 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
     _GetUserPost event,
     Emitter<NotificationState> emit,
   ) async {
-    emit(NotificationState.postLoading(pagination: state.pagination));
+    final currentPagination = state.maybeWhen(
+      success: (pagination) => pagination,
+      failed: (pagination, _) => pagination,
+      orElse: () => Pagination<NotificationEntity>.empty(),
+    );
+
+    emit(NotificationState.postLoading(pagination: currentPagination));
 
     try {
       final res = await _notificationRepository.getUserPost(
@@ -118,7 +138,7 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
           emit(
             NotificationState.failed(
               errorMessage: errorMessage,
-              pagination: state.pagination,
+              pagination: currentPagination,
             ),
           );
         },
@@ -128,14 +148,14 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
             emit(
               NotificationState.failed(
                 errorMessage: 'No post found',
-                pagination: state.pagination,
+                pagination: currentPagination,
               ),
             );
           } else {
             emit(
               NotificationState.postLoaded(
-                pagination: state.pagination,
                 postEntity: post,
+                pagination: currentPagination,
               ),
             );
           }
@@ -146,7 +166,7 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
       emit(
         NotificationState.failed(
           errorMessage: e.toString(),
-          pagination: state.pagination,
+          pagination: currentPagination,
         ),
       );
     }

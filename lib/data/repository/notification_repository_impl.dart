@@ -27,7 +27,7 @@ class NotificationRepositoryImpl implements NotificationRepository {
 
     switch (res) {
       case Ok<PaginationResponse<NotificationEntity>>():
-        _log.info('getNotifications success');
+        _log.info('getNotifications success ${res.value.hasMoreToLoad}');
         return res.value;
       case Failure<PaginationResponse<NotificationEntity>>():
         _log.warning('getNotifications error: ${res.error}');

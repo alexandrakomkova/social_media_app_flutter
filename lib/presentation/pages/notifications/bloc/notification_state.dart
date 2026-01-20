@@ -4,13 +4,9 @@ part of 'notification_bloc.dart';
 sealed class NotificationState with _$NotificationState {
   const NotificationState._();
 
-  const factory NotificationState.idle({
-    required Pagination<NotificationEntity> pagination,
-  }) = NotificationState$Idle;
+  const factory NotificationState.idle() = NotificationState$Idle;
 
-  const factory NotificationState.processing({
-    required Pagination<NotificationEntity> pagination,
-  }) = NotificationState$Processing;
+  const factory NotificationState.processing() = NotificationState$Processing;
 
   const factory NotificationState.success({
     required Pagination<NotificationEntity> pagination,
@@ -27,6 +23,6 @@ sealed class NotificationState with _$NotificationState {
 
   const factory NotificationState.postLoaded({
     required Pagination<NotificationEntity> pagination,
-    @Default(null) PostEntity? postEntity,
+    PostEntity? postEntity,
   }) = NotificationState$PostLoaded;
 }

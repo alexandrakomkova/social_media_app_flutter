@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:social_media_app/domain/model/notification_entity.dart';
 import 'package:social_media_app/domain/repository/notification_repository.dart';
 import 'package:social_media_app/l10n/l10n.dart';
+import 'package:social_media_app/presentation/model/pagination.dart';
 import 'package:social_media_app/presentation/pages/notifications/bloc/notification_bloc.dart';
 import 'package:social_media_app/presentation/pages/post/post_page.dart';
 import 'package:social_media_app/presentation/widget/custom_loader.dart';
@@ -73,10 +75,17 @@ class _NotificationsView extends StatelessWidget {
               return switch (state) {
                 NotificationState$Idle() => SizedBox(),
                 NotificationState$Processing() => CustomLoader(),
-                _ when state.pagination.list.isEmpty => _emptyList(
-                  context: context,
-                ),
-                _ => _notificationList(context: context),
+                NotificationState$Success(:final pagination) ||
+                NotificationState$Failed(:final pagination) ||
+                NotificationState$PostLoading(:final pagination) ||
+                NotificationState$PostLoaded(
+                  :final pagination,
+                ) when pagination.list.isEmpty => _emptyList(context: context),
+                NotificationState$Success(:final pagination) ||
+                NotificationState$PostLoaded(:final pagination) ||
+                NotificationState$PostLoading(:final pagination) ||
+                NotificationState$Failed(:final pagination) =>
+                  _notificationList(context: context, pagination: pagination),
               };
             },
           ),
@@ -89,14 +98,15 @@ class _NotificationsView extends StatelessWidget {
     return Center(child: Text(context.l10n.notificationPageNoNotifications));
   }
 
-  Widget _notificationList({required BuildContext context}) {
-    final state = context.watch<NotificationBloc>().state;
-
+  Widget _notificationList({
+    required BuildContext context,
+    required Pagination<NotificationEntity> pagination,
+  }) {
     return NotificationListener<ScrollNotification>(
       onNotification: (scrollNotification) {
         if (scrollNotification.metrics.pixels >=
                 scrollNotification.metrics.maxScrollExtent - 200 &&
-            state.pagination.hasMoreToLoad) {
+            pagination.hasMoreToLoad) {
           context.read<NotificationBloc>().add(
             NotificationEvent.getNotifications(),
           );
@@ -105,10 +115,10 @@ class _NotificationsView extends StatelessWidget {
       },
       child: ListView.builder(
         physics: const AlwaysScrollableScrollPhysics(),
-        itemCount: state.pagination.list.length + 1,
+        itemCount: pagination.list.length + 1,
         itemBuilder: (BuildContext context, int index) {
-          if (index == state.pagination.list.length) {
-            if (!state.pagination.hasMoreToLoad) {
+          if (index == pagination.list.length) {
+            if (!pagination.hasMoreToLoad) {
               return Padding(
                 padding: const EdgeInsets.only(
                   bottom: 16.0,
@@ -125,7 +135,7 @@ class _NotificationsView extends StatelessWidget {
             }
           }
 
-          final notification = state.pagination.list[index];
+          final notification = pagination.list[index];
 
           return NotificationCard(
             entity: notification,
