@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:social_media_app/domain/model/post_entity.dart';
 import 'package:social_media_app/domain/repository/post_repository.dart';
 import 'package:social_media_app/l10n/l10n.dart';
+import 'package:social_media_app/presentation/model/pagination.dart';
 import 'package:social_media_app/presentation/pages/home/bloc/home_bloc.dart';
 import 'package:social_media_app/presentation/pages/post/bloc/comments/comments_bloc.dart';
 import 'package:social_media_app/presentation/pages/post/bloc/post/post_bloc.dart';
@@ -9,19 +11,19 @@ import 'package:social_media_app/presentation/pages/post/post_page.dart';
 import 'package:social_media_app/presentation/widget/post_card.dart';
 
 class SubscriptionPostsList extends StatelessWidget {
-  const SubscriptionPostsList({super.key});
+  final Pagination<PostEntity> pagination;
+
+  const SubscriptionPostsList({super.key, required this.pagination});
 
   @override
   Widget build(BuildContext context) {
-    final state = context.watch<HomeBloc>().state;
-
     return Expanded(
       child: ListView.builder(
         key: PageStorageKey('homePage_postsListView_key'),
-        itemCount: state.pagination.list.length + 1,
+        itemCount: pagination.list.length + 1,
         itemBuilder: (context, index) {
-          if (index == state.pagination.list.length) {
-            if (!state.pagination.hasMoreToLoad) {
+          if (index == pagination.list.length) {
+            if (!pagination.hasMoreToLoad) {
               return Padding(
                 padding: const EdgeInsets.only(
                   bottom: 16.0,
@@ -41,30 +43,37 @@ class SubscriptionPostsList extends StatelessWidget {
             }
           }
 
-          return _listTile(context: context, index: index);
+          return _listTile(
+            context: context,
+            index: index,
+            pagination: pagination,
+          );
         },
       ),
     );
   }
 
-  Widget _listTile({required BuildContext context, required int index}) {
-    final state = context.watch<HomeBloc>().state;
-    var post = state.pagination.list[index];
+  Widget _listTile({
+    required BuildContext context,
+    required int index,
+    required Pagination<PostEntity> pagination,
+  }) {
+    var post = pagination.list[index];
 
     return Padding(
-      key: ValueKey(state.pagination.list[index].id),
+      key: ValueKey(post.id),
       padding: const EdgeInsets.only(bottom: 40.0),
       child: MultiBlocProvider(
         providers: [
           BlocProvider<PostBloc>(
-            create: (postContext) => PostBloc.getLikesCount(
+            create: (context) => PostBloc.getLikesCount(
               postEntity: post,
-              postRepository: postContext.read<PostRepository>(),
+              postRepository: context.read<PostRepository>(),
             ),
           ),
           BlocProvider<CommentsBloc>(
-            create: (commentsContext) => CommentsBloc.getComments(
-              commentRepository: commentsContext.read<PostRepository>(),
+            create: (context) => CommentsBloc.getComments(
+              commentRepository: context.read<PostRepository>(),
               postId: post.id.toString(),
               postOwnerId: post.userId,
             ),

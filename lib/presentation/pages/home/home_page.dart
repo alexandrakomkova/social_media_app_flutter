@@ -38,12 +38,12 @@ class _HomeView extends StatelessWidget {
               HomeState$Failed() => Center(
                 child: Text(context.l10n.errorOccurredText(state.errorMessage)),
               ),
-              HomeState$Success() => Center(
+              HomeState$Success(:final pagination) => Center(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    state.pagination.list.isEmpty
+                    pagination.list.isEmpty
                         ? Center(
                             child: Text(
                               context.l10n.homePageNoNews,
@@ -52,7 +52,7 @@ class _HomeView extends StatelessWidget {
                               ),
                             ),
                           )
-                        : SubscriptionPostsList(),
+                        : SubscriptionPostsList(pagination: pagination),
                   ],
                 ),
               ),

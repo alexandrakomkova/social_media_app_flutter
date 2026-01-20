@@ -16,7 +16,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
   HomeBloc({required HomeRepository homeRepository})
     : _homeRepository = homeRepository,
-      super(HomeState.idle(pagination: Pagination<PostEntity>.empty())) {
+      super(HomeState.idle()) {
     on<HomeEvent>((event, emit) async {
       switch (event) {
         case _GetNewPosts():
@@ -29,31 +29,31 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       HomeBloc(homeRepository: homeRepository)..add(HomeEvent.getNewPosts());
 
   Future<void> _getNewPosts(Emitter<HomeState> emit) async {
-    emit(HomeState.processing(pagination: state.pagination));
+    final currentPagination = state.maybeWhen(
+      success: (pagination) => pagination,
+      orElse: () => Pagination<PostEntity>.empty(),
+    );
+
+    emit(HomeState.processing());
 
     try {
       final res = await _homeRepository.getNewPosts(
         userId: FirebaseService.currentUserId,
-        lastDoc: state.pagination.lastDoc,
+        lastDoc: currentPagination.lastDoc,
       );
 
-      state.pagination.addItemsToList(res.list);
+      currentPagination.addItemsToList(res.list);
 
       emit(
         HomeState.success(
-          pagination: state.pagination.copyWith(
+          pagination: currentPagination.copyWith(
             lastDoc: res.lastDoc,
             hasMoreToLoad: res.hasMoreToLoad,
           ),
         ),
       );
     } catch (e) {
-      emit(
-        HomeState.failed(
-          pagination: state.pagination.copyWith(hasMoreToLoad: false),
-          errorMessage: e.toString(),
-        ),
-      );
+      emit(HomeState.failed(errorMessage: e.toString()));
     }
   }
 }
