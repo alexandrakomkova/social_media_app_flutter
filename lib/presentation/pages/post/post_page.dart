@@ -84,6 +84,7 @@ class _PostView extends StatelessWidget {
               ],
             ),
           ),
+
           _commentTextField(context: context),
         ],
       ),
@@ -101,6 +102,8 @@ class _PostView extends StatelessWidget {
           case CommentsState$Failed():
             return Center(child: Text(context.l10n.errorLoadingCommentText));
           case CommentsState$Success():
+            if (state.pagination.list.isEmpty) return SizedBox();
+
             return NotificationListener<ScrollNotification>(
               onNotification: (scrollNotification) {
                 if (scrollNotification.metrics.pixels >=
