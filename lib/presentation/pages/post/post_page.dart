@@ -143,7 +143,7 @@ class _PostView extends StatelessWidget {
   }
 
   Widget _commentTextField({required BuildContext context}) {
-    final _formKey = GlobalKey<FormState>();
+    final formKey = GlobalKey<FormState>();
 
     return Align(
       alignment: Alignment.bottomCenter,
@@ -157,7 +157,7 @@ class _PostView extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Form(
-                      key: _formKey,
+                      key: formKey,
                       child: TextFormField(
                         key: const Key('comment_textFormField'),
                         initialValue: state.commentText,
@@ -181,7 +181,7 @@ class _PostView extends StatelessWidget {
                   ),
                   IconButton(
                     onPressed: () async {
-                      if (_formKey.currentState?.validate() ?? false) {
+                      if (formKey.currentState?.validate() ?? false) {
                         context.read<CommentsBloc>()
                           ..add(CommentsEvent.addComment())
                           ..add(CommentsEvent.getComments());
@@ -190,7 +190,6 @@ class _PostView extends StatelessWidget {
                       }
                     },
                     icon: const Icon(Icons.send),
-                    disabledColor: Theme.of(context).colorScheme.error,
                   ),
                 ],
               );

@@ -10,7 +10,15 @@ class Validator {
 
   String? validateComment(String? text) {
     if (text == null || text.length < 3) {
-      return l10n.validationCommentEmpty;
+      return l10n.validationCommentLength;
+    }
+
+    return null;
+  }
+
+  String? validatePostDescription(String? desc) {
+    if (desc == null || desc.length < 3) {
+      return l10n.validationPostDescriptionLength;
     }
 
     return null;

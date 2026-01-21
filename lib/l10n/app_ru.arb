@@ -328,8 +328,12 @@
   "@noMoreFollowingsText": {
     "description": "This text shown on Profile Screen when user scrolls to see more followings but there are no left"
   },
-  "validationCommentEmpty": "Комментарий должен содержать минимум 3 символа",
-  "@validationCommentEmpty": {
+  "validationCommentLength": "Комментарий должен содержать минимум 3 символа",
+  "@validationCommentLength": {
     "description": "This text shown on Post Screen if comment text field is empty or less than 3 symbols and add button is clicked"
+  },
+  "validationPostDescriptionLength": "Текст описания должен содержать минимум 3 символа",
+  "@validationPostDescriptionLength": {
+    "description": "This text shown on Create Post Screen if description field is empty or less than 3 symbols and add button is clicked"
   }
 }

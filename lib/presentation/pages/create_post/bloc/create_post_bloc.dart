@@ -46,7 +46,7 @@ class CreatePostBloc extends Bloc<CreatePostEvent, CreatePostState> {
     emit(
       CreatePostState.processing(
         imageFile: state.imageFile,
-        postDescription: state.postDescription,
+        postDescription: state.postDescription.trim(),
       ),
     );
 

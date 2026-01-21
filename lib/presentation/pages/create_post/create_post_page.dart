@@ -8,6 +8,7 @@ import 'package:social_media_app/presentation/pages/main_screen/main_page.dart';
 import 'package:social_media_app/presentation/widget/choose_image_source.dart';
 import 'package:social_media_app/presentation/widget/custom_alert_dialog.dart';
 import 'package:social_media_app/presentation/widget/custom_appbar.dart';
+import 'package:social_media_app/utils/validator.dart';
 
 class CreatePostPage extends StatelessWidget {
   const CreatePostPage({super.key});
@@ -30,6 +31,9 @@ class _CreatePostView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final formKey = GlobalKey<FormState>();
+    final state = context.watch<CreatePostBloc>().state;
+
     return Scaffold(
       appBar: CustomAppBar(
         appBarTitle: l10n.createPostPageAppBarTitle,
@@ -37,11 +41,15 @@ class _CreatePostView extends StatelessWidget {
         onLeadingIconPressed: () => _showCloseCreatePostAlertDialog(context),
         actionTitle: l10n.postButton,
         onActionTap: () {
-          context.read<CreatePostBloc>().add(CreatePostEvent.createPost());
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => MainPage()),
-          );
+          if (formKey.currentState?.validate() ?? false) {
+            context.read<CreatePostBloc>().add(CreatePostEvent.createPost());
+            if (state is CreatePostState$Success) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => MainPage()),
+              );
+            }
+          }
         },
       ),
       body: BlocListener<CreatePostBloc, CreatePostState>(
@@ -58,24 +66,29 @@ class _CreatePostView extends StatelessWidget {
           padding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 4.0),
           children: [
             _selectImageBox(context: context),
-            SizedBox(height: 20.0),
+            const SizedBox(height: 20.0),
 
-            TextFormField(
-              initialValue: context
-                  .watch<CreatePostBloc>()
-                  .state
-                  .postDescription,
-              decoration: InputDecoration(
-                hintText: context.l10n.postDescriptionHintText,
-                hintStyle: TextStyle(
-                  fontSize: 15.0,
-                  fontWeight: FontWeight.w600,
+            Form(
+              key: formKey,
+              child: TextFormField(
+                key: const Key('postDescription_textFormField'),
+                initialValue: context
+                    .watch<CreatePostBloc>()
+                    .state
+                    .postDescription,
+                decoration: InputDecoration(
+                  hintText: context.l10n.postDescriptionHintText,
+                  hintStyle: TextStyle(
+                    fontSize: 15.0,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  border: Theme.of(context).inputDecorationTheme.border,
+                  errorStyle: Theme.of(context).inputDecorationTheme.errorStyle,
                 ),
-                border: Theme.of(context).inputDecorationTheme.border,
-                errorStyle: Theme.of(context).inputDecorationTheme.errorStyle,
-              ),
-              onChanged: (value) => context.read<CreatePostBloc>().add(
-                CreatePostEvent.postDescriptionChanged(value),
+                onChanged: (value) => context.read<CreatePostBloc>().add(
+                  CreatePostEvent.postDescriptionChanged(value),
+                ),
+                validator: Validator(context: context).validatePostDescription,
               ),
             ),
           ],
