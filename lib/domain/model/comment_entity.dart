@@ -15,4 +15,6 @@ class CommentEntity {
 
   DateTime get createdAtDateTime =>
       DateTime.fromMillisecondsSinceEpoch(createdAt);
+
+  int get id => createdAt;
 }

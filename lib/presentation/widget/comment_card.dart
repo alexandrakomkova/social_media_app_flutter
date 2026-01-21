@@ -11,6 +11,7 @@ class CommentCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
+      key: ValueKey(entity.id),
       leading: ProfileAvatar(
         radius: 20.0,
         username: entity.author.username,
