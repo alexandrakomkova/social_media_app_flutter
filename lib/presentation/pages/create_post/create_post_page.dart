@@ -25,13 +25,20 @@ class CreatePostPage extends StatelessWidget {
   }
 }
 
-class _CreatePostView extends StatelessWidget {
+class _CreatePostView extends StatefulWidget {
   const _CreatePostView();
+
+  @override
+  State<_CreatePostView> createState() => _CreatePostViewState();
+}
+
+class _CreatePostViewState extends State<_CreatePostView> {
+  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final formKey = GlobalKey<FormState>();
+
     final state = context.watch<CreatePostBloc>().state;
 
     return Scaffold(
@@ -41,7 +48,7 @@ class _CreatePostView extends StatelessWidget {
         onLeadingIconPressed: () => _showCloseCreatePostAlertDialog(context),
         actionTitle: l10n.postButton,
         onActionTap: () {
-          if (formKey.currentState?.validate() ?? false) {
+          if (_formKey.currentState?.validate() ?? false) {
             context.read<CreatePostBloc>().add(CreatePostEvent.createPost());
             if (state is CreatePostState$Success) {
               Navigator.push(
@@ -68,29 +75,7 @@ class _CreatePostView extends StatelessWidget {
             _selectImageBox(context: context),
             const SizedBox(height: 20.0),
 
-            Form(
-              key: formKey,
-              child: TextFormField(
-                key: const Key('postDescription_textFormField'),
-                initialValue: context
-                    .watch<CreatePostBloc>()
-                    .state
-                    .postDescription,
-                decoration: InputDecoration(
-                  hintText: context.l10n.postDescriptionHintText,
-                  hintStyle: TextStyle(
-                    fontSize: 15.0,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  border: Theme.of(context).inputDecorationTheme.border,
-                  errorStyle: Theme.of(context).inputDecorationTheme.errorStyle,
-                ),
-                onChanged: (value) => context.read<CreatePostBloc>().add(
-                  CreatePostEvent.postDescriptionChanged(value),
-                ),
-                validator: Validator(context: context).validatePostDescription,
-              ),
-            ),
+            _postDescriptionTextField(context: context, formKey: _formKey),
           ],
         ),
       ),
@@ -161,6 +146,28 @@ class _CreatePostView extends StatelessWidget {
             },
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _postDescriptionTextField({
+    required BuildContext context,
+    required GlobalKey<FormState> formKey,
+  }) {
+    return Form(
+      key: formKey,
+      child: TextFormField(
+        initialValue: context.watch<CreatePostBloc>().state.postDescription,
+        decoration: InputDecoration(
+          hintText: context.l10n.postDescriptionHintText,
+          hintStyle: TextStyle(fontSize: 15.0, fontWeight: FontWeight.w600),
+          border: Theme.of(context).inputDecorationTheme.border,
+          errorStyle: Theme.of(context).inputDecorationTheme.errorStyle,
+        ),
+        onChanged: (value) => context.read<CreatePostBloc>().add(
+          CreatePostEvent.postDescriptionChanged(value),
+        ),
+        validator: Validator(context: context).validatePostDescription,
       ),
     );
   }
