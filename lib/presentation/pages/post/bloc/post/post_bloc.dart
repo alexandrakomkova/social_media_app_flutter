@@ -45,13 +45,15 @@ class PostBloc extends Bloc<PostEvent, PostState> {
         postId: state.postEntity.id.toString(),
       );
 
-      emit(
-        PostState.success(
-          postEntity: state.postEntity,
-          likesCount: res.likesCount,
-          isLiked: res.isLiked,
-        ),
-      );
+      if (!isClosed) {
+        emit(
+          PostState.success(
+            postEntity: state.postEntity,
+            likesCount: res.likesCount,
+            isLiked: res.isLiked,
+          ),
+        );
+      }
     } catch (e) {
       emit(PostState.failed(postEntity: state.postEntity));
     }

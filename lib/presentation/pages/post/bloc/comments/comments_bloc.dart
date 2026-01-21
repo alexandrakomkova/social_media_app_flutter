@@ -120,17 +120,19 @@ class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
 
       _log.info('_getComments success');
 
-      emit(
-        CommentsState.success(
-          postId: state.postId,
-          postOwnerId: state.postOwnerId,
-          pagination: state.pagination.copyWith(
-            lastDoc: res.lastDoc,
-            hasMoreToLoad: res.hasMoreToLoad,
+      if (!isClosed) {
+        emit(
+          CommentsState.success(
+            postId: state.postId,
+            postOwnerId: state.postOwnerId,
+            pagination: state.pagination.copyWith(
+              lastDoc: res.lastDoc,
+              hasMoreToLoad: res.hasMoreToLoad,
+            ),
+            commentsCount: state.commentsCount,
           ),
-          commentsCount: state.commentsCount,
-        ),
-      );
+        );
+      }
     } catch (e) {
       _log.warning(e.toString());
       emit(
