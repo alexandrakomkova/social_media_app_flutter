@@ -36,6 +36,10 @@ class _PostsListView extends StatelessWidget {
   Widget build(BuildContext context) {
     final state = context.watch<ProfileBloc>().state;
 
+    if (state.pagination.list.isEmpty) {
+      return _emptyList(context: context);
+    }
+
     final rowCount = (state.pagination.list.length / 3).ceil();
 
     return NotificationListener<ScrollNotification>(
@@ -84,6 +88,12 @@ class _PostsListView extends StatelessWidget {
           },
         ),
       ),
+    );
+  }
+
+  Widget _emptyList({required BuildContext context}) {
+    return Expanded(
+      child: Center(child: Text(context.l10n.profilePageNoPosts)),
     );
   }
 }
