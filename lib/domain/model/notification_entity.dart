@@ -33,4 +33,6 @@ class NotificationEntity {
 
   String get formattedCreationTimestamp =>
       DateFormat('dd/MM/yyyy HH:mm').format(creationTimestampDateTime);
+
+  int get id => creationTimestamp;
 }
