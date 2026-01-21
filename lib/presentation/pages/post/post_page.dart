@@ -8,6 +8,7 @@ import 'package:social_media_app/presentation/pages/post/bloc/post/post_bloc.dar
 import 'package:social_media_app/presentation/widget/comment_card.dart';
 import 'package:social_media_app/presentation/widget/custom_loader.dart';
 import 'package:social_media_app/presentation/widget/post_card.dart';
+import 'package:social_media_app/utils/validator.dart';
 
 class PostPage extends StatelessWidget {
   final PostEntity postEntity;
@@ -142,6 +143,8 @@ class _PostView extends StatelessWidget {
   }
 
   Widget _commentTextField({required BuildContext context}) {
+    final _formKey = GlobalKey<FormState>();
+
     return Align(
       alignment: Alignment.bottomCenter,
       child: SafeArea(
@@ -153,31 +156,41 @@ class _PostView extends StatelessWidget {
               return Row(
                 children: [
                   Expanded(
-                    child: TextFormField(
-                      key: const Key('comment_textFormField'),
-                      initialValue: state.commentText,
-                      decoration: InputDecoration(
-                        hintText: context.l10n.addCommentHintText,
-                        border: const OutlineInputBorder(),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 10.0,
-                          vertical: 10.0,
+                    child: Form(
+                      key: _formKey,
+                      child: TextFormField(
+                        key: const Key('comment_textFormField'),
+                        initialValue: state.commentText,
+                        decoration: InputDecoration(
+                          hintText: context.l10n.addCommentHintText,
+                          border: const OutlineInputBorder(),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 10.0,
+                            vertical: 10.0,
+                          ),
                         ),
+                        onChanged: (value) {
+                          context.read<CommentsBloc>().add(
+                            CommentsEvent.commentTextChanged(value),
+                          );
+                        },
+                        maxLength: 100,
+                        validator: Validator(context: context).validateComment,
                       ),
-                      onChanged: (value) {
-                        context.read<CommentsBloc>().add(
-                          CommentsEvent.commentTextChanged(value),
-                        );
-                      },
                     ),
                   ),
                   IconButton(
-                    onPressed: () {
-                      context.read<CommentsBloc>()
-                        ..add(CommentsEvent.addComment())
-                        ..add(CommentsEvent.getComments());
+                    onPressed: () async {
+                      if (_formKey.currentState?.validate() ?? false) {
+                        context.read<CommentsBloc>()
+                          ..add(CommentsEvent.addComment())
+                          ..add(CommentsEvent.getComments());
+                      } else {
+                        null;
+                      }
                     },
                     icon: const Icon(Icons.send),
+                    disabledColor: Theme.of(context).colorScheme.error,
                   ),
                 ],
               );

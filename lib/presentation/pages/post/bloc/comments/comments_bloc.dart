@@ -150,7 +150,7 @@ class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
     try {
       await _commentRepository.addComment(
         postId: state.postId,
-        commentText: state.commentText,
+        commentText: state.commentText.trim(),
         postOwnerId: state.postOwnerId,
       );
 

@@ -8,6 +8,14 @@ class Validator {
 
   late final l10n = AppLocalizations.of(_context);
 
+  String? validateComment(String? text) {
+    if (text == null || text.length < 3) {
+      return l10n.validationCommentEmpty;
+    }
+
+    return null;
+  }
+
   String? validateEmail(String? email) {
     if (email == null) {
       return l10n.validationEmailEmpty;

@@ -327,5 +327,9 @@
   "noMoreFollowingsText": "No more followings",
   "@noMoreFollowingsText": {
     "description": "This text shown on Profile Screen when user scrolls to see more followings but there are no left"
+  },
+  "validationCommentEmpty": "Comment text must be at least 3 symbols",
+  "@validationCommentEmpty": {
+    "description": "This text shown on Post Screen if comment text field is empty or less than 3 symbols and add button is clicked"
   }
 }
