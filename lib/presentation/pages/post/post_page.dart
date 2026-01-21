@@ -29,7 +29,7 @@ class PostPage extends StatelessWidget {
           create: (context) => CommentsBloc.getComments(
             commentRepository: context.read<PostRepository>(),
             postId: postEntity.id.toString(),
-            postOwnerId: postEntity.userId,
+            postOwnerId: postEntity.userEntity.id,
           ),
         ),
       ],

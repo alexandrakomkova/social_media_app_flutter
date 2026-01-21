@@ -55,7 +55,9 @@ class PostCard extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => ProfilePage(userId: entity.userId)),
+          MaterialPageRoute(
+            builder: (_) => ProfilePage(userId: entity.userEntity.id),
+          ),
         );
       },
       child: Padding(

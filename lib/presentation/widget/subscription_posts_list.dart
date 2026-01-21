@@ -75,7 +75,7 @@ class SubscriptionPostsList extends StatelessWidget {
             create: (context) => CommentsBloc.getComments(
               commentRepository: context.read<PostRepository>(),
               postId: post.id.toString(),
-              postOwnerId: post.userId,
+              postOwnerId: post.userEntity.id,
             ),
           ),
         ],

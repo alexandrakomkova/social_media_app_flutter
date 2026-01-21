@@ -562,7 +562,6 @@ class FirebaseDbServiceImpl implements DbService {
       posts.add(
         PostEntity(
           userEntity: UserEntity.fromMap(userData),
-          userId: data['userId'],
           imageUrl: data['imageUrl'],
           description: data['description'],
           creationTimestamp: data['creationTimestamp'],
@@ -804,7 +803,6 @@ class FirebaseDbServiceImpl implements DbService {
         imageUrl: postData['imageUrl'],
         creationTimestamp: postData['creationTimestamp'],
         description: postData['description'],
-        userId: userData['id'],
         userEntity: UserEntity.fromMap(userData),
       );
 
@@ -866,7 +864,6 @@ class FirebaseDbServiceImpl implements DbService {
         userPosts.add(
           PostEntity(
             userEntity: UserEntity.fromMap(userData),
-            userId: data['userId'],
             imageUrl: data['imageUrl'],
             description: data['description'],
             creationTimestamp: data['creationTimestamp'],

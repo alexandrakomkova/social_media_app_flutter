@@ -63,7 +63,7 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     try {
       await _postRepository.addLike(
         postId: state.postEntity.id.toString(),
-        postOwnerId: state.postEntity.userId,
+        postOwnerId: state.postEntity.userEntity.id,
       );
 
       emit(

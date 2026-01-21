@@ -70,7 +70,6 @@ class NotificationHandler {
       imageUrl: postData['imageUrl'].toString(),
       description: postData['description'].toString(),
       creationTimestamp: int.parse(postData['creationTimestamp'].toString()),
-      userId: postData['userId'].toString(),
       userEntity: UserEntity(
         bio: userData['bio'].toString(),
         id: userData['id'].toString(),
