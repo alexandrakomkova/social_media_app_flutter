@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:social_media_app/domain/model/post_entity.dart';
 import 'package:social_media_app/presentation/pages/post/bloc/comments/comments_bloc.dart';
 import 'package:social_media_app/presentation/pages/post/bloc/post/post_bloc.dart';
+import 'package:social_media_app/presentation/pages/profile/profile_page.dart';
 import 'package:social_media_app/presentation/widget/profile_avatar.dart';
 import 'package:social_media_app/utils/datetime_formatter.dart';
 
@@ -51,22 +52,29 @@ class PostCard extends StatelessWidget {
     required PostEntity entity,
     required BuildContext context,
   }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          ProfileAvatar(
-            radius: 20.0,
-            username: entity.userEntity.username,
-            photoUrl: entity.userEntity.photoUrl,
-          ),
-          const SizedBox(width: 10.0),
-          Text(
-            entity.userEntity.username,
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-        ],
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => ProfilePage(userId: entity.userId)),
+        );
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            ProfileAvatar(
+              radius: 20.0,
+              username: entity.userEntity.username,
+              photoUrl: entity.userEntity.photoUrl,
+            ),
+            const SizedBox(width: 10.0),
+            Text(
+              entity.userEntity.username,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+          ],
+        ),
       ),
     );
   }
