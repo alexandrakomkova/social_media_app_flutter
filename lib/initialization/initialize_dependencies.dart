@@ -12,6 +12,7 @@ import 'package:social_media_app/data/db_provider.dart';
 import 'package:social_media_app/data/repository/auth/auth_firebase_service_impl.dart';
 import 'package:social_media_app/data/repository/auth/auth_repository_impl.dart';
 import 'package:social_media_app/data/repository/firebase_db_service_impl.dart';
+import 'package:social_media_app/data/repository/follow_repository_impl.dart';
 import 'package:social_media_app/data/repository/home_repository_impl.dart';
 import 'package:social_media_app/data/repository/image_service_impl.dart';
 import 'package:social_media_app/data/repository/post_repository_impl.dart';
@@ -20,6 +21,7 @@ import 'package:social_media_app/data/repository/search_repository_impl.dart';
 import 'package:social_media_app/domain/repository/auth/auth_firebase_service.dart';
 import 'package:social_media_app/domain/repository/auth/auth_repository.dart';
 import 'package:social_media_app/domain/repository/db_service.dart';
+import 'package:social_media_app/domain/repository/follow_repository.dart';
 import 'package:social_media_app/domain/repository/home_repository.dart';
 import 'package:social_media_app/domain/repository/image_service.dart';
 import 'package:social_media_app/domain/repository/notification_repository.dart';
@@ -146,6 +148,12 @@ final Map<String, _InitializationStep> _initializationSteps =
           dbService: dependencies.dbService,
         );
         dependencies.postRepository = postRepository;
+      },
+      'FollowRepository initialization': (dependencies, _, _) {
+        final FollowRepository followRepository = FollowRepositoryImpl(
+          dbService: dependencies.dbService,
+        );
+        dependencies.followRepository = followRepository;
       },
     };
 

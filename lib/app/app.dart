@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:social_media_app/domain/repository/auth/auth_firebase_service.dart';
 import 'package:social_media_app/domain/repository/auth/auth_repository.dart';
 import 'package:social_media_app/domain/repository/db_service.dart';
+import 'package:social_media_app/domain/repository/follow_repository.dart';
 import 'package:social_media_app/domain/repository/home_repository.dart';
 import 'package:social_media_app/domain/repository/image_service.dart';
 import 'package:social_media_app/domain/repository/notification_repository.dart';
@@ -83,6 +84,9 @@ class _AppState extends State<App> {
         ),
         RepositoryProvider<PostRepository>(
           create: (_) => dependencies.postRepository,
+        ),
+        RepositoryProvider<FollowRepository>(
+          create: (_) => dependencies.followRepository,
         ),
       ],
       child: BlocProvider(

@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart'
 import 'package:social_media_app/domain/repository/auth/auth_firebase_service.dart';
 import 'package:social_media_app/domain/repository/auth/auth_repository.dart';
 import 'package:social_media_app/domain/repository/db_service.dart';
+import 'package:social_media_app/domain/repository/follow_repository.dart';
 import 'package:social_media_app/domain/repository/home_repository.dart';
 import 'package:social_media_app/domain/repository/image_service.dart';
 import 'package:social_media_app/domain/repository/notification_repository.dart';
@@ -37,4 +38,5 @@ class Dependencies {
   late final SearchRepository searchRepository;
   late final ProfileRepository profileRepository;
   late final PostRepository postRepository;
+  late final FollowRepository followRepository;
 }

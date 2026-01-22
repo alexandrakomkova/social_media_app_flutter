@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:social_media_app/domain/model/user_entity.dart';
 import 'package:social_media_app/l10n/l10n.dart';
 import 'package:social_media_app/presentation/model/pagination.dart';
-import 'package:social_media_app/presentation/pages/profile/bloc/profile_bloc.dart';
+import 'package:social_media_app/presentation/pages/profile/bloc/follow/follow_bloc.dart';
 import 'package:social_media_app/presentation/pages/profile/profile_page.dart';
 import 'package:social_media_app/presentation/widget/custom_loader.dart';
 import 'package:social_media_app/presentation/widget/user_card.dart';
@@ -11,7 +11,7 @@ import 'package:social_media_app/presentation/widget/user_card.dart';
 void showBottomSheetFollowersFollowings({
   required BuildContext context,
   required String bottomSheetTitle,
-  required ProfileEvent event,
+  required FollowEvent event,
   required String noMoreItemsText,
 }) {
   showModalBottomSheet(
@@ -22,7 +22,7 @@ void showBottomSheetFollowersFollowings({
     isScrollControlled: true,
     context: context,
     builder: (BuildContext innerContext) => BlocProvider.value(
-      value: context.read<ProfileBloc>(),
+      value: context.read<FollowBloc>(),
       child: FractionallySizedBox(
         heightFactor: .5,
         child: Column(
@@ -43,14 +43,35 @@ void showBottomSheetFollowersFollowings({
             ),
 
             Divider(),
-            BlocBuilder<ProfileBloc, ProfileState>(
+
+            // BlocBuilder<ProfileBloc, ProfileState>(
+            //   builder: (profileContext, state) {
+            //     return switch (state) {
+            //       ProfileState$FollowListProcessing() => Padding(
+            //         padding: const EdgeInsets.symmetric(vertical: 80.0),
+            //         child: CustomLoader(),
+            //       ),
+            //       ProfileState$FollowListFailed() => Padding(
+            //         padding: const EdgeInsets.symmetric(vertical: 80.0),
+            //         child: Center(child: Text(state.errorMessage)),
+            //       ),
+            //       _ => _listView(
+            //         context: context,
+            //         event: event,
+            //         noMoreItemsText: noMoreItemsText,
+            //         bottomSheetTitle: bottomSheetTitle,
+            //       ),
+            //     };
+            //   },
+            // ),
+            BlocBuilder<FollowBloc, FollowState>(
               builder: (profileContext, state) {
                 return switch (state) {
-                  ProfileState$FollowListProcessing() => Padding(
+                  FollowState$Processing() => Padding(
                     padding: const EdgeInsets.symmetric(vertical: 80.0),
                     child: CustomLoader(),
                   ),
-                  ProfileState$FollowListFailed() => Padding(
+                  FollowState$Failed() => Padding(
                     padding: const EdgeInsets.symmetric(vertical: 80.0),
                     child: Center(child: Text(state.errorMessage)),
                   ),
@@ -72,11 +93,12 @@ void showBottomSheetFollowersFollowings({
 
 Widget _listView({
   required BuildContext context,
-  required ProfileEvent event,
+  //required ProfileEvent event,
+  required FollowEvent event,
   required String noMoreItemsText,
   required String bottomSheetTitle,
 }) {
-  final state = context.watch<ProfileBloc>().state;
+  final state = context.watch<FollowBloc>().state;
 
   final pagination =
       bottomSheetTitle.toLowerCase() ==
@@ -110,7 +132,7 @@ void _showUserProfile({required BuildContext context, required String id}) {
 Widget _usersList({
   required BuildContext context,
   required Pagination<UserEntity> pagination,
-  required ProfileEvent event,
+  required FollowEvent event,
   required String noMoreItemsText,
 }) {
   return NotificationListener<ScrollNotification>(
@@ -118,7 +140,7 @@ Widget _usersList({
       if (scrollInfo.metrics.pixels >=
               scrollInfo.metrics.maxScrollExtent - 200 &&
           pagination.hasMoreToLoad) {
-        context.read<ProfileBloc>().add(event);
+        context.read<FollowBloc>().add(event);
       }
       return false;
     },

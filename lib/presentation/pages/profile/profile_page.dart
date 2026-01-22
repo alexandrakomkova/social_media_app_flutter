@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:social_media_app/domain/repository/auth/auth_repository.dart';
+import 'package:social_media_app/domain/repository/follow_repository.dart';
 import 'package:social_media_app/domain/repository/profile_repository.dart';
 import 'package:social_media_app/l10n/l10n.dart';
 import 'package:social_media_app/presentation/pages/auth/sign_in_page.dart';
-import 'package:social_media_app/presentation/pages/profile/bloc/profile_bloc.dart';
+import 'package:social_media_app/presentation/pages/profile/bloc/profile/profile_bloc.dart';
 import 'package:social_media_app/presentation/pages/settings/settings_page.dart';
 import 'package:social_media_app/presentation/widget/bottom_sheet_followers_followings_list.dart';
 import 'package:social_media_app/presentation/widget/custom_alert_dialog.dart';
@@ -14,6 +15,8 @@ import 'package:social_media_app/presentation/widget/profile_avatar.dart';
 import 'package:social_media_app/presentation/widget/profile_info_card.dart';
 import 'package:social_media_app/utils/firebase_service.dart';
 
+import 'bloc/follow/follow_bloc.dart';
+
 class ProfilePage extends StatelessWidget {
   final String userId;
 
@@ -21,12 +24,20 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<ProfileBloc>(
-      create: (context) => ProfileBloc.getUserProfile(
-        authRepository: context.read<AuthRepository>(),
-        profileRepository: context.read<ProfileRepository>(),
-        id: userId,
-      ),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<ProfileBloc>(
+          create: (context) => ProfileBloc.getUserProfile(
+            authRepository: context.read<AuthRepository>(),
+            profileRepository: context.read<ProfileRepository>(),
+            id: userId,
+          ),
+        ),
+        BlocProvider<FollowBloc>(
+          create: (context) =>
+              FollowBloc(followRepository: context.read<FollowRepository>()),
+        ),
+      ],
       child: _ProfileView(userId: userId),
     );
   }
@@ -245,10 +256,14 @@ class _ProfileView extends StatelessWidget {
           value: state.followersCount.toString(),
           valueLabel: l10n.profileInfoCardFollowersCount,
           onTap: () {
+            final event = FollowEvent.getFollowers(userId: userId);
+
+            context.read<FollowBloc>().add(event);
+
             showBottomSheetFollowersFollowings(
               context: context,
               bottomSheetTitle: l10n.bottomSheetFollowersTitle,
-              event: ProfileEvent.getFollowers(userId: userId),
+              event: event,
               noMoreItemsText: l10n.noMoreFollowersText,
             );
           },
@@ -257,10 +272,14 @@ class _ProfileView extends StatelessWidget {
           value: state.followingsCount.toString(),
           valueLabel: l10n.profileInfoCardFollowingsCount,
           onTap: () {
+            final event = FollowEvent.getFollowings(userId: userId);
+
+            context.read<FollowBloc>().add(event);
+
             showBottomSheetFollowersFollowings(
               context: context,
               bottomSheetTitle: l10n.bottomSheetFollowingsTitle,
-              event: ProfileEvent.getFollowings(userId: userId),
+              event: event,
               noMoreItemsText: l10n.noMoreFollowingsText,
             );
           },
