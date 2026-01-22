@@ -88,7 +88,7 @@ class _ProfileView extends StatelessWidget {
               ProfileState$Failed() => Center(
                 child: Text(l10n.errorOccurredText(state.errorMessage)),
               ),
-              ProfileState$Success() => Padding(
+              _ => Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
                   children: [

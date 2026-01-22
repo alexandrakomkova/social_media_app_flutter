@@ -5,6 +5,7 @@ import 'package:social_media_app/l10n/l10n.dart';
 import 'package:social_media_app/presentation/model/pagination.dart';
 import 'package:social_media_app/presentation/pages/profile/bloc/profile_bloc.dart';
 import 'package:social_media_app/presentation/pages/profile/profile_page.dart';
+import 'package:social_media_app/presentation/widget/custom_loader.dart';
 import 'package:social_media_app/presentation/widget/user_card.dart';
 
 void showBottomSheetFollowersFollowings({
@@ -44,25 +45,22 @@ void showBottomSheetFollowersFollowings({
             Divider(),
             BlocBuilder<ProfileBloc, ProfileState>(
               builder: (profileContext, state) {
-                final pagination =
-                    bottomSheetTitle.toLowerCase() ==
-                        context.l10n.bottomSheetFollowingsTitle
-                            .toString()
-                            .toLowerCase()
-                    ? state.followingsPagination
-                    : state.followersPagination;
-                return pagination.list.isEmpty
-                    ? Center(
-                        child: Text(
-                          'No ${bottomSheetTitle.toLowerCase()} found',
-                        ),
-                      )
-                    : _usersList(
-                        pagination: pagination,
-                        event: event,
-                        context: context,
-                        noMoreItemsText: noMoreItemsText,
-                      );
+                return switch (state) {
+                  ProfileState$FollowListProcessing() => Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 80.0),
+                    child: CustomLoader(),
+                  ),
+                  ProfileState$FollowListFailed() => Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 80.0),
+                    child: Center(child: Text(state.errorMessage)),
+                  ),
+                  _ => _listView(
+                    context: context,
+                    event: event,
+                    noMoreItemsText: noMoreItemsText,
+                    bottomSheetTitle: bottomSheetTitle,
+                  ),
+                };
               },
             ),
           ],
@@ -70,6 +68,36 @@ void showBottomSheetFollowersFollowings({
       ),
     ),
   );
+}
+
+Widget _listView({
+  required BuildContext context,
+  required ProfileEvent event,
+  required String noMoreItemsText,
+  required String bottomSheetTitle,
+}) {
+  final state = context.watch<ProfileBloc>().state;
+
+  final pagination =
+      bottomSheetTitle.toLowerCase() ==
+          context.l10n.bottomSheetFollowingsTitle.toString().toLowerCase()
+      ? state.followingsPagination
+      : state.followersPagination;
+
+  if (pagination.list.isEmpty) {
+    return _emptyList(bottomSheetTitle: bottomSheetTitle);
+  }
+
+  return _usersList(
+    pagination: pagination,
+    event: event,
+    context: context,
+    noMoreItemsText: noMoreItemsText,
+  );
+}
+
+Widget _emptyList({required String bottomSheetTitle}) {
+  return Center(child: Text('No ${bottomSheetTitle.toLowerCase()} found'));
 }
 
 void _showUserProfile({required BuildContext context, required String id}) {

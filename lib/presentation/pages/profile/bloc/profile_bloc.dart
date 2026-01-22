@@ -337,7 +337,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     Emitter<ProfileState> emit,
   ) async {
     emit(
-      ProfileState.processing(
+      ProfileState.followListProcessing(
         user: state.user,
         followersPagination: state.followersPagination,
         followingsPagination: state.followingsPagination,
@@ -358,7 +358,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       state.followersPagination.addItemsToList(res.list);
 
       emit(
-        ProfileState.success(
+        ProfileState.followListSuccess(
           user: state.user,
           followersPagination: state.followersPagination.copyWith(
             hasMoreToLoad: res.hasMoreToLoad,
@@ -379,7 +379,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     } catch (e) {
       _log.warning(e.toString());
       emit(
-        ProfileState.failed(
+        ProfileState.followListFailed(
           errorMessage: e.toString(),
           followingsPagination: state.followingsPagination,
           followersPagination: state.followersPagination.copyWith(
@@ -397,7 +397,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     Emitter<ProfileState> emit,
   ) async {
     emit(
-      ProfileState.processing(
+      ProfileState.followListProcessing(
         user: state.user,
         followersPagination: state.followersPagination,
         followingsPagination: state.followingsPagination,
@@ -418,7 +418,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       state.followingsPagination.addItemsToList(res.list);
 
       emit(
-        ProfileState.success(
+        ProfileState.followListSuccess(
           user: state.user,
           followersPagination: state.followersPagination,
           followingsPagination: state.followingsPagination.copyWith(
@@ -439,7 +439,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     } catch (e) {
       _log.warning(e.toString());
       emit(
-        ProfileState.failed(
+        ProfileState.followListFailed(
           errorMessage: e.toString(),
           followingsPagination: state.followingsPagination.copyWith(
             list: [],

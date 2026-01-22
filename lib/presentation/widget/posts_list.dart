@@ -20,7 +20,7 @@ class PostsList extends StatelessWidget {
           ProfileState$Failed() => Center(
             child: Text(context.l10n.errorOccurredText(state.errorMessage)),
           ),
-          ProfileState$Success() => _PostsListView(userId: userId),
+          _ => _PostsListView(userId: userId),
         };
       },
     );
