@@ -43,27 +43,6 @@ void showBottomSheetFollowersFollowings({
             ),
 
             Divider(),
-
-            // BlocBuilder<ProfileBloc, ProfileState>(
-            //   builder: (profileContext, state) {
-            //     return switch (state) {
-            //       ProfileState$FollowListProcessing() => Padding(
-            //         padding: const EdgeInsets.symmetric(vertical: 80.0),
-            //         child: CustomLoader(),
-            //       ),
-            //       ProfileState$FollowListFailed() => Padding(
-            //         padding: const EdgeInsets.symmetric(vertical: 80.0),
-            //         child: Center(child: Text(state.errorMessage)),
-            //       ),
-            //       _ => _listView(
-            //         context: context,
-            //         event: event,
-            //         noMoreItemsText: noMoreItemsText,
-            //         bottomSheetTitle: bottomSheetTitle,
-            //       ),
-            //     };
-            //   },
-            // ),
             BlocBuilder<FollowBloc, FollowState>(
               builder: (profileContext, state) {
                 return switch (state) {
@@ -93,7 +72,6 @@ void showBottomSheetFollowersFollowings({
 
 Widget _listView({
   required BuildContext context,
-  //required ProfileEvent event,
   required FollowEvent event,
   required String noMoreItemsText,
   required String bottomSheetTitle,
