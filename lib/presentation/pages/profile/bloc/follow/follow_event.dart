@@ -9,10 +9,4 @@ sealed class FollowEvent with _$FollowEvent {
 
   const factory FollowEvent.getFollowings({required String userId}) =
       _GetFollowings;
-
-  const factory FollowEvent.followUser({required String userIdToFollow}) =
-      _FollowUser;
-
-  const factory FollowEvent.unfollowUser({required String userIdToUnfollow}) =
-      _UnfollowUser;
 }

@@ -109,52 +109,6 @@ class ProfileRepositoryImpl implements ProfileRepository {
   }
 
   @override
-  Future<PaginationResponse<UserEntity>> getFollowers({
-    required String userId,
-    DocumentSnapshot? lastDoc,
-  }) async {
-    final res = await _dbService.getFollowers(userId: userId, lastDoc: lastDoc);
-
-    switch (res) {
-      case Ok<PaginationResponse<UserEntity>>():
-        _log.info(
-          'getFollowers success followerList length ${res.value.list.length}',
-        );
-        return res.value;
-      case Failure<PaginationResponse<UserEntity>>():
-        _log.warning('getFollowers error: ${res.error}');
-        return PaginationResponse<UserEntity>(
-          list: <UserEntity>[],
-          lastDoc: null,
-          hasMoreToLoad: false,
-        );
-    }
-  }
-
-  @override
-  Future<PaginationResponse<UserEntity>> getFollowings({
-    required String userId,
-    DocumentSnapshot? lastDoc,
-  }) async {
-    final res = await _dbService.getFollowings(
-      userId: userId,
-      lastDoc: lastDoc,
-    );
-
-    switch (res) {
-      case Ok<PaginationResponse<UserEntity>>():
-        return res.value;
-      case Failure<PaginationResponse<UserEntity>>():
-        _log.warning('getFollowings error: ${res.error}');
-        return PaginationResponse<UserEntity>(
-          list: <UserEntity>[],
-          lastDoc: null,
-          hasMoreToLoad: false,
-        );
-    }
-  }
-
-  @override
   Future<bool> isFollowedByCurrentUser({
     required String profileOwnerUserId,
   }) async {

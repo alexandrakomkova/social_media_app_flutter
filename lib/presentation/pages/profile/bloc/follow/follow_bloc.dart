@@ -25,10 +25,6 @@ class FollowBloc extends Bloc<FollowEvent, FollowState> {
       ) {
     on<FollowEvent>((event, emit) async {
       switch (event) {
-        case _FollowUser():
-          await _followUser(event, emit);
-        case _UnfollowUser():
-          await _unfollowUser(event, emit);
         case _GetFollowers():
           await _getFollowers(event, emit);
         case _GetFollowings():
@@ -130,14 +126,4 @@ class FollowBloc extends Bloc<FollowEvent, FollowState> {
       );
     }
   }
-
-  Future<void> _followUser(
-    _FollowUser event,
-    Emitter<FollowState> emit,
-  ) async {}
-
-  Future<void> _unfollowUser(
-    _UnfollowUser event,
-    Emitter<FollowState> emit,
-  ) async {}
 }
