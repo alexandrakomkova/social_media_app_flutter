@@ -30,14 +30,19 @@ class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
        ) {
     on<CommentsEvent>((event, emit) async {
       switch (event) {
-        case _GetComments():
-          await _getComments(emit);
+        case _GetCommentsNext():
+          await _getCommentsNext(emit);
         case _AddComment():
-          await _addComment(emit);
+          {
+            await _addComment(emit);
+            await _getComments(emit);
+          }
         case _CommentTextChanged():
           await _commentTextChanged(event, emit);
         case _GetCommentsInfo():
           await _getCommentsInfo(emit);
+        case _GetComments():
+          await _getComments(emit);
       }
     }, transformer: droppable());
   }
@@ -113,12 +118,62 @@ class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
     try {
       final res = await _commentRepository.getComments(
         postId: state.postId,
+        lastDoc: null,
+      );
+
+      if (!isClosed) {
+        emit(
+          CommentsState.success(
+            postId: state.postId,
+            postOwnerId: state.postOwnerId,
+            pagination: state.pagination.copyWith(
+              list: res.list,
+              lastDoc: res.lastDoc,
+              hasMoreToLoad: res.hasMoreToLoad,
+            ),
+            commentsCount: state.commentsCount,
+          ),
+        );
+      }
+    } catch (e) {
+      _log.warning(e.toString());
+      emit(
+        CommentsState.failed(
+          postId: state.postId,
+          postOwnerId: state.postOwnerId,
+          pagination: state.pagination.copyWith(hasMoreToLoad: false),
+          commentsCount: state.commentsCount,
+        ),
+      );
+    }
+  }
+
+  Future<void> _getCommentsNext(Emitter<CommentsState> emit) async {
+    emit(
+      CommentsState.processing(
+        postId: state.postId,
+        postOwnerId: state.postOwnerId,
+        pagination: state.pagination,
+        commentsCount: state.commentsCount,
+      ),
+    );
+
+    _log.info(
+      '_getComments ${state.pagination.lastDoc} ${state.pagination.hasMoreToLoad}',
+    );
+
+    try {
+      final res = await _commentRepository.getComments(
+        postId: state.postId,
         lastDoc: state.pagination.lastDoc,
       );
 
       state.pagination.addItemsToList(res.list);
 
       _log.info('_getComments success');
+      _log.info(
+        '_getComments ${state.pagination.lastDoc} ${state.pagination.hasMoreToLoad}',
+      );
 
       if (!isClosed) {
         emit(
@@ -161,6 +216,10 @@ class CommentsBloc extends Bloc<CommentsEvent, CommentsState> {
           postOwnerId: state.postOwnerId,
           commentsCount: state.commentsCount + 1,
         ),
+      );
+
+      _log.info(
+        '_addComment ${state.pagination.lastDoc} ${state.pagination.hasMoreToLoad}',
       );
     } catch (e) {
       _log.warning(e.toString());

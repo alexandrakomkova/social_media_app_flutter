@@ -109,7 +109,9 @@ class _PostView extends StatelessWidget {
                 if (scrollNotification.metrics.pixels >=
                         scrollNotification.metrics.maxScrollExtent - 200 &&
                     state.pagination.hasMoreToLoad) {
-                  context.read<CommentsBloc>().add(CommentsEvent.getComments());
+                  context.read<CommentsBloc>().add(
+                    CommentsEvent.getCommentsNext(),
+                  );
                 }
                 return false;
               },
@@ -185,11 +187,9 @@ class _PostView extends StatelessWidget {
                   IconButton(
                     onPressed: () async {
                       if (formKey.currentState?.validate() ?? false) {
-                        context.read<CommentsBloc>()
-                          ..add(CommentsEvent.addComment())
-                          ..add(CommentsEvent.getComments());
-                      } else {
-                        null;
+                        context.read<CommentsBloc>().add(
+                          CommentsEvent.addComment(),
+                        );
                       }
                     },
                     icon: const Icon(Icons.send),

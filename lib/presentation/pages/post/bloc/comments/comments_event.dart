@@ -6,6 +6,8 @@ sealed class CommentsEvent with _$CommentsEvent {
 
   const factory CommentsEvent.getCommentsInfo() = _GetCommentsInfo;
 
+  const factory CommentsEvent.getCommentsNext() = _GetCommentsNext;
+
   const factory CommentsEvent.getComments() = _GetComments;
 
   const factory CommentsEvent.addComment() = _AddComment;
