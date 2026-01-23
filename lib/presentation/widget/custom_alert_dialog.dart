@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class CustomAlertDialog extends AlertDialog {
@@ -22,18 +21,12 @@ class CustomAlertDialog extends AlertDialog {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-        title: Text(dialogTitle),
-        content: Text(dialogContent),
-        actions: <Widget>[
-          TextButton(
-            onPressed: onLeftPressed,
-            child: Text(leftButtonTitle),
-          ),
-          TextButton(
-            onPressed: onRightPressed,
-            child: Text(rightButtonTitle),
-          ),
-        ],
-      );
-}
+      title: Text(dialogTitle),
+      content: Text(dialogContent),
+      actions: <Widget>[
+        TextButton(onPressed: onLeftPressed, child: Text(leftButtonTitle)),
+        TextButton(onPressed: onRightPressed, child: Text(rightButtonTitle)),
+      ],
+    );
+  }
 }

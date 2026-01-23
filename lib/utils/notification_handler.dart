@@ -7,11 +7,12 @@ import 'package:social_media_app/domain/model/user_entity.dart';
 import 'package:social_media_app/presentation/pages/post/post_page.dart';
 import 'package:social_media_app/presentation/pages/profile/profile_page.dart';
 
+final _log = Logger('NotificationHandler');
+
 class NotificationHandler {
-  final Logger _log;
   final GlobalKey<NavigatorState> navigatorKey;
 
-  NotificationHandler(this._log, this.navigatorKey);
+  NotificationHandler(this.navigatorKey);
 
   void handleMessageData(dynamic rawData) {
     try {
@@ -23,11 +24,12 @@ class NotificationHandler {
       final type = data['type'];
       if ((type == 'follow' || type == 'unfollow') && data['userId'] != null) {
         _handleUserNavigation(data['userId']);
-      } else if ((type == 'comment' || type == 'like') && data['postEntity'] != null) {
+      } else if ((type == 'comment' || type == 'like') &&
+          data['postEntity'] != null) {
         _handlePostNavigation(data['postEntity']);
       }
     } catch (e, stack) {
-      _log.warning('NotificationHandler error: $e\n$stack');
+      _log.warning('handleMessageData error: $e\n$stack');
     }
   }
 
@@ -59,22 +61,23 @@ class NotificationHandler {
     }
     final userData = postData['userEntity'];
 
+    if (userData == null) {
+      _log.warning('userData is not a Map or JSON: $postRaw');
+      return;
+    }
+
     final postEntity = PostEntity(
-        imageUrl: postData['imageUrl'].toString(),
-        description: postData['description'].toString(),
-        creationTimestamp: int.parse(postData['creationTimestamp'].toString()),
-        userId: postData['userId'].toString(),
-        userEntity: UserEntity(
-            bio: userData['bio'].toString(),
-            id: userData['id'].toString(),
-            email: userData['email'].toString(),
-            photoUrl: userData['photoUrl'].toString(),
-            username: userData['username'].toString(),
-            creationTimestamp: int.parse(userData['creationTime'].toString())
-        )
-    );
-    navigatorKey.currentState?.push(
-      MaterialPageRoute(builder: (_) => PostPage(postEntity: postEntity,)),
+      imageUrl: postData['imageUrl'].toString(),
+      description: postData['description'].toString(),
+      creationTimestamp: int.parse(postData['creationTimestamp'].toString()),
+      userEntity: UserEntity(
+        bio: userData['bio'].toString(),
+        id: userData['id'].toString(),
+        email: userData['email'].toString(),
+        photoUrl: userData['photoUrl'].toString(),
+        username: userData['username'].toString(),
+        creationTimestamp: int.parse(userData['creationTime'].toString()),
+      ),
     );
     navigatorKey.currentState?.push(
       MaterialPageRoute(builder: (_) => PostPage(postEntity: postEntity)),

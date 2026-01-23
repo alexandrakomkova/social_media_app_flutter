@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:social_media_app/theme/theme.dart';
 
-class CustomAppBar extends StatelessWidget implements PreferredSizeWidget{
+class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String appBarTitle;
   final IconData leadingIcon;
   final void Function()? onLeadingIconPressed;
@@ -9,12 +8,12 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget{
   final void Function()? onActionTap;
 
   const CustomAppBar({
+    super.key,
     required this.appBarTitle,
     required this.leadingIcon,
     this.onLeadingIconPressed,
     required this.actionTitle,
     this.onActionTap,
-    super.key,
   });
 
   @override
@@ -22,15 +21,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget{
     return AppBar(
       leading: IconButton(
         onPressed: onLeadingIconPressed,
-        icon: Icon(
-          leadingIcon,
-        ),
+        icon: Icon(leadingIcon),
       ),
-      title: Center(
-          child: Text(
-            appBarTitle,
-          )
-      ),
+      title: Center(child: Text(appBarTitle)),
       centerTitle: true,
       actions: [
         GestureDetector(
@@ -39,10 +32,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget{
             padding: const EdgeInsets.all(10.0),
             child: Text(
               actionTitle,
-              style: SocialMediaTheme.appBarActionsTextStyle,
+              style: Theme.of(context).textTheme.titleMedium,
             ),
           ),
-        )
+        ),
       ],
     );
   }

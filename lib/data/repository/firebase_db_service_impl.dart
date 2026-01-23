@@ -1,13 +1,14 @@
-
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:logging/logging.dart';
+import 'package:social_media_app/data/model/firebase_pagination_response.dart';
 import 'package:social_media_app/data/model/user_model.dart';
 import 'package:social_media_app/domain/model/comment_entity.dart';
 import 'package:social_media_app/domain/model/notification_entity.dart';
+import 'package:social_media_app/domain/model/pagination_response.dart';
 import 'package:social_media_app/domain/model/post_entity.dart';
 import 'package:social_media_app/domain/model/user_entity.dart';
 import 'package:social_media_app/domain/repository/db_service.dart';
@@ -16,6 +17,7 @@ import 'package:social_media_app/utils/image_loader.dart';
 import 'package:social_media_app/utils/result.dart';
 
 final _log = Logger('FirebaseDbServiceImpl');
+
 class FirebaseDbServiceImpl implements DbService {
   final firestore = FirebaseFirestore.instance;
   late final _usersRef = firestore.collection('users');
@@ -30,12 +32,19 @@ class FirebaseDbServiceImpl implements DbService {
   late final _notificationsRef = firestore.collection('notifications');
   late final _userNotificationCollection = 'userNotification';
 
+  final int _postsPerPageLimit = 9;
+  final int _commentsPerPageLimit = 5;
+  final int _searchResultLimit = 5;
+  final int _homeNewPostsPerPageLimit = 5;
+  final int _notificationPerPageLimit = 10;
+  final int _followersPerPageLimit = 10;
+  final int _followingsPerPageLimit = 10;
+
   @override
   Future<void> createUser({
     required User user,
     required UserModel userModel,
   }) async {
-
     await _usersRef.doc(user.uid).set({
       'id': user.uid,
       'username': userModel.username,
@@ -60,7 +69,7 @@ class FirebaseDbServiceImpl implements DbService {
       await tokens.set({
         'token': fcmToken,
         'createdAt': FieldValue.serverTimestamp(),
-        'platform': Platform.operatingSystem
+        'platform': Platform.operatingSystem,
       });
     }
   }
@@ -68,42 +77,38 @@ class FirebaseDbServiceImpl implements DbService {
   @override
   Future<Result<UserEntity>> getUserById({required String id}) async {
     try {
-      final docSnap = await _usersRef
+      final DocumentSnapshot<Map<String, dynamic>> docSnap = await _usersRef
           .doc(id)
-          .withConverter(
-            fromFirestore: UserEntity.fromFirestore,
-            toFirestore: (UserEntity userEntity, _) => userEntity.toFirestore(),
-          )
           .get();
 
-      final userEntity = docSnap.data();
+      final Map<String, dynamic>? userData = docSnap.data();
 
-      return Result.ok(userEntity ?? UserEntity());
-    } on Exception catch(e) {
+      if (userData == null) {
+        _log.warning('getUserById error: empty user data');
+        return Result.error(Exception('Empty user data'));
+      }
+
+      return Result.ok(UserEntity.fromMap(userData));
+    } on Exception catch (e) {
       _log.warning('getUserById error: $e');
       return Result.error(e);
     }
   }
 
-
   @override
-  Future<Result<List<UserEntity>>> searchUserByUsername({required String username}) async {
+  Future<Result<List<UserEntity>>> searchUserByUsername({
+    required String username,
+  }) async {
     try {
-      final querySnapshot = await _usersRef
+      final QuerySnapshot<Map<String, dynamic>> querySnapshot = await _usersRef
           .where('username', isGreaterThanOrEqualTo: username)
           .where('username', isLessThanOrEqualTo: '$username\uf7ff')
+          .limit(_searchResultLimit)
           .get();
 
-      List<UserEntity> foundUsers = querySnapshot.docs.map((doc) {
+      final List<UserEntity> foundUsers = querySnapshot.docs.map((doc) {
         final data = doc.data();
-        return UserEntity(
-          id: data['id'],
-          username: data['username'],
-          email: data['email'],
-          bio: data['bio'],
-          creationTimestamp: data['creationTimestamp'],
-          photoUrl: data['photoUrl'],
-        );
+        return UserEntity.fromMap(data);
       }).toList();
 
       return Result.ok(foundUsers);
@@ -114,11 +119,22 @@ class FirebaseDbServiceImpl implements DbService {
   }
 
   @override
-  Future<Result<void>> createPost({required File image, required String description}) async {
+  Future<Result<void>> createPost({
+    required File? image,
+    required String description,
+  }) async {
     try {
+      if (image == null) return Result.error(Exception('Picked image is null'));
+
       final int creationTimestamp = DateTime.now().millisecondsSinceEpoch;
-      final String imageUrl = await ImageLoader.getImageUrl(image, creationTimestamp.toString());
-      if(imageUrl.isEmpty) { return Result.error(Exception()); }
+      final String imageUrl = await ImageLoader.getImageUrl(
+        image,
+        creationTimestamp.toString(),
+      );
+
+      if (imageUrl.isEmpty) {
+        return Result.error(Exception('Image url is empty'));
+      }
 
       await _postsRef.doc(creationTimestamp.toString()).set({
         'creationTimestamp': creationTimestamp,
@@ -131,22 +147,8 @@ class FirebaseDbServiceImpl implements DbService {
       _log.info('createPost success image loaded: $imageUrl');
 
       return Result.ok(null);
-    } on Exception catch(e) {
-      _log.warning('createPost error: $e');
-      return Result.error(e);
-    }
-  }
-
-  @override
-  Future<Result<List<PostEntity>>> getUserPosts({required String userId}) async {
-    try {
-      final querySnapshot = await _postsRef
-          .where('userId', isEqualTo: userId)
-          .get();
-      List<PostEntity> posts = await _getPostEntitiesFromQuery(querySnapshot);
-      return Result.ok(posts);
     } on Exception catch (e) {
-      _log.warning('getUserPosts error: $e');
+      _log.warning('createPost error: $e');
       return Result.error(e);
     }
   }
@@ -156,11 +158,14 @@ class FirebaseDbServiceImpl implements DbService {
     required String imageUrl,
     required String username,
     required String bio,
-  })  async {
+  }) async {
     try {
       final int creationTimestamp = DateTime.now().millisecondsSinceEpoch;
 
-      String url = await _getImageUrl(imageUrl, creationTimestamp.toString());
+      final String url = await _getImageUrl(
+        imageUrl,
+        creationTimestamp.toString(),
+      );
       _log.info('_getImageUrl $url');
       _log.info('updateUserInfo current id: ${FirebaseService.currentUserId}');
 
@@ -172,7 +177,7 @@ class FirebaseDbServiceImpl implements DbService {
       _log.info('updateUserInfo success');
 
       return Result.ok(null);
-    } on Exception catch(e) {
+    } on Exception catch (e) {
       _log.warning('updateUserInfo error: $e');
       return Result.error(e);
     }
@@ -180,7 +185,7 @@ class FirebaseDbServiceImpl implements DbService {
 
   Future<String> _getImageUrl(String imageUrl, String imageId) async {
     if (imageUrl.isNotEmpty) {
-      if(RegExp(r'http').hasMatch(imageUrl)) {
+      if (RegExp(r'http').hasMatch(imageUrl)) {
         return imageUrl;
       } else {
         return await ImageLoader.getImageUrl(File(imageUrl), imageId);
@@ -191,15 +196,24 @@ class FirebaseDbServiceImpl implements DbService {
   }
 
   @override
-  Future<Result<Map<String, int>>> getLikesInfo({required String postId}) async {
+  Future<Result<({int likesCount, bool isLiked})>> getLikesInfo({
+    required String postId,
+  }) async {
     try {
-      final querySnapshot = await _likesRef.where('postId', isEqualTo: postId).get();
-      int likesCount = querySnapshot.docs.length;
-      int isLiked = querySnapshot.docs.any((doc) => doc['userId'] == FirebaseService.currentUserId) ? 1 : 0;
+      final QuerySnapshot<Map<String, dynamic>> querySnapshot = await _likesRef
+          .where('postId', isEqualTo: postId)
+          .get();
 
-      _log.info('getLikesInfo success {likeCount: $likesCount, isLiked: $isLiked}');
+      final int likesCount = querySnapshot.docs.length;
+      final bool isLiked = querySnapshot.docs.any(
+        (doc) => doc['userId'] == FirebaseService.currentUserId,
+      );
 
-      return Result.ok({'likesCount': likesCount, 'isLiked': isLiked});
+      _log.info(
+        'getLikesInfo success {likeCount: $likesCount, isLiked: $isLiked}',
+      );
+
+      return Result.ok((likesCount: likesCount, isLiked: isLiked));
     } on Exception catch (e) {
       _log.warning('getLikesInfo error: $e');
       return Result.error(e);
@@ -235,12 +249,12 @@ class FirebaseDbServiceImpl implements DbService {
   @override
   Future<Result<void>> removeLike({required String postId}) async {
     try {
-      final querySnapshot = await _likesRef
+      final QuerySnapshot<Map<String, dynamic>> querySnapshot = await _likesRef
           .where('postId', isEqualTo: postId)
           .where('userId', isEqualTo: FirebaseService.currentUserId)
           .get();
 
-      for (var docSnapshot in querySnapshot.docs) {
+      for (final docSnapshot in querySnapshot.docs) {
         await docSnapshot.reference.delete();
       }
 
@@ -250,8 +264,6 @@ class FirebaseDbServiceImpl implements DbService {
       _log.warning('removeLike error: $e');
       return Result.error(e);
     }
-
-
   }
 
   @override
@@ -269,102 +281,123 @@ class FirebaseDbServiceImpl implements DbService {
       });
 
       await addNotification(
-          postId: postId,
-          ownerId: postOwnerId,
-          type: NotificationType.comment,
+        postId: postId,
+        ownerId: postOwnerId,
+        type: NotificationType.comment,
       );
 
       _log.info('addComment success');
       return Result.ok(null);
-    } on Exception catch(e) {
+    } on Exception catch (e) {
       _log.warning('addComment error: $e');
       return Result.error(e);
     }
   }
 
   @override
-  Future<Result<List<CommentEntity>>> getComments({
+  Future<Result<PaginationResponse<CommentEntity>>> getComments({
     required String postId,
+    DocumentSnapshot<Object?>? lastDoc,
   }) async {
-    List<CommentEntity> comments = [];
     try {
-      await _commentsRef
+      Query query = _commentsRef
           .where('postId', isEqualTo: postId)
           .orderBy('createdAt', descending: true)
-          .get()
-          .then((querySnapshot) async {
-        for (var docSnapshot in querySnapshot.docs) {
-          // _log.info('${docSnapshot.id} => ${docSnapshot.data()}');
-          var data = docSnapshot.data();
+          .limit(_commentsPerPageLimit);
 
-          var userRef = data['userInfo'] as DocumentReference;
+      if (lastDoc != null) {
+        query = query.startAfterDocument(lastDoc);
+      }
 
-          var userDoc = await userRef.get();
-          if(userDoc.exists) {
+      final QuerySnapshot<Object?> querySnapshot = await query.get();
 
-            if(userDoc.data() == null) {
-              return Result.ok([]);
-            }
-            var user = userDoc.data() as dynamic;
+      var paginationResponse =
+          FirebasePaginationResponse<CommentEntity>.empty();
 
-            comments.add(CommentEntity(
-              postId: data['postId'],
-              commentText: data['commentText'],
-              userEntity: UserEntity(
-                id: user['id'],
-                username: user['username'],
-                email: user['email'],
-                bio: user['bio'],
-                creationTimestamp: user['creationTimestamp'],
-                photoUrl: user['photoUrl'],
-              ),
-              createdAt: data['createdAt'],
-            ));
-          }
+      paginationResponse = paginationResponse.copyWith(
+        hasMoreToLoad: querySnapshot.docs.isNotEmpty,
+      );
+
+      if (paginationResponse.hasMoreToLoad) {
+        paginationResponse = paginationResponse.copyWith(
+          lastDoc: querySnapshot.docs.last,
+        );
+      }
+
+      for (final docSnapshot in querySnapshot.docs) {
+        final data = docSnapshot.data() as Map<String, dynamic>?;
+
+        if (data == null) {
+          _log.info('getComments data is null');
+          return Result.ok(paginationResponse);
         }
-      });
 
-      _log.info('getComments success commentsList length: ${comments.length}');
+        final userRef = data['userInfo'] as DocumentReference;
 
-      return Result.ok(comments);
-    } on Exception catch(e) {
+        final userDoc = await userRef.get();
+        if (!userDoc.exists) continue;
+
+        final user = userDoc.data();
+
+        if (user is! Map<String, dynamic>) continue;
+
+        final List<CommentEntity> comments = paginationResponse.list;
+
+        comments.add(
+          CommentEntity(
+            postId: data['postId'],
+            text: data['commentText'],
+            author: UserEntity.fromMap(user),
+            createdAt: data['createdAt'],
+          ),
+        );
+        paginationResponse = paginationResponse.copyWith(list: comments);
+      }
+
+      _log.info(
+        'getComments success commentsList length: ${paginationResponse.list.length}',
+      );
+
+      return Result.ok(paginationResponse);
+    } on Exception catch (e) {
       _log.warning('getComments error: $e');
       return Result.error(e);
     }
   }
 
   @override
-  Future<void> followUser({required String userId, required String userIdToFollow}) async {
+  Future<void> followUser({
+    required String userId,
+    required String userIdToFollow,
+  }) async {
     try {
       Future.wait([
         _followersRef
-          .doc(userIdToFollow)
-          .collection(_userFollowersCollection)
-          .doc(userId)
-          .set({
-            'userInfo': _usersRef.doc(userId)
-        }),
+            .doc(userIdToFollow)
+            .collection(_userFollowersCollection)
+            .doc(userId)
+            .set({'userInfo': _usersRef.doc(userId)}),
         _followingsRef
-          .doc(userId)
-          .collection(_userFollowingsCollection)
-          .doc(userIdToFollow)
-          .set({
-          'userInfo': _usersRef.doc(userIdToFollow)
-        })
+            .doc(userId)
+            .collection(_userFollowingsCollection)
+            .doc(userIdToFollow)
+            .set({'userInfo': _usersRef.doc(userIdToFollow)}),
       ]);
 
       await addNotification(
         ownerId: userIdToFollow,
         type: NotificationType.follow,
       );
-
-    } on Exception catch(e) {
+    } on Exception catch (e) {
       _log.warning('followUser error: $e');
     }
   }
 
   @override
-  Future<void> unfollowUser({required String userId, required String userIdToUnfollow}) async {
+  Future<void> unfollowUser({
+    required String userId,
+    required String userIdToUnfollow,
+  }) async {
     try {
       await Future.wait([
         _followersRef
@@ -389,103 +422,212 @@ class FirebaseDbServiceImpl implements DbService {
     }
   }
 
-  Future<List<UserEntity>> _getUserEntitiesFromQuery(QuerySnapshot querySnapshot) async {
-    List<UserEntity> users = [];
-    for (var docSnapshot in querySnapshot.docs) {
-      final data = docSnapshot.data() as dynamic;
-      var userRef = data['userInfo'] as DocumentReference;
-      final userDoc = await userRef.get();
+  Future<List<UserEntity>> _getUserEntitiesFromQuery(
+    QuerySnapshot querySnapshot,
+  ) async {
+    final List<UserEntity> users = [];
+    for (final docSnapshot in querySnapshot.docs) {
+      final data = docSnapshot.data() as Map<String, dynamic>?;
 
-      if (userDoc.exists) {
-        var userData = userDoc.data() as dynamic;
-
-        users.add(UserEntity(
-          id: userData['id'],
-          username: userData['username'],
-          email: userData['email'],
-          bio: userData['bio'],
-          creationTimestamp: userData['creationTimestamp'],
-          photoUrl: userData['photoUrl'],
-        ));
+      if (data == null) {
+        _log.info('_getUserEntitiesFromQuery data is null');
+        return users;
       }
+
+      final userRef = data['userInfo'] as DocumentReference;
+      final DocumentSnapshot userDoc = await userRef.get();
+
+      if (!userDoc.exists) continue;
+
+      final userData = userDoc.data();
+      if (userData is! Map<String, dynamic>) continue;
+
+      users.add(UserEntity.fromMap(userData));
     }
     return users;
   }
 
   @override
-  Future<Result<List<UserEntity>>> getFollowers({required String userId}) async {
+  Future<Result<PaginationResponse<UserEntity>>> getFollowers({
+    required String userId,
+    DocumentSnapshot? lastDoc,
+  }) async {
     try {
-      final followersSnapshot = await _followersRef.doc(userId).collection(_userFollowersCollection).get();
-      if (followersSnapshot.docs.isEmpty) return Result.ok([]);
-      List<UserEntity> followers = await _getUserEntitiesFromQuery(followersSnapshot);
+      Query query = _followersRef
+          .doc(userId)
+          .collection(_userFollowersCollection)
+          .limit(_followersPerPageLimit);
 
-      _log.info('getFollowers success followerList length: ${followers.length}');
-      return Result.ok(followers);
-    } on Exception catch(e) {
+      if (lastDoc != null) {
+        query = query.startAfterDocument(lastDoc);
+      }
+
+      final QuerySnapshot querySnapshot = await query.get();
+
+      var paginationResponse = FirebasePaginationResponse<UserEntity>.empty();
+
+      paginationResponse = paginationResponse.copyWith(
+        hasMoreToLoad: querySnapshot.docs.isNotEmpty,
+      );
+
+      if (paginationResponse.hasMoreToLoad) {
+        paginationResponse = paginationResponse.copyWith(
+          lastDoc: querySnapshot.docs.last,
+        );
+      }
+
+      final List<UserEntity> followers = await _getUserEntitiesFromQuery(
+        querySnapshot,
+      );
+
+      paginationResponse = paginationResponse.copyWith(list: followers);
+
+      _log.info(
+        'getFollowers success followerList length: ${paginationResponse.list.length}',
+      );
+      return Result.ok(paginationResponse);
+    } on Exception catch (e) {
       _log.warning('getFollowers error: $e');
       return Result.error(e);
     }
   }
 
   @override
-  Future<Result<List<UserEntity>>> getFollowings({required String userId}) async {
+  Future<Result<PaginationResponse<UserEntity>>> getFollowings({
+    required String userId,
+    DocumentSnapshot? lastDoc,
+  }) async {
     try {
-      final followingsSnapshot = await _followingsRef.doc(userId).collection(_userFollowingsCollection).get();
-      if (followingsSnapshot.docs.isEmpty) return Result.ok([]);
-      List<UserEntity> followings = await _getUserEntitiesFromQuery(followingsSnapshot);
+      Query query = _followingsRef
+          .doc(userId)
+          .collection(_userFollowingsCollection)
+          .limit(_followingsPerPageLimit);
 
-      _log.info('getFollowings success followingsList length: ${followings.length}');
-      return Result.ok(followings);
-    } on Exception catch(e) {
+      if (lastDoc != null) {
+        query = query.startAfterDocument(lastDoc);
+      }
+
+      final QuerySnapshot querySnapshot = await query.get();
+
+      var paginationResponse = FirebasePaginationResponse<UserEntity>.empty();
+
+      paginationResponse = paginationResponse.copyWith(
+        hasMoreToLoad: querySnapshot.docs.isNotEmpty,
+      );
+
+      if (paginationResponse.hasMoreToLoad) {
+        paginationResponse = paginationResponse.copyWith(
+          lastDoc: querySnapshot.docs.last,
+        );
+      }
+
+      final List<UserEntity> followings = await _getUserEntitiesFromQuery(
+        querySnapshot,
+      );
+
+      paginationResponse = paginationResponse.copyWith(list: followings);
+
+      _log.info(
+        'getFollowings success followingList length: ${paginationResponse.list.length}',
+      );
+      return Result.ok(paginationResponse);
+    } on Exception catch (e) {
       _log.warning('getFollowings error: $e');
       return Result.error(e);
     }
   }
 
-  Future<List<PostEntity>> _getPostEntitiesFromQuery(QuerySnapshot querySnapshot) async {
+  Future<List<PostEntity>> _getPostEntitiesFromQuery(
+    QuerySnapshot querySnapshot,
+  ) async {
     List<PostEntity> posts = [];
-    for (var docSnapshot in querySnapshot.docs) {
-      final data = docSnapshot.data() as dynamic;
-      var userRef = data['userInfo'] as DocumentReference;
+    for (final docSnapshot in querySnapshot.docs) {
+      final data = docSnapshot.data() as Map<String, dynamic>?;
 
-      final userDoc = await userRef.get();
-      if (userDoc.exists) {
-        var userData = userDoc.data() as dynamic;
-        posts.add(PostEntity(
-          userEntity: UserEntity(
-            id: userData['id'],
-            username: userData['username'],
-            email: userData['email'],
-            bio: userData['bio'],
-            creationTimestamp: userData['creationTimestamp'],
-            photoUrl: userData['photoUrl'],
-          ),
-          userId: data['userId'],
+      if (data == null) {
+        _log.info('_getPostEntitiesFromQuery data is null');
+        return posts;
+      }
+
+      final userRef = data['userInfo'] as DocumentReference;
+
+      final DocumentSnapshot userDoc = await userRef.get();
+
+      if (!userDoc.exists) continue;
+
+      final userData = userDoc.data();
+
+      if (userData is! Map<String, dynamic>) continue;
+
+      posts.add(
+        PostEntity(
+          userEntity: UserEntity.fromMap(userData),
           imageUrl: data['imageUrl'],
           description: data['description'],
           creationTimestamp: data['creationTimestamp'],
-        ));
-      }
+        ),
+      );
     }
     return posts;
   }
 
   @override
-  Future<Result<List<PostEntity>>> getNewPosts({required String userId}) async {
+  Future<Result<PaginationResponse<PostEntity>>> getNewPosts({
+    required String userId,
+    DocumentSnapshot? lastDoc,
+  }) async {
     try {
-      final followingsSnapshot = await _followingsRef
-          .doc(userId)
-          .collection(_userFollowingsCollection)
-          .get();
+      final QuerySnapshot<Map<String, dynamic>> followingsSnapshot =
+          await _followingsRef
+              .doc(userId)
+              .collection(_userFollowingsCollection)
+              .get();
 
-      if (followingsSnapshot.docs.isEmpty) return Result.ok([]);
+      var paginationResponse = FirebasePaginationResponse<PostEntity>.empty();
 
-      List<String> followingUserIds = followingsSnapshot.docs.map((doc) => doc.id).toList();
-      final querySnapshot = await _postsRef.where('userId', whereIn: followingUserIds).get();
-      List<PostEntity> posts = await _getPostEntitiesFromQuery(querySnapshot);
+      if (followingsSnapshot.docs.isEmpty) {
+        return Result.ok(
+          paginationResponse = paginationResponse.copyWith(
+            hasMoreToLoad: false,
+          ),
+        );
+      }
 
-      _log.info('getNewPosts success postList length: ${posts.length}');
-      return Result.ok(posts);
+      final List<String> followingUserIds = followingsSnapshot.docs
+          .map((doc) => doc.id)
+          .toList();
+
+      Query query = _postsRef
+          .where('userId', whereIn: followingUserIds)
+          .orderBy('creationTimestamp', descending: true)
+          .limit(_homeNewPostsPerPageLimit);
+
+      if (lastDoc != null) {
+        query = query.startAfterDocument(lastDoc);
+      }
+
+      final QuerySnapshot querySnapshot = await query.get();
+
+      paginationResponse = paginationResponse.copyWith(
+        hasMoreToLoad: querySnapshot.docs.isNotEmpty,
+      );
+
+      if (paginationResponse.hasMoreToLoad) {
+        paginationResponse = paginationResponse.copyWith(
+          lastDoc: querySnapshot.docs.last,
+        );
+      }
+
+      final List<PostEntity> posts = await _getPostEntitiesFromQuery(
+        querySnapshot,
+      );
+
+      paginationResponse = paginationResponse.copyWith(list: posts);
+
+      _log.info(
+        'getNewPosts success postList length: ${paginationResponse.list.length}',
+      );
+      return Result.ok(paginationResponse);
     } on Exception catch (e) {
       _log.warning('getNewPosts error: $e');
       return Result.error(e);
@@ -493,64 +635,94 @@ class FirebaseDbServiceImpl implements DbService {
   }
 
   @override
-  Future<Result<bool>> isFollowedByCurrentUser({required String profileOwnerUserId}) async {
+  Future<Result<bool>> isFollowedByCurrentUser({
+    required String profileOwnerUserId,
+  }) async {
     try {
-      final querySnapshot = await _followingsRef
-          .doc(FirebaseService.currentUserId)
-          .collection(_userFollowingsCollection)
-          .get();
+      final QuerySnapshot<Map<String, dynamic>> querySnapshot =
+          await _followingsRef
+              .doc(FirebaseService.currentUserId)
+              .collection(_userFollowingsCollection)
+              .get();
 
-      bool isFollowed = querySnapshot.docs.any((docSnapshot) => docSnapshot.id == profileOwnerUserId);
+      final bool isFollowed = querySnapshot.docs.any(
+        (docSnapshot) => docSnapshot.id == profileOwnerUserId,
+      );
       _log.info('isFollowedByCurrentUser success isFollowed: $isFollowed');
       return Result.ok(isFollowed);
     } on Exception catch (e) {
       _log.warning('isFollowedByCurrentUser error: $e');
       return Result.error(e);
     }
-
   }
 
   @override
-  Future<Result<List<NotificationEntity>>> getNotifications({required String userId}) async {
+  Future<Result<PaginationResponse<NotificationEntity>>> getNotifications({
+    required String userId,
+    DocumentSnapshot? lastDoc,
+  }) async {
     try {
-      final notificationsSnapshot = await _notificationsRef
+      Query query = _notificationsRef
           .doc(userId)
           .collection(_userNotificationCollection)
           .orderBy('creationTimestamp', descending: true)
-          .get();
+          .limit(_notificationPerPageLimit);
 
-      if (notificationsSnapshot.docs.isEmpty) return Result.ok([]);
-      List<NotificationEntity> notifications = [];
-
-      for(var docSnapshot in notificationsSnapshot.docs) {
-          final data = docSnapshot.data() as dynamic;
-          var userRef = data['userInfo'] as DocumentReference;
-
-          final userDoc = await userRef.get();
-          if(userDoc.exists) {
-            final userData = userDoc.data() as dynamic;
-
-            //_log.info('${userDoc.id} => $userData');
-
-            notifications.add(NotificationEntity(
-                userEntity: UserEntity(
-                  id: userData['id'],
-                  username: userData['username'],
-                  email: userData['email'],
-                  bio: userData['bio'],
-                  creationTimestamp: userData['creationTimestamp'],
-                  photoUrl: userData['photoUrl'],
-                ),
-                postId: data['postId'],
-                type: data['type'].toString().toNotificationType,
-                creationTimestamp: data['creationTimestamp']
-            ));
-          }
+      if (lastDoc != null) {
+        query = query.startAfterDocument(lastDoc);
       }
 
-      _log.info('getNotifications success notificationList length: ${notifications.length}');
-      return Result.ok(notifications);
-    } on Exception catch(e) {
+      final QuerySnapshot querySnapshot = await query.get();
+
+      var paginationResponse =
+          FirebasePaginationResponse<NotificationEntity>.empty();
+
+      paginationResponse = paginationResponse.copyWith(
+        hasMoreToLoad: querySnapshot.docs.isNotEmpty,
+      );
+
+      if (paginationResponse.hasMoreToLoad) {
+        paginationResponse = paginationResponse.copyWith(
+          lastDoc: querySnapshot.docs.last,
+        );
+      }
+
+      List<NotificationEntity> notifications = [];
+
+      for (final docSnapshot in querySnapshot.docs) {
+        final data = docSnapshot.data() as Map<String, dynamic>?;
+
+        if (data == null) {
+          _log.info('getNotifications data is null');
+          return Result.ok(paginationResponse);
+        }
+
+        final userRef = data['userInfo'] as DocumentReference;
+
+        final userDoc = await userRef.get();
+
+        if (!userDoc.exists) continue;
+
+        final userData = userDoc.data();
+
+        if (userData is! Map<String, dynamic>) continue;
+
+        notifications.add(
+          NotificationEntity(
+            userEntity: UserEntity.fromMap(userData),
+            postId: data['postId'],
+            type: data['type'].toString().toNotificationType,
+            creationTimestamp: data['creationTimestamp'],
+          ),
+        );
+      }
+      paginationResponse = paginationResponse.copyWith(list: notifications);
+
+      _log.info(
+        'getNotifications success notificationList length: ${paginationResponse.list.length}',
+      );
+      return Result.ok(paginationResponse);
+    } on Exception catch (e) {
       _log.warning('getNotifications error: $e');
       return Result.error(e);
     }
@@ -564,18 +736,18 @@ class FirebaseDbServiceImpl implements DbService {
   }) async {
     try {
       await _notificationsRef
-        .doc(ownerId)
-        .collection(_userNotificationCollection)
-        .add({
-          'postId': postId,
-          'userInfo': _usersRef.doc(FirebaseService.currentUserId),
-          'type': type.typeName,
-          'creationTimestamp': DateTime.now().millisecondsSinceEpoch
-        });
+          .doc(ownerId)
+          .collection(_userNotificationCollection)
+          .add({
+            'postId': postId,
+            'userInfo': _usersRef.doc(FirebaseService.currentUserId),
+            'type': type.name,
+            'creationTimestamp': DateTime.now().millisecondsSinceEpoch,
+          });
 
       _log.info('addNotification success');
       return Result.ok(null);
-    } on Exception catch(e) {
+    } on Exception catch (e) {
       _log.warning('addNotification error: $e');
       return Result.error(e);
     }
@@ -585,9 +757,9 @@ class FirebaseDbServiceImpl implements DbService {
   Future<Result<void>> deleteAllNotifications({required String userId}) async {
     try {
       final notificationSnapshot = await _notificationsRef
-      .doc(userId)
-      .collection(_userNotificationCollection)
-      .get();
+          .doc(userId)
+          .collection(_userNotificationCollection)
+          .get();
 
       for (var doc in notificationSnapshot.docs) {
         await doc.reference.delete();
@@ -595,7 +767,7 @@ class FirebaseDbServiceImpl implements DbService {
 
       _log.info('deleteAllNotifications success');
       return Result.ok(null);
-    } on Exception catch(e) {
+    } on Exception catch (e) {
       _log.warning('deleteAllNotifications error: $e');
       return Result.error(e);
     }
@@ -605,35 +777,179 @@ class FirebaseDbServiceImpl implements DbService {
   Future<Result<PostEntity?>> getUserPost({required String postId}) async {
     try {
       final postSnapshot = await _postsRef.doc(postId).get();
-      if(!postSnapshot.exists) {
+      if (!postSnapshot.exists) {
         return Result.error(Exception('No post found'));
       }
 
-      final postData = postSnapshot.data() as dynamic;
-      var userRef = postData['userInfo'] as DocumentReference;
+      final postData = postSnapshot.data();
+
+      if (postData is! Map<String, dynamic>) {
+        return Result.ok(null);
+      }
+
+      final userRef = postData['userInfo'] as DocumentReference;
 
       final userDoc = await userRef.get();
-      if(userDoc.exists) {
-        final userData = userDoc.data() as dynamic;
-        final postEntity = PostEntity(
-          imageUrl: postData['imageUrl'],
-          creationTimestamp: postData['creationTimestamp'],
-          description: postData['description'],
-          userId: userData['id'],
-          userEntity: UserEntity(
-            email: userData['email'],
-            username: userData['username'],
-            bio: userData['bio'],
-            creationTimestamp: userData['creationTimestamp'],
-            photoUrl: userData['photoUrl'],
-          )
+
+      if (!userDoc.exists) return Result.ok(null);
+
+      final userData = userDoc.data();
+
+      if (userData is! Map<String, dynamic>) {
+        return Result.ok(null);
+      }
+
+      final PostEntity postEntity = PostEntity(
+        imageUrl: postData['imageUrl'],
+        creationTimestamp: postData['creationTimestamp'],
+        description: postData['description'],
+        userEntity: UserEntity.fromMap(userData),
+      );
+
+      return Result.ok(postEntity);
+    } on Exception catch (e) {
+      _log.warning('getUserPost error: $e');
+      return Result.error(e);
+    }
+  }
+
+  @override
+  Future<Result<PaginationResponse<PostEntity>>> getUserPostsNext({
+    required String userId,
+    DocumentSnapshot<Object?>? lastDoc,
+  }) async {
+    try {
+      Query query = _postsRef
+          .where('userId', isEqualTo: userId)
+          .orderBy('creationTimestamp', descending: true)
+          .limit(_postsPerPageLimit);
+
+      if (lastDoc != null) {
+        query = query.startAfterDocument(lastDoc);
+      }
+
+      final QuerySnapshot querySnapshot = await query.get();
+
+      var paginationResponse = FirebasePaginationResponse<PostEntity>.empty();
+
+      paginationResponse = paginationResponse.copyWith(
+        hasMoreToLoad: querySnapshot.docs.isNotEmpty,
+      );
+
+      if (paginationResponse.hasMoreToLoad) {
+        paginationResponse = paginationResponse.copyWith(
+          lastDoc: querySnapshot.docs.last,
+        );
+      }
+
+      for (final docSnapshot in querySnapshot.docs) {
+        final data = docSnapshot.data() as Map<String, dynamic>?;
+
+        if (data == null) {
+          _log.info('_getPostEntitiesFromQuery data is null');
+          return Result.ok(paginationResponse);
+        }
+
+        final userRef = data['userInfo'] as DocumentReference;
+
+        final userDoc = await userRef.get();
+        if (!userDoc.exists) continue;
+
+        final userData = userDoc.data();
+
+        if (userData is! Map<String, dynamic>) continue;
+
+        final userPosts = paginationResponse.list;
+
+        userPosts.add(
+          PostEntity(
+            userEntity: UserEntity.fromMap(userData),
+            imageUrl: data['imageUrl'],
+            description: data['description'],
+            creationTimestamp: data['creationTimestamp'],
+          ),
         );
 
-        return Result.ok(postEntity);
+        paginationResponse = paginationResponse.copyWith(list: userPosts);
       }
-      return Result.ok(null);
-    } on Exception catch(e) {
-      _log.warning('getUserPost error: $e');
+
+      return Result.ok(paginationResponse);
+    } on Exception catch (e) {
+      _log.warning('getUserPosts error: $e');
+      return Result.error(e);
+    }
+  }
+
+  @override
+  Future<Result<int>> getPostsCount({required String userId}) async {
+    try {
+      final AggregateQuerySnapshot snapshot = await _postsRef
+          .where('userId', isEqualTo: userId)
+          .count()
+          .get();
+      final int postsCount = snapshot.count ?? 0;
+
+      return Result.ok(postsCount);
+    } on Exception catch (e) {
+      _log.warning('getPostsCount error: $e');
+      return Result.error(e);
+    }
+  }
+
+  @override
+  Future<Result<int>> getCommentsCount({required String postId}) async {
+    try {
+      final AggregateQuerySnapshot snapshot = await _commentsRef
+          .where('postId', isEqualTo: postId)
+          .count()
+          .get();
+      final int commentsCount = snapshot.count ?? 0;
+
+      _log.info('getCommentsCount success comments count: $commentsCount');
+
+      return Result.ok(commentsCount);
+    } on Exception catch (e) {
+      _log.warning('getCommentsCount error: $e');
+      return Result.error(e);
+    }
+  }
+
+  @override
+  Future<Result<int>> getFollowersCount({required String userId}) async {
+    try {
+      final AggregateQuerySnapshot snapshot = await _followersRef
+          .doc(userId)
+          .collection(_userFollowersCollection)
+          .count()
+          .get();
+
+      final int followersCount = snapshot.count ?? 0;
+
+      _log.info('getFollowersCount success followers count: $followersCount');
+
+      return Result.ok(followersCount);
+    } on Exception catch (e) {
+      _log.warning('getFollowersCount error: $e');
+      return Result.error(e);
+    }
+  }
+
+  @override
+  Future<Result<int>> getFollowingsCount({required String userId}) async {
+    try {
+      final AggregateQuerySnapshot snapshot = await _followingsRef
+          .doc(userId)
+          .collection(_userFollowingsCollection)
+          .count()
+          .get();
+
+      final int followingsCount = snapshot.count ?? 0;
+
+      _log.info('getFollowingsCount success followers count: $followingsCount');
+
+      return Result.ok(followingsCount);
+    } on Exception catch (e) {
+      _log.warning('getFollowingsCount error: $e');
       return Result.error(e);
     }
   }
@@ -641,7 +957,7 @@ class FirebaseDbServiceImpl implements DbService {
 
 extension on String {
   NotificationType get toNotificationType {
-    switch(this) {
+    switch (this) {
       case 'like':
         return NotificationType.like;
       case 'comment':

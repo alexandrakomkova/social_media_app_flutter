@@ -1,5 +1,5 @@
 {
-"@@locale": "en",
+  "@@locale": "en",
   "signInPageLabel": "Sign In",
   "@signInPageLabel": {
     "description": "This text shown on Sign In screen as screen title/button text"
@@ -95,6 +95,10 @@
   "homePageNoNews": "No posts",
   "@homePageNoNews": {
     "description": "This text shown on Home screen when no news found"
+  },
+  "homePageLoadMoreButton": "Load more",
+  "@homePageLoadMoreButton": {
+    "description": "This text shown on Home screen button when user wants to load more posts"
   },
   "notificationsPageLabel": "Notifications",
   "@notificationsPageLabel": {
@@ -279,5 +283,57 @@
   "signInWithGoogleText": "Sign In with Google",
   "@signInWithGoogleText": {
     "description": "This text shown on Sign In Screen as google sign in  button"
+  },
+  "validationEmailEmpty": "Please enter an email address",
+  "@validationEmailEmpty": {
+    "description": "This text shown on Sign In and Sign Up Screen if email text field is empty and sign in/sign up button is clicked"
+  },
+  "validationEmailInvalid": "Please enter a valid email address",
+  "@validationEmailInvalid": {
+    "description": "This text shown on Sign In and Sign Up Screen if email is invalid and sign in/sign up button is clicked"
+  },
+  "validationPasswordLength": "Password must be at least 6 symbols",
+  "@validationPasswordLength": {
+    "description": "This text shown on Sign In and Sign Up Screen if password is less than 6 symbols and sign in/sign up button is clicked"
+  },
+  "validationRepeatPasswordNotEqualToPassword": "Passwords must be equal",
+  "@validationRepeatPasswordNotEqualToPassword": {
+    "description": "This text shown on Sign Up Screen if repeat password is not equal to password and sign up button is clicked"
+  },
+  "validationUsernameLength": "Username must be at least 3 symbols",
+  "@validationUsernameLength": {
+    "description": "This text shown on Sign Up Screen if username is less than 3 symbols and sign up button is clicked"
+  },
+  "appErrorScreenText": "Something went wrong.. Please, try later",
+  "@appErrorScreenText": {
+    "description": "This text shown on ArrError Screen when some error while initialization app occurred"
+  },
+  "noMorePostsText": "No more posts",
+  "@noMorePostsText": {
+    "description": "This text shown on Profile Screen when user scrolls to see more posts but there are no more posts"
+  },
+  "noMoreCommentsText": "No more comments",
+  "@noMoreCommentsText": {
+    "description": "This text shown on Post Screen when user scrolls to see more comments but there are no more comments"
+  },
+  "noMoreNotificationsText": "No more notifications",
+  "@noMoreNotificationsText": {
+    "description": "This text shown on Notification Screen when user scrolls to see more notifications but there are no left"
+  },
+  "noMoreFollowersText": "No more followers",
+  "@noMoreFollowersText": {
+    "description": "This text shown on Profile Screen when user scrolls to see more followers but there are no left"
+  },
+  "noMoreFollowingsText": "No more followings",
+  "@noMoreFollowingsText": {
+    "description": "This text shown on Profile Screen when user scrolls to see more followings but there are no left"
+  },
+  "validationCommentLength": "Comment text must be at least 3 symbols",
+  "@validationCommentLength": {
+    "description": "This text shown on Post Screen if comment text field is empty or less than 3 symbols and add button is clicked"
+  },
+  "validationPostDescriptionLength": "Description must be at least 3 symbols",
+  "@validationPostDescriptionLength": {
+    "description": "This text shown on Create Post Screen if description field is empty or less than 3 symbols and add button is clicked"
   }
 }

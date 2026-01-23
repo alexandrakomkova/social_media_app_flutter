@@ -1,27 +1,40 @@
-
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:social_media_app/domain/model/pagination_response.dart';
 import 'package:social_media_app/domain/model/post_entity.dart';
 import 'package:social_media_app/domain/model/user_entity.dart';
 
 abstract class ProfileRepository {
   // user
-  Future<List<PostEntity>> getUserPosts({required String userId});
+
+  Future<PaginationResponse<PostEntity>> getUserPostsNext({
+    required String userId,
+    DocumentSnapshot? lastDoc,
+  });
+
   Future<UserEntity?> getUserInfo({required String userId});
+
   Future<void> updateUserInfo({
     required String imageUrl,
     required String username,
     required String bio,
   });
 
+  Future<int> getPostsCount({required String userId});
+
   // followers and followings
   Future<void> followUser({
     required String userId,
     required String userIdToFollow,
   });
+
   Future<void> unfollowUser({
     required String userId,
     required String userIdToUnfollow,
   });
-  Future<List<UserEntity>> getFollowers({required String userId});
-  Future<List<UserEntity>> getFollowings({required String userId});
+
+  Future<int> getFollowersCount({required String userId});
+
+  Future<int> getFollowingsCount({required String userId});
+
   Future<bool> isFollowedByCurrentUser({required String profileOwnerUserId});
 }

@@ -10,6 +10,7 @@ import 'package:social_media_app/utils/firebase_service.dart';
 import 'package:social_media_app/utils/result.dart';
 
 final _log = Logger('AuthRepositoryImpl');
+
 class AuthRepositoryImpl implements AuthRepository {
   final AuthFirebaseService _authFirebaseService;
   final DbService _dbService;
@@ -17,18 +18,18 @@ class AuthRepositoryImpl implements AuthRepository {
   AuthRepositoryImpl({
     required AuthFirebaseService authFirebaseService,
     required DbService firebaseDbService,
-}): _authFirebaseService = authFirebaseService,
-        _dbService = firebaseDbService;
+  }) : _authFirebaseService = authFirebaseService,
+       _dbService = firebaseDbService;
 
   @override
   Future<Result<void>> signUp(UserModel userModel) async {
-    final res =  await _authFirebaseService.signUp(userModel);
+    final res = await _authFirebaseService.signUp(userModel);
 
-    switch(res) {
+    switch (res) {
       case Ok<User>():
         await _dbService.createUser(user: res.value, userModel: userModel);
         return Result.ok(null);
-      case Error<User>():
+      case Failure<User>():
         _log.warning('signUp error: ${res.error}');
         return Result.error(res.error);
     }
@@ -37,11 +38,10 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Result<void>> signIn(UserModel user) async {
     final userId = await _authFirebaseService.signIn(user);
-    late UserEntity userEntity;
 
-    switch(userId) {
+    switch (userId) {
       case Ok<String>():
-        userEntity = UserEntity(
+        final UserEntity userEntity = UserEntity(
           id: userId.value,
           email: user.email,
           creationTimestamp: user.creationTimestamp,
@@ -49,30 +49,38 @@ class AuthRepositoryImpl implements AuthRepository {
         await DbProvider.db.newUser(userEntity);
         _log.info('signIn success userId: ${userId.value}');
         return Result.ok(null);
-      case Error<String>():
+      case Failure<String>():
         _log.warning('signUp error: ${userId.error}');
         return Result.error(userId.error);
     }
   }
 
   @override
-  Future<Result<void>> signInWithGoogle() async {
+  Future<Result<bool>> signInWithGoogle() async {
     final userCredential = await _authFirebaseService.signInWithGoogle();
 
-    switch(userCredential) {
-      case Ok<UserCredential>():
-        _log.info('signInWithGoogle success userId: ${userCredential.value.user?.uid}');
-        final user = userCredential.value.user!;
+    switch (userCredential) {
+      case Ok<UserCredential?>():
+        if (userCredential.value == null) {
+          _log.info('googleUser is null');
+          return Result.ok(false);
+        }
 
-        if(userCredential.value.additionalUserInfo!.isNewUser) {
+        _log.info(
+          'signInWithGoogle success userId: ${userCredential.value!.user?.uid}',
+        );
+        final user = userCredential.value!.user!;
+
+        if (userCredential.value!.additionalUserInfo!.isNewUser) {
           await _dbService.createUser(
-              user: user,
-              userModel: UserModel(
-                email: user.email ?? '',
-                username: user.displayName ?? '',
-                password: '',
-                creationTimestamp: user.metadata.creationTime?.millisecondsSinceEpoch,
-              )
+            user: user,
+            userModel: UserModel(
+              email: user.email ?? '',
+              username: user.displayName ?? '',
+              password: '',
+              creationTimestamp:
+                  user.metadata.creationTime?.millisecondsSinceEpoch,
+            ),
           );
         }
 
@@ -84,8 +92,8 @@ class AuthRepositoryImpl implements AuthRepository {
         );
         await DbProvider.db.newUser(userEntity);
 
-        return Result.ok(null);
-      case Error<UserCredential>():
+        return Result.ok(true);
+      case Failure<UserCredential?>():
         _log.warning('signInWithGoogle error: ${userCredential.error}');
         return Result.error(userCredential.error);
     }
@@ -93,13 +101,14 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Result<void>> signOut() async {
+    final String currentUserId = FirebaseService.currentUserId;
     final res = await _authFirebaseService.signOut();
     switch (res) {
       case Ok<void>():
-        await DbProvider.db.deleteUser(FirebaseService.currentUserId);
+        await DbProvider.db.deleteUser(currentUserId);
         _log.info('signOut success');
         return Result.ok(null);
-      case Error<void>():
+      case Failure<void>():
         _log.warning('signOut error: ${res.error}');
         return Result.error(res.error);
     }

@@ -1,38 +1,35 @@
-import 'dart:convert';
-
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:logging/logging.dart';
-
 import 'package:social_media_app/app/app.dart';
-import 'package:social_media_app/data/db_provider.dart';
-import 'package:social_media_app/utils/firebase_service.dart';
+import 'package:social_media_app/app/app_error.dart';
+import 'package:social_media_app/initialization/initialization.dart'
+    as initialization;
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-FlutterLocalNotificationsPlugin();
-
+    FlutterLocalNotificationsPlugin();
 
 @pragma('vm:entry-point')
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
 
   const AndroidNotificationDetails androidPlatformChannelSpecifics =
-  AndroidNotificationDetails(
-    'background_channel_id',
-    'Background Notifications',
-    channelDescription: 'Channel for background notifications',
-    importance: Importance.max,
-    priority: Priority.high,
-    icon: '@mipmap/ic_launcher',
-  );
+      AndroidNotificationDetails(
+        'background_channel_id',
+        'Background Notifications',
+        channelDescription: 'Channel for background notifications',
+        importance: Importance.max,
+        priority: Priority.high,
+        icon: '@mipmap/ic_launcher',
+      );
 
-  const NotificationDetails platformChannelSpecifics =
-  NotificationDetails(android: androidPlatformChannelSpecifics);
+  const NotificationDetails platformChannelSpecifics = NotificationDetails(
+    android: androidPlatformChannelSpecifics,
+  );
 
   if (message.notification != null) {
     await flutterLocalNotificationsPlugin.show(
@@ -45,44 +42,25 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 }
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
   Logger.root.level = Level.INFO;
   Logger.root.onRecord.listen((record) {
     if (kDebugMode) {
-      print('${record.level.name}: ${record.time}: ${record.loggerName} ${record.message}');
+      print(
+        '${record.level.name}: ${record.time}: ${record.loggerName} ${record.message}',
+      );
     }
   });
 
-  await dotenv.load(fileName: ".env");
+  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-  const AndroidInitializationSettings initializationSettingsAndroid =
-  AndroidInitializationSettings('@mipmap/ic_launcher');
-
-  const DarwinInitializationSettings darwinInitializationSettings =
-      DarwinInitializationSettings();
-
-  final InitializationSettings initializationSettings =
-  InitializationSettings(
-    android: initializationSettingsAndroid,
-    iOS: darwinInitializationSettings,
-  );
-
-  await DbProvider.db.initDB();
-
-  await FirebaseService.initialize(
-      localNotifications: flutterLocalNotificationsPlugin,
-      onBackgroundMessage: _firebaseMessagingBackgroundHandler,
-      initializationSettings: initializationSettings,
-      onDidReceiveNotificationResponse: (NotificationResponse response) {
-        if (response.payload != null) {
-          final data = jsonDecode(response.payload!);
-          notificationHandler.handleMessageData(data);
-        }
-      },
-  );
-
-  runApp(
-    App(connectivity: Connectivity())
+  initialization.$initializeApp(
+    onSuccess: (dependencies) async => runApp(
+      dependencies.inject(
+        child: App(connectivity: Connectivity(), navigatorKey: navigatorKey),
+      ),
+    ),
+    onError: (error) async => runApp(AppError(error: error)),
+    navigatorKey: navigatorKey,
+    flutterLocalNotificationsPlugin: flutterLocalNotificationsPlugin,
   );
 }

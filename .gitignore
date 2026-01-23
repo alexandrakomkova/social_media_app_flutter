@@ -34,7 +34,7 @@ migrate_working_dir/
 /coverage/
 *.g.dart
 *.freezed.dart
-*.env
+env/config.json
 app_localizations.dart
 app_localizations_en.dart
 app_localizations_ru.dart

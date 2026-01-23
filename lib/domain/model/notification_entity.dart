@@ -1,22 +1,17 @@
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:social_media_app/domain/model/user_entity.dart';
 
 enum NotificationType {
-  like(typeName: 'like', icon: Icons.favorite),
-  comment(typeName: 'comment', icon: Icons.chat_bubble_outline_rounded),
-  follow(typeName: 'follow', icon: Icons.person_add),
-  unfollow(typeName: 'unfollow', icon: Icons.person_remove),
-  unknown(typeName: 'unknown', icon: Icons.question_mark);
+  like(icon: Icons.favorite),
+  comment(icon: Icons.chat_bubble_outline_rounded),
+  follow(icon: Icons.person_add),
+  unfollow(icon: Icons.person_remove),
+  unknown(icon: Icons.question_mark);
 
   final IconData icon;
-  final String typeName;
 
-  const NotificationType({
-    required this.icon,
-    required this.typeName,
-  });
+  const NotificationType({required this.icon});
 }
 
 class NotificationEntity {
@@ -25,14 +20,19 @@ class NotificationEntity {
   final NotificationType type;
   final int creationTimestamp;
 
-  const NotificationEntity({
+  NotificationEntity({
     required this.userEntity,
     required this.postId,
     required this.type,
-    this.creationTimestamp = 0,
-  });
+    int? creationTimestamp,
+  }) : creationTimestamp =
+           creationTimestamp ?? DateTime.now().millisecondsSinceEpoch;
 
+  DateTime get creationTimestampDateTime =>
+      DateTime.fromMillisecondsSinceEpoch(creationTimestamp);
 
-  DateTime get creationTimestampDateTime => DateTime.fromMillisecondsSinceEpoch(creationTimestamp);
-  String get formattedCreationTimestamp => DateFormat('dd/MM/yyyy HH:mm').format(creationTimestampDateTime);
+  String get formattedCreationTimestamp =>
+      DateFormat('dd/MM/yyyy HH:mm').format(creationTimestampDateTime);
+
+  int get id => creationTimestamp;
 }
